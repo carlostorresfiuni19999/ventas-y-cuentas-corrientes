@@ -21,7 +21,7 @@ namespace cuentasctacte_web_api.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("DefaultConnection", throwIfV1Schema: false)
+            : base("VentasYCuentasCorrientes", throwIfV1Schema: false)
         {
         }
         

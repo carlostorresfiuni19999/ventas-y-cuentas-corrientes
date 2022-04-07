@@ -135,3 +135,5 @@ D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cue
 D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.csproj.CopyComplete
 D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.dll
 D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.pdb
+D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte_web_api.Migrations.init.resources
+D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.csproj.GenerateResource.cache

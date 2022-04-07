@@ -4,7 +4,8 @@
 
 <Workspace>
 	<Local Expanded="Yes">
-		<Model Expanded="Yes" ID="{5449E8B7-6221-421C-8009-9F22FA8B67F0}" Name="Ventas y Cuentas Corrientes" Selected="Yes" Type="{FF4B6538-9856-42CF-B9B9-304ED370CEAA}" URL="Ventas y Cuentas Corrientes.prj"/>
+		<Model Expanded="Yes" ID="{5449E8B7-6221-421C-8009-9F22FA8B67F0}" Loaded="No" Name="Ventas y Cuentas Corrientes" Type="{FF4B6538-9856-42CF-B9B9-304ED370CEAA}" URL="Ventas y Cuentas Corrientes.prj"/>
+		<Model Expanded="Yes" ID="{2CAB502C-109B-4835-8D27-800D483B8E76}" Name="Ventas y Ctas Ctes design" Type="{CDE44E21-9669-11D1-9914-006097355D9B}" URL="Ventas y Ctas Ctes design.pdm"/>
 	</Local>
 	<BrowserModule Name="Repository"/>
 </Workspace>

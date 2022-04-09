@@ -1,1 +1,0 @@
-D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\bin\roslyn\vbc.exe

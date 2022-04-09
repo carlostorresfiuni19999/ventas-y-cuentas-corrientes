@@ -33,5 +33,7 @@ namespace cuentasctacte_web_api.Models
         }
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.Producto> Productos { get; set; }
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.TipoPersona> TipoPersonas { get; set; }
+
+        public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.Persona> Personas { get; set; }
     }
 }

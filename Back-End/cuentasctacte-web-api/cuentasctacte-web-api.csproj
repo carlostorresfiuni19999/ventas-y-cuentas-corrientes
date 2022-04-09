@@ -218,6 +218,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PersonasController.cs" />
+    <Compile Include="Controllers\Personas_Tipos_PersonasController.cs" />
     <Compile Include="Controllers\ProductosController.cs" />
     <Compile Include="Controllers\TipoPersonasController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
@@ -248,11 +249,16 @@
     <Compile Include="Migrations\202204091832251_personas.designer.cs">
       <DependentUpon>202204091832251_personas.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204091844007_personas-tipos-personas.cs" />
+    <Compile Include="Migrations\202204091844007_personas-tipos-personas.designer.cs">
+      <DependentUpon>202204091844007_personas-tipos-personas.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Data.cs" />
     <Compile Include="Models\Entities\Persona.cs" />
+    <Compile Include="Models\Entities\Personas_Tipos_Personas.cs" />
     <Compile Include="Models\Entities\Producto.cs" />
     <Compile Include="Models\Entities\TipoPersona.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -367,6 +373,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204091832251_personas.resx">
       <DependentUpon>202204091832251_personas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204091844007_personas-tipos-personas.resx">
+      <DependentUpon>202204091844007_personas-tipos-personas.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

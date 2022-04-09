@@ -1,5 +1,7 @@
-﻿using System.Security.Claims;
+﻿using System.Data.Entity;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using cuentasctacte_web_api.Models.Entities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
@@ -29,5 +31,7 @@ namespace cuentasctacte_web_api.Models
         {
             return new ApplicationDbContext();
         }
+        public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.Producto> Productos { get; set; }
+        public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.TipoPersona> TipoPersonas { get; set; }
     }
 }

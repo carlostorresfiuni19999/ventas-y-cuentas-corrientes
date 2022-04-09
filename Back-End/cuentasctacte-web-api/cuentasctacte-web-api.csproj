@@ -217,17 +217,38 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ProductosController.cs" />
+    <Compile Include="Controllers\TipoPersonasController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202204062030336_init.cs" />
-    <Compile Include="Migrations\202204062030336_init.designer.cs">
-      <DependentUpon>202204062030336_init.cs</DependentUpon>
+    <Compile Include="Migrations\202204091510304_init.cs" />
+    <Compile Include="Migrations\202204091510304_init.designer.cs">
+      <DependentUpon>202204091510304_init.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202204091517068_TipoPersona.cs" />
+    <Compile Include="Migrations\202204091517068_TipoPersona.designer.cs">
+      <DependentUpon>202204091517068_TipoPersona.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202204091523390_init-products.cs" />
+    <Compile Include="Migrations\202204091523390_init-products.designer.cs">
+      <DependentUpon>202204091523390_init-products.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202204091811366_corregir.cs" />
+    <Compile Include="Migrations\202204091811366_corregir.designer.cs">
+      <DependentUpon>202204091811366_corregir.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202204091819016_tipo-persona-updated.cs" />
+    <Compile Include="Migrations\202204091819016_tipo-persona-updated.designer.cs">
+      <DependentUpon>202204091819016_tipo-persona-updated.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\Data.cs" />
+    <Compile Include="Models\Entities\Producto.cs" />
+    <Compile Include="Models\Entities\TipoPersona.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
@@ -323,8 +344,20 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202204062030336_init.resx">
-      <DependentUpon>202204062030336_init.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202204091510304_init.resx">
+      <DependentUpon>202204091510304_init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204091517068_TipoPersona.resx">
+      <DependentUpon>202204091517068_TipoPersona.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204091523390_init-products.resx">
+      <DependentUpon>202204091523390_init-products.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204091811366_corregir.resx">
+      <DependentUpon>202204091811366_corregir.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204091819016_tipo-persona-updated.resx">
+      <DependentUpon>202204091819016_tipo-persona-updated.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

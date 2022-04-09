@@ -39,5 +39,7 @@ namespace cuentasctacte_web_api.Models
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.Personas_Tipos_Personas> Personas_Tipos_Personas { get; set; }
 
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.Deposito> Depositos { get; set; }
+
+        public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Stock> Stocks { get; set; }
     }
 }

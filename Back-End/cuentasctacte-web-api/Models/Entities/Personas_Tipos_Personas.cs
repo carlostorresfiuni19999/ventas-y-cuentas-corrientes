@@ -12,8 +12,8 @@ namespace cuentasctacte_web_api.Models.Entities
         public Persona Persona { get; set; }
         public TipoPersona TipoPersona { get; set; }
         [ForeignKey("Persona")]
-        public int? idPersona { get; set; } 
+        public int? IdPersona { get; set; } 
         [ForeignKey("TipoPersona")]
-        public int? idTipoPersona { get; set; }
+        public int? IdTipoPersona { get; set; }
     }
 }

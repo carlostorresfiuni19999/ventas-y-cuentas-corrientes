@@ -221,6 +221,7 @@
     <Compile Include="Controllers\PersonasController.cs" />
     <Compile Include="Controllers\Personas_Tipos_PersonasController.cs" />
     <Compile Include="Controllers\ProductosController.cs" />
+    <Compile Include="Controllers\StocksController.cs" />
     <Compile Include="Controllers\TipoPersonasController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
@@ -258,6 +259,14 @@
     <Compile Include="Migrations\202204091900443_depositos.designer.cs">
       <DependentUpon>202204091900443_depositos.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204091917549_Stocks.cs" />
+    <Compile Include="Migrations\202204091917549_Stocks.designer.cs">
+      <DependentUpon>202204091917549_Stocks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202204091954011_Stocks1.cs" />
+    <Compile Include="Migrations\202204091954011_Stocks1.designer.cs">
+      <DependentUpon>202204091954011_Stocks1.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -268,6 +277,7 @@
     <Compile Include="Models\Entities\Producto.cs" />
     <Compile Include="Models\Entities\TipoPersona.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\Entities\Stock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
@@ -385,6 +395,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204091900443_depositos.resx">
       <DependentUpon>202204091900443_depositos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204091917549_Stocks.resx">
+      <DependentUpon>202204091917549_Stocks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204091954011_Stocks1.resx">
+      <DependentUpon>202204091954011_Stocks1.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

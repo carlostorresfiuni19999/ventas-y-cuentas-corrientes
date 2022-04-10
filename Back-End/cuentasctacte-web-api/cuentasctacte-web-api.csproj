@@ -218,6 +218,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\DepositosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ModificacionesController.cs" />
     <Compile Include="Controllers\PedidosController.cs" />
     <Compile Include="Controllers\PersonasController.cs" />
     <Compile Include="Controllers\Personas_Tipos_PersonasController.cs" />
@@ -276,6 +277,10 @@
     <Compile Include="Migrations\202204101345449_Eliminable.designer.cs">
       <DependentUpon>202204101345449_Eliminable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204102128372_RegistroDeModificaciones.cs" />
+    <Compile Include="Migrations\202204102128372_RegistroDeModificaciones.designer.cs">
+      <DependentUpon>202204102128372_RegistroDeModificaciones.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -288,6 +293,7 @@
     <Compile Include="Models\Entities\TipoPersona.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Entities\Stock.cs" />
+    <Compile Include="Models\Modificaciones.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
@@ -417,6 +423,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204101345449_Eliminable.resx">
       <DependentUpon>202204101345449_Eliminable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204102128372_RegistroDeModificaciones.resx">
+      <DependentUpon>202204102128372_RegistroDeModificaciones.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

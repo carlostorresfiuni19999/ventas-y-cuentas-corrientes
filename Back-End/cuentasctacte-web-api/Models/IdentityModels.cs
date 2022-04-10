@@ -43,5 +43,7 @@ namespace cuentasctacte_web_api.Models
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Stock> Stocks { get; set; }
 
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.Pedido> Pedidos { get; set; }
+
+        public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Modificaciones> Modificaciones { get; set; }
     }
 }

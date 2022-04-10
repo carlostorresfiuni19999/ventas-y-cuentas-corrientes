@@ -218,6 +218,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\DepositosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\PedidosController.cs" />
     <Compile Include="Controllers\PersonasController.cs" />
     <Compile Include="Controllers\Personas_Tipos_PersonasController.cs" />
     <Compile Include="Controllers\ProductosController.cs" />
@@ -267,11 +268,20 @@
     <Compile Include="Migrations\202204091954011_Stocks1.designer.cs">
       <DependentUpon>202204091954011_Stocks1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204101339073_Productos.cs" />
+    <Compile Include="Migrations\202204101339073_Productos.designer.cs">
+      <DependentUpon>202204101339073_Productos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202204101345449_Eliminable.cs" />
+    <Compile Include="Migrations\202204101345449_Eliminable.designer.cs">
+      <DependentUpon>202204101345449_Eliminable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Data.cs" />
     <Compile Include="Models\Entities\Deposito.cs" />
+    <Compile Include="Models\Entities\Pedido.cs" />
     <Compile Include="Models\Entities\Persona.cs" />
     <Compile Include="Models\Entities\Personas_Tipos_Personas.cs" />
     <Compile Include="Models\Entities\Producto.cs" />
@@ -401,6 +411,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204091954011_Stocks1.resx">
       <DependentUpon>202204091954011_Stocks1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204101339073_Productos.resx">
+      <DependentUpon>202204101339073_Productos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204101345449_Eliminable.resx">
+      <DependentUpon>202204101345449_Eliminable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

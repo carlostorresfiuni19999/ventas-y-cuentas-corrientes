@@ -39,7 +39,7 @@ function LoginForm(){
                                 label = "Contraseña"
                                 name = 'pass'
                             />
-                            <button type="submit" disabled = {!formik.isValid}> Login </button>
+                            <button type="submit" className={styles.boton} disabled = {!formik.isValid}> Login </button>
                         </Form>
                     }
                 }

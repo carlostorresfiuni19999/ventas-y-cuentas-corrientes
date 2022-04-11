@@ -47,5 +47,7 @@ namespace cuentasctacte_web_api.Models
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Modificaciones> Modificaciones { get; set; }
 
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.PedidoDetalle> PedidoDetalles { get; set; }
+
+        public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.Factura> Facturas { get; set; }
     }
 }

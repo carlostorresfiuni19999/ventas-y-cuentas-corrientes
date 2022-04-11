@@ -217,6 +217,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\DepositosController.cs" />
+    <Compile Include="Controllers\FacturasController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ModificacionesController.cs" />
     <Compile Include="Controllers\PedidoDetallesController.cs" />
@@ -286,11 +287,16 @@
     <Compile Include="Migrations\202204111926190_PedidosDetalles.designer.cs">
       <DependentUpon>202204111926190_PedidosDetalles.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204111958383_Facturas.cs" />
+    <Compile Include="Migrations\202204111958383_Facturas.designer.cs">
+      <DependentUpon>202204111958383_Facturas.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Data.cs" />
     <Compile Include="Models\Entities\Deposito.cs" />
+    <Compile Include="Models\Entities\Factura.cs" />
     <Compile Include="Models\Entities\Pedido.cs" />
     <Compile Include="Models\Entities\PedidoDetalle.cs" />
     <Compile Include="Models\Entities\Persona.cs" />
@@ -435,6 +441,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204111926190_PedidosDetalles.resx">
       <DependentUpon>202204111926190_PedidosDetalles.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204111958383_Facturas.resx">
+      <DependentUpon>202204111958383_Facturas.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

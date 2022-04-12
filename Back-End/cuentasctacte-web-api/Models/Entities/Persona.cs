@@ -11,6 +11,7 @@ namespace cuentasctacte_web_api.Models.Entities
         public string Nombre { get; set; }
         public string Apellido { get; set; }
         public string Telefono { get; set; }
+        public string UserName { get; set; }
         public string DocumentoTipo { get; set; }
         public string Documento { get; set; }
         public double LineaDeCredito { get; set; }

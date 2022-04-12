@@ -311,6 +311,10 @@
     <Compile Include="Migrations\202204121324074_NotasDetalles.designer.cs">
       <DependentUpon>202204121324074_NotasDetalles.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204121334245_PersonaUserName.cs" />
+    <Compile Include="Migrations\202204121334245_PersonaUserName.designer.cs">
+      <DependentUpon>202204121334245_PersonaUserName.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -480,6 +484,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204121324074_NotasDetalles.resx">
       <DependentUpon>202204121324074_NotasDetalles.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204121334245_PersonaUserName.resx">
+      <DependentUpon>202204121334245_PersonaUserName.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

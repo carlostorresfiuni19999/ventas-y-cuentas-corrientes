@@ -222,6 +222,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ModificacionesController.cs" />
     <Compile Include="Controllers\NotasDeCreditosController.cs" />
+    <Compile Include="Controllers\NotasDetallesController.cs" />
     <Compile Include="Controllers\PedidoDetallesController.cs" />
     <Compile Include="Controllers\PedidosController.cs" />
     <Compile Include="Controllers\PersonasController.cs" />
@@ -306,6 +307,10 @@
     <Compile Include="Migrations\202204120102541_NotasDeCreditos.designer.cs">
       <DependentUpon>202204120102541_NotasDeCreditos.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204121324074_NotasDetalles.cs" />
+    <Compile Include="Migrations\202204121324074_NotasDetalles.designer.cs">
+      <DependentUpon>202204121324074_NotasDetalles.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -314,6 +319,7 @@
     <Compile Include="Models\Entities\Factura.cs" />
     <Compile Include="Models\Entities\FacturaDetalle.cs" />
     <Compile Include="Models\Entities\NotaDeCredito.cs" />
+    <Compile Include="Models\Entities\NotaDetalle.cs" />
     <Compile Include="Models\Entities\Pedido.cs" />
     <Compile Include="Models\Entities\PedidoDetalle.cs" />
     <Compile Include="Models\Entities\Persona.cs" />
@@ -471,6 +477,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204120102541_NotasDeCreditos.resx">
       <DependentUpon>202204120102541_NotasDeCreditos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204121324074_NotasDetalles.resx">
+      <DependentUpon>202204121324074_NotasDetalles.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

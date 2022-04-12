@@ -229,6 +229,7 @@
     <Compile Include="Controllers\StocksController.cs" />
     <Compile Include="Controllers\TipoPersonasController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Controllers\VencimientoFacturasController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -296,6 +297,10 @@
     <Compile Include="Migrations\202204120031186_FacturaDetalles.designer.cs">
       <DependentUpon>202204120031186_FacturaDetalles.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204120046177_VencimientoFactura.cs" />
+    <Compile Include="Migrations\202204120046177_VencimientoFactura.designer.cs">
+      <DependentUpon>202204120046177_VencimientoFactura.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -309,6 +314,7 @@
     <Compile Include="Models\Entities\Personas_Tipos_Personas.cs" />
     <Compile Include="Models\Entities\Producto.cs" />
     <Compile Include="Models\Entities\TipoPersona.cs" />
+    <Compile Include="Models\Entities\VencimientoFactura.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Entities\Stock.cs" />
     <Compile Include="Models\Modificaciones.cs" />
@@ -453,6 +459,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204120031186_FacturaDetalles.resx">
       <DependentUpon>202204120031186_FacturaDetalles.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204120046177_VencimientoFactura.resx">
+      <DependentUpon>202204120046177_VencimientoFactura.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

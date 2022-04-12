@@ -51,5 +51,7 @@ namespace cuentasctacte_web_api.Models
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.Factura> Facturas { get; set; }
 
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.FacturaDetalle> FacturaDetalles { get; set; }
+
+        public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.VencimientoFactura> VencimientoFacturas { get; set; }
     }
 }

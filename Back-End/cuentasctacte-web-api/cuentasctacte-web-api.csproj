@@ -315,6 +315,10 @@
     <Compile Include="Migrations\202204121334245_PersonaUserName.designer.cs">
       <DependentUpon>202204121334245_PersonaUserName.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204121449548_CantidadFaturada.cs" />
+    <Compile Include="Migrations\202204121449548_CantidadFaturada.designer.cs">
+      <DependentUpon>202204121449548_CantidadFaturada.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -487,6 +491,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204121334245_PersonaUserName.resx">
       <DependentUpon>202204121334245_PersonaUserName.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204121449548_CantidadFaturada.resx">
+      <DependentUpon>202204121449548_CantidadFaturada.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

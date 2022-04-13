@@ -12,7 +12,8 @@ function LoginForm(){
 
     const validacion = Yup.object({
         user: Yup.string().required('*Obligatorio'),
-        pass: Yup.string().required('*Obligatorio')
+        pass: Yup.string().required('*Obligatorio').matches(/^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/,
+            "La contraseña debe contener al menos 8 letras, uno Mayuscula un numero y una figura")
     })
 
     //Se debe cambiar a el submit del BDO

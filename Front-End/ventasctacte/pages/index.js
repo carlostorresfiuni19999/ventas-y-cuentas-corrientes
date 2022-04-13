@@ -14,6 +14,11 @@ export default function Home() {
           <a>Login</a>
         </Link>
       </li>
+      <li>
+        <Link href="/ndp/lista">
+          <a>Notas de Pago</a>
+        </Link>
+      </li>
       
     </ul>
   )

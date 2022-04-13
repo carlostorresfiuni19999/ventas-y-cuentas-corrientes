@@ -1,0 +1,87 @@
+.mainNav {
+    position: fixed;
+    height: 100%;
+    background-color: #929292;
+    width: 0px;
+    z-index: 1;
+    overflow-x: hidden;
+    transition: 0.5s;
+    top: 0;
+    left: 0;
+    box-shadow: rgba(0, 0, 0, 0.65) 0px 0px 17px 5px;
+}
+
+.apareceNav{
+    position: fixed;
+    height: 100%;
+    background-color: #929292;
+    width: 20px;
+    z-index: 1;
+    overflow-x: hidden;
+    transition: 0.5s;
+    top: 0;
+    left: 0;
+    box-shadow: rgba(0, 0, 0, 0.65) 0px 0px 17px 5px;
+}
+
+.aClose{
+    font-size: x-large;
+    color: white;
+    float: right;
+    padding-right: 15px;
+}
+
+.aOpen{
+    float: right;
+    padding-right: 2px;
+    color: white;
+    
+}
+
+.listMain {
+    padding-left: 10px;
+    color: white;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+}
+
+.listSub {
+    padding-left: 25px;
+    color: white;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+}
+
+.aTitulo{
+    position: relative;
+    font-size: x-large;
+    padding-top: 10px;
+    padding-left: 10px;
+    color: white;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+}
+
+.noTitulo{
+    padding-top: 25px;
+}
+
+.Titulo{
+    padding-top: 40px;
+}
+
+.secciones{
+    padding-top: 15px;
+}

@@ -1,8 +1,11 @@
 import React from 'react'
-import Navbar from '../../components/Navbar'
+import Lista from '../../components/ndp/Lista'
 
-export default function lista(){
+
+export default function lista() {
     return(
-        <Navbar/>
-    );
+        <Lista/>
+    )
 }
+
+

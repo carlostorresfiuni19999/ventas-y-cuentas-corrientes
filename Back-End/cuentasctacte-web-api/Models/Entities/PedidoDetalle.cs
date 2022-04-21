@@ -13,7 +13,7 @@ namespace cuentasctacte_web_api.Models.Entities
         public Pedido Pedido { get; set; }
         public int CantidadProducto { get; set; }
         public int CantidadFacturada { get; set; }
-        public int PrecioUnitario { get; set; }
+        public double PrecioUnitario { get; set; }
 
         [ForeignKey("Producto")]
         public int IdProducto { get; set; }

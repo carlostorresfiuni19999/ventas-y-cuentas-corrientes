@@ -1,60 +1,15 @@
-create trigger guardarPedido
-on dbo.pedidoDetalles
-after insert
-AS
-    BEGIN TRANSACTION
-    DECLARE 
-        @id_pedido int, 
-        @id_producto int,
-        @cantidad_producto int,
-        @cantidad_facturada int
+select * from Stocks
 
-    if  NOT exists (select dbo.Pedidos.Id from Pedidos where Pedidos.Id = (
-        select inserted.IdPedido from Inserted
-    ))
-    BEGIN
-        RAISERROR('No existe el pedido al cual se hace referencia',16,1)
-        ROLLBACK TRANSACTION
-    END
+select * from Personas
 
-    set @id_pedido = (select dbo.Pedidos.Id from Pedidos where Pedidos.Id = (
-        select inserted.IdPedido from Inserted
-    ))
+select * from Productos
 
-    if NOT exists (select dbo.Productos.Id from Productos where Productos.Id = (
-        select Inserted.idProducto from inserted  
-    ))
-    BEGIN
-        RAISERROR('El producto al cual se hace referencia no existe', 16,1)
-        ROLLBACK TRANSACTION
-    END
+insert into Personas VALUES('Carlos', 'Torres','+32 434 555', 'CI','3330432',20000000, 0, 0, 'carlost')
 
-    set @id_producto =  (select dbo.Productos.Id from Productos where Productos.Id = (
-        select Inserted.idProducto from inserted  
-    ))
+insert into Personas VALUES('Juan', 'Caceres','+11 324 155', 'CI','5939563',0, 0, 0, 'Juan.Vendedor@mail.com')
 
-    if (select inserted.cantidadProducto from inserted) <= 0 
-    BEGIN
-        RAISERROR('La cantidad de productos insertados debe ser mayor a 0', 16, 1)
-        ROLLBACK TRANSACTION
-    END
+update Personas
+set Personas.LineaDeCredito = 40000000
+where Personas.Id = 7
 
-    set @cantidad_producto = (select inserted.cantidadProducto from inserted)
-
-    if (select inserted.cantidadFacturada from inserted ) < 0
-    BEGIN
-        RAISERROR('La cantidad Facturada debe ser por lo menos 1', 16,1 )
-        ROLLBACK TRANSACTION
-    END
-
-    set @cantidad_facturada = (select inserted.CantidadFacturada from inserted)
-
-    if(@cantidad_facturada = 1)
-    BEGIN
-        
-    END
-
-
-    
-
-GO
+select * from PedidoDetalles

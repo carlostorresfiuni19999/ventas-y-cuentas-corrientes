@@ -53,6 +53,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Cors, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.AspNet.Cors.5.2.7\lib\net45\System.Web.Cors.dll</HintPath>
     </Reference>
@@ -319,10 +320,24 @@
     <Compile Include="Migrations\202204121449548_CantidadFaturada.designer.cs">
       <DependentUpon>202204121449548_CantidadFaturada.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204141956521_PrecioUnitarioDouble.cs" />
+    <Compile Include="Migrations\202204141956521_PrecioUnitarioDouble.designer.cs">
+      <DependentUpon>202204141956521_PrecioUnitarioDouble.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202204211431230_changeName.cs" />
+    <Compile Include="Migrations\202204211431230_changeName.designer.cs">
+      <DependentUpon>202204211431230_changeName.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202204211444458_changeNameDeposito.cs" />
+    <Compile Include="Migrations\202204211444458_changeNameDeposito.designer.cs">
+      <DependentUpon>202204211444458_changeNameDeposito.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Data.cs" />
+    <Compile Include="Models\DTOs\PedidoDetalleDTORequest.cs" />
+    <Compile Include="Models\DTOs\PedidoDTORequest.cs" />
     <Compile Include="Models\Entities\Deposito.cs" />
     <Compile Include="Models\Entities\Factura.cs" />
     <Compile Include="Models\Entities\FacturaDetalle.cs" />
@@ -494,6 +509,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204121449548_CantidadFaturada.resx">
       <DependentUpon>202204121449548_CantidadFaturada.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204141956521_PrecioUnitarioDouble.resx">
+      <DependentUpon>202204141956521_PrecioUnitarioDouble.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204211431230_changeName.resx">
+      <DependentUpon>202204211431230_changeName.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204211444458_changeNameDeposito.resx">
+      <DependentUpon>202204211444458_changeNameDeposito.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

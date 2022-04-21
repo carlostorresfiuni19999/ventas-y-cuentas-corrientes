@@ -6,13 +6,18 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
+using System.Transactions;
 using System.Web.Http;
 using System.Web.Http.Description;
 using cuentasctacte_web_api.Models;
+using cuentasctacte_web_api.Models.DTOs;
 using cuentasctacte_web_api.Models.Entities;
+using Microsoft.AspNet.Identity;
 
 namespace cuentasctacte_web_api.Controllers
 {
+    [Authorize]
     public class PedidosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -72,18 +77,102 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // POST: api/Pedidos
-        [ResponseType(typeof(Pedido))]
-        public IHttpActionResult PostPedido(Pedido pedido)
+        [ResponseType(typeof(PedidoDTORequest))]
+        public IHttpActionResult PostPedido(PedidoDTORequest Pedido)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.Pedidos.Add(pedido);
-            db.SaveChanges();
+            string UserIdLogged;
+            if (!User.Identity.IsAuthenticated) return BadRequest("No autorizado");
+            UserIdLogged = User.Identity.GetUserId();
 
-            return CreatedAtRoute("DefaultApi", new { id = pedido.Id }, pedido);
+            var user = db.Users
+                .FirstOrDefault(u => u.Id.Equals(UserIdLogged));
+
+            string userName = user.UserName;
+
+            var Vendedor = db.Personas
+                .FirstOrDefault(p => p.UserName.Equals(userName));
+
+            int CantPedidos = db.Pedidos.Count();
+
+            var PedidoDb = new Pedido
+            {
+                NumeroPedido = CantPedidos++,
+                IdCliente = Pedido.ClienteId,
+                IdVendedor = Vendedor.Id,
+                PedidoDescripcion = Pedido.Descripcion,
+                CondicionVenta = Pedido.CondicionVenta,
+                Estado = "PENDIENTE",
+                FechaPedido = DateTime.Now
+            };
+            Pedido PedidoSaved = db.Pedidos.Add(PedidoDb);
+            var Cliente = db.Personas
+                .FirstOrDefault(c => c.Id == Pedido.ClienteId);
+            double MontoTotal = 0.0;
+            double IvaTotal = 0.0;
+            
+            //Verificamos si hay stocks disponibles para cada producto Pedido
+            foreach(var Detalle in Pedido.Pedidos)
+            {
+                var Producto = db.Productos
+                    .FirstOrDefault(p => p.Id == Detalle.ProductoId);
+
+
+                MontoTotal += (Producto.Precio) * (Detalle.CantidadProducto);
+
+                if (MontoTotal > Cliente.LineaDeCredito) return BadRequest("Linea de Credito Insuficiente");
+                
+                IvaTotal += Producto.Iva;
+                var Stock = db.Stocks
+                    .Include(p => p.Producto)
+                    .Include(d => d.Deposito)
+                    .FirstOrDefault(s =>
+                        s.IdDeposito == 3
+                        && s.IdProducto == Detalle.ProductoId
+                    );
+                var PedidoDetalle = new PedidoDetalle()
+                {
+                    PrecioUnitario = Stock.Producto.Precio,
+                    IdProducto = Detalle.ProductoId,
+                    CantidadFacturada = 0,
+                    CantidadProducto = Detalle.CantidadProducto,
+                    IdPedido = PedidoSaved.Id
+                };
+                if (Detalle.CantidadProducto > Stock.Cantidad)
+                {
+                    db.PedidoDetalles.Add(PedidoDetalle);
+                }
+                else
+                {
+                    PedidoDetalle.CantidadFacturada = Detalle.CantidadCuotas;
+
+                    //Restar del Stock la Cantidad.
+                    Stock.Cantidad = Stock.Cantidad - Detalle.CantidadProducto;
+
+                    //Guardar en DB
+                    db.Entry(Stock).State = EntityState.Modified;
+
+                    //Aumentar El Saldo Que le Queda al Cliente.
+                    db.PedidoDetalles.Add(PedidoDetalle);
+                    Cliente.Saldo += MontoTotal;
+
+                    //Guardar En Db
+                    db.Entry(Cliente).State = EntityState.Modified;
+
+                }
+            }
+            try
+            {
+                db.SaveChanges();
+            } catch (Exception ex)
+            {
+                BadRequest("Ocurrio un error al ejecutar la transaccion " + ex.Message);
+            }
+            return Ok("Cargado con exito");
         }
 
         // DELETE: api/Pedidos/5

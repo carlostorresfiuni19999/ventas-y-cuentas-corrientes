@@ -7,6 +7,7 @@ using System.Web;
 
 namespace cuentasctacte_web_api.Models.Entities
 {
+    [Table("Productos")]
     public class Producto : Data
     {
        

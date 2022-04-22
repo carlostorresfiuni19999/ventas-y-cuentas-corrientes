@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Security.Claims;
-using System.Transactions;
 using System.Web.Http;
 using System.Web.Http.Description;
 using cuentasctacte_web_api.Models;
@@ -23,9 +19,14 @@ namespace cuentasctacte_web_api.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Pedidos
-        public IQueryable<Pedido> GetPedidos()
+        [AllowAnonymous]
+        public List<PedidoResponseDTO> GetPedidos()
         {
-            return db.Pedidos;
+            var Pedidos = db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Vendedor).ToList();
+            return PedidosMapper(Pedidos);
+            
         }
 
         // GET: api/Pedidos/5
@@ -203,6 +204,60 @@ namespace cuentasctacte_web_api.Controllers
         private bool PedidoExists(int id)
         {
             return db.Pedidos.Count(e => e.Id == id) > 0;
+        }
+
+        private List<PedidoResponseDTO> PedidosMapper(List<Pedido> Pedidos)
+        {
+            var Result = Pedidos
+                .ToList()
+                .ConvertAll(p => new PedidoResponseDTO
+                {
+                    Id = p.Id,
+                    Cliente = new PersonaResponseDTO
+                    {
+                        Id = (int)p.IdCliente,
+                        Nombre = p.Cliente.Nombre,
+                        Apellido = p.Cliente.Apellido,
+                        DocumentoTipo = p.Cliente.DocumentoTipo,
+                        Documento = p.Cliente.Documento
+
+                    },
+                    Vendedor = new PersonaResponseDTO
+                    {
+                        Id = (int)p.IdVendedor,
+                        Nombre = p.Vendedor.Nombre,
+                        Apellido = p.Vendedor.Apellido,
+                        DocumentoTipo = p.Vendedor.DocumentoTipo,
+                        Documento = p.Vendedor.Documento
+                    },
+                    PedidoDescripcion = p.PedidoDescripcion,
+                    Estado = p.Estado,
+                    CondicionVenta = p.CondicionVenta,
+                    FechePedido = p.FechaPedido,
+                    PedidosDetalles = db.PedidoDetalles
+                        .Include(pd => pd.Producto)
+                        .Where(pd => pd.IdPedido == p.Id)
+                        .ToList()
+                        .ConvertAll(pd => new PedidoDetalleResponseDTO
+                        {
+                            Id = pd.Id,
+                            Producto = new ProductoResponseDTO
+                            {
+                                Id = pd.Producto.Id,
+                                NombreProducto = pd.Producto.NombreProducto,
+                                DescripcionProducto = pd.Producto.DescripcionProducto,
+                                CodigoDeBarra = pd.Producto.CodigoDeBarra,
+                                MarcaProducto = pd.Producto.MarcaProducto,
+                                Precio = pd.Producto.Precio,
+                                Iva = pd.Producto.Iva
+                            },
+                            CantidadCuotas = pd.CantidadFacturada,
+                            CantidadProductos = pd.CantidadProducto
+
+                        })
+
+                });
+            return Result;
         }
     }
 }

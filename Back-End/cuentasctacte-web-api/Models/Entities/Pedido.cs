@@ -23,5 +23,6 @@ namespace cuentasctacte_web_api.Models.Entities
 
         [ForeignKey("Vendedor")]
         public int? IdVendedor { get; set; }
+
     }
 }

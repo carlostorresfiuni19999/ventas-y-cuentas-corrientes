@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
 using cuentasctacte_web_api.Models;
+using cuentasctacte_web_api.Models.DTOs;
 using cuentasctacte_web_api.Models.Entities;
 
 namespace cuentasctacte_web_api.Controllers
@@ -18,22 +19,39 @@ namespace cuentasctacte_web_api.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Personas
-        public IQueryable<Persona> GetPersonas()
+        public List<PersonaResponseDTO> GetPersonas()
         {
-            return db.Personas;
+            return db.Personas
+                .ToList()
+                .ConvertAll(p => new PersonaResponseDTO
+                {
+                    Id = p.Id,
+                    Nombre = p.Nombre,
+                    Apellido = p.Apellido,
+                    Documento = p.Documento,
+                    DocumentoTipo = p.DocumentoTipo
+                });
         }
 
         // GET: api/Personas/5
-        [ResponseType(typeof(Persona))]
-        public IHttpActionResult GetPersona(int id)
+        [ResponseType(typeof(PersonaResponseDTO))]
+        public IHttpActionResult GetPersona(string doc)
         {
-            Persona persona = db.Personas.Find(id);
+            var persona = db.Personas
+                .FirstOrDefault(p => p.Documento.Equals(doc));
             if (persona == null)
             {
                 return NotFound();
             }
 
-            return Ok(persona);
+            return Ok(new PersonaResponseDTO
+            {
+                Id = persona.Id,
+                Nombre = persona.Nombre,
+                Apellido = persona.Apellido,
+                Documento = persona.Documento,
+                DocumentoTipo = persona.DocumentoTipo
+            });
         }
 
         // PUT: api/Personas/5

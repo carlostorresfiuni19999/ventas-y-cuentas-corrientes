@@ -12,6 +12,9 @@ namespace cuentasctacte_web_api
     {
         public static void Register(HttpConfiguration config)
         {
+            //cambios 23/04
+            config.EnableCors();
+
             // Configuración y servicios de API web
             // Configure Web API para usar solo la autenticación de token de portador.
             config.SuppressDefaultHostAuthentication();

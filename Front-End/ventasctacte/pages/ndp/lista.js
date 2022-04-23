@@ -1,11 +1,37 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Navbar from '../../components/Navbar'
 import styles from '../../styles/nlBody.module.css'
+import getPedidos from '../../API/getPedidos'
 
+export default function lista() {
 
-export default function lista({notas}) {
+    const [notas, setNotas] = useState([]);
+
+    useEffect( () =>{
+        getPedidos('')
+        .then(res => res.text()).
+        then(result => {
+            const n = JSON.parse(result)
+            console.log(n[0])
+            setNotas(n.map(nota=>{
+                const notaNew = {
+                    id: nota.Id,
+                    cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
+                    cin: nota.Cliente.Documento,
+                    estado: nota.Estado,
+                    vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
+                    fecha: nota.FechePedido
+                } 
+                return notaNew
+            }))
+
+        })
+        .catch(error => console.log(error))
+    }, [])
+
     
+
     return (
         <div>
             <Navbar rango='ndp' page='ndpLista' />
@@ -52,9 +78,8 @@ export default function lista({notas}) {
                                         <th>Cliente</th>
                                         <th>CIN</th>
                                         <th>Estado</th>
-                                        <th>Monto Total</th>
-                                        <th>Saldo</th>
-                                        <th>Cantidad</th>
+                                        <th>Vendedor</th>
+                                        <th>Fecha</th>
                                         <th>Detalles</th>
                                         <th>Eliminar</th>
                                     </tr>
@@ -67,9 +92,8 @@ export default function lista({notas}) {
                                                     <td>{nota.cliente}</td>
                                                     <td>{nota.cin}</td>
                                                     <td>{nota.estado}</td>
-                                                    <td>Gs. {nota.montTotal}</td>
-                                                    <td>Gs. {nota.saldo}</td>
-                                                    <td>{nota.cantidad}</td>
+                                                    <td>{nota.vendedor}</td>
+                                                    <td>{nota.fecha}</td>
                                                     <td><button className={styles.bDetalle}>Detalles</button></td>
                                                     <td><button className={styles.bEliminar}>Eliminar</button></td>
                                                 </tr>
@@ -87,11 +111,4 @@ export default function lista({notas}) {
         </div>
     );
 
-}
-
-lista.getInitialProps = async() =>{
-    const response = await fetch('http://localhost:3000/api/lista')
-    const data = await response.json()
-    
-    return {notas: data}
 }

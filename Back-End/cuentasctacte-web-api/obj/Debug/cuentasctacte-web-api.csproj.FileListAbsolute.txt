@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.dll.config
 D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.dll
 D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.pdb
@@ -139,6 +140,8 @@ D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cue
 D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte_web_api.Migrations.init.resources
 D:\Documents\Facultad\Sistemas De Gestion\Proyecto Ventas y cta cte\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.csproj.GenerateResource.cache
 =======
+=======
+>>>>>>> Stashed changes
 C:\Users\hakum\Documents\GitHub\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.dll.config
 C:\Users\hakum\Documents\GitHub\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.dll
 C:\Users\hakum\Documents\GitHub\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.pdb
@@ -306,4 +309,7 @@ C:\Users\hakum\Documents\GitHub\ventas-y-cuentas-corrientes\Back-End\cuentasctac
 C:\Users\hakum\Documents\GitHub\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.csproj.CopyComplete
 C:\Users\hakum\Documents\GitHub\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.dll
 C:\Users\hakum\Documents\GitHub\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.pdb
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes

@@ -3,13 +3,16 @@ import Link from 'next/link'
 import Navbar from '../../components/Navbar'
 import styles from '../../styles/nlBody.module.css'
 import getPedidos from '../../API/getPedidos'
+import agregarPedido from '../../API/agregarPedido'
 
 export default function lista() {
 
     const [notas, setNotas] = useState([]);
 
     useEffect( () =>{
-        getPedidos('')
+        console.log(JSON.parse(sessionStorage.getItem('token')).access_token)
+        //agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token)
+        getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
         .then(res => res.text()).
         then(result => {
             const n = JSON.parse(result)
@@ -29,7 +32,10 @@ export default function lista() {
         })
         .catch(error => console.log(error))
     }, [])
-
+    
+    const eliminar = (id)  =>{
+        console.log('se intento eliminar la nota con id ' + id)
+    }
     
 
     return (
@@ -95,7 +101,7 @@ export default function lista() {
                                                     <td>{nota.vendedor}</td>
                                                     <td>{nota.fecha}</td>
                                                     <td><button className={styles.bDetalle}>Detalles</button></td>
-                                                    <td><button className={styles.bEliminar}>Eliminar</button></td>
+                                                    <td><button className={styles.bEliminar} onClick={eliminar(nota.id)}>Eliminar</button></td>
                                                 </tr>
                                             )
                                         })

@@ -79,6 +79,7 @@ function LoginForm() {
         <div className={styles.LoginPanel}>
             <h1 className={styles.letraGrande}>Login</h1>
             <form onSubmit={formik.handleSubmit}>
+                <div>
                 <label htmlFor='user'>
                     Email
                 </label>
@@ -89,6 +90,8 @@ function LoginForm() {
                     onChange={formik.handleChange}
                     value={formik.values.user}
                 />
+                </div>
+                <div>
                 <label htmlFor='password'>
                     Password
                 </label>
@@ -100,6 +103,7 @@ function LoginForm() {
                     onChange={formik.handleChange}
                     value={formik.values.pass}
                 />
+                </div>
                 <button type="submit" className={styles.boton} disabled={!formik.isValid}> Login </button>
             </form>
         </div>

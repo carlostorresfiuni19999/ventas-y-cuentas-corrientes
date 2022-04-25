@@ -2,6 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import Navbar from '../../components/Navbar'
 import styles from '../../styles/naBody.module.css'
+import crearPedido from '../../API/crearPedido'
+import agregarPedido from '../../API/agregarPedido'
 
 export default function agregar(){
     return(
@@ -61,7 +63,7 @@ export default function agregar(){
                     </div>
                     <div className={styles.btnDiv}>
                         <button className={styles.bCancelar}>Cancelar</button>
-                        <button className={styles.bAceptar}>Agregar</button>
+                        <button className={styles.bAceptar} onClick={agregarPedido()}>Agregar</button>
                     </div>
                 </div>
             </div>

@@ -225,6 +225,7 @@
     <Compile Include="Controllers\NotasDetallesController.cs" />
     <Compile Include="Controllers\PedidosController.cs" />
     <Compile Include="Controllers\PersonasController.cs" />
+    <Compile Include="Controllers\ProductosController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Controllers\VencimientoFacturasController.cs" />
     <Compile Include="Global.asax.cs">

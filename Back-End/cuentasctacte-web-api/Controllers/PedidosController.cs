@@ -13,7 +13,7 @@ using Microsoft.AspNet.Identity;
 
 namespace cuentasctacte_web_api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class PedidosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();

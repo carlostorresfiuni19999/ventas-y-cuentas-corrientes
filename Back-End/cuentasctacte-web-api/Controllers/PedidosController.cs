@@ -13,7 +13,7 @@ using Microsoft.AspNet.Identity;
 
 namespace cuentasctacte_web_api.Controllers
 {
-    [Authorize]
+   // [Authorize]  //////----------------------------........//////
     public class PedidosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -178,19 +178,76 @@ namespace cuentasctacte_web_api.Controllers
 
         // DELETE: api/Pedidos/5
         [ResponseType(typeof(Pedido))]
+
+        ///-------------------------------------------
+        [ResponseType(typeof(PedidoDTORequest))]
         public IHttpActionResult DeletePedido(int id)
         {
-            Pedido pedido = db.Pedidos.Find(id);
+            Pedido pedido = db.Pedidos.Include(p => p.Cliente).FirstOrDefault(p => p.Id == id);
             if (pedido == null)
             {
                 return NotFound();
             }
+            pedido.Deleted = true;
+            var PedidosDetalles = db.PedidoDetalles
+                .Include(pd => pd.Producto)
+                .Where(pd => pd.IdPedido == id);
 
-            db.Pedidos.Remove(pedido);
-            db.SaveChanges();
+            double sumatoria = 0;
+            foreach (var pedidodetalle in PedidosDetalles)
+            {
+                pedidodetalle.Deleted = true;
+                var CantidadProducto = pedidodetalle.CantidadProducto;
+                var Producto = db.Productos.Find( pedidodetalle.IdProducto);
+                //var Producto = db.Productos.FirstOrDefault(prod => prod.Id == pedidodetalle.IdProducto);
 
-            return Ok(pedido);
+                /*
+                var Stock = db.Stocks
+                    .Include(s => s.Producto)
+                    .Include(s => s.Deposito)
+                    .FirstOrDefault(s => s.Producto.Id == pedidodetalle.Producto.Id && s.IdDeposito == 3);
+                */
+                var Stock = db.Stocks
+                    .Include(s => s.Producto)
+                    .Include(s => s.Deposito)
+                    .Where(s => s.Producto.Id == pedidodetalle.Producto.Id && s.IdDeposito == 3)
+                    .First();
+                Stock.Cantidad = Stock.Cantidad + CantidadProducto;
+
+
+
+                //Vamos sumando cuanta plata devolver al cliente.
+                sumatoria += pedidodetalle.CantidadProducto * pedidodetalle.PrecioUnitario;
+                
+                //HAce el Update de la base de datos 
+                db.Entry(Stock).State = EntityState.Modified;
+                pedidodetalle.CantidadProducto -= pedidodetalle.CantidadProducto;
+                pedidodetalle.CantidadFacturada = 0;
+                db.Entry(pedidodetalle).State = EntityState.Modified;
+                //sumatoria += pedidodetalle.Producto.Precio;
+
+                
+            }
+            var Cliente = db.Personas.FirstOrDefault(c => c.Id == pedido.IdCliente);
+            Cliente.Saldo = Cliente.Saldo - sumatoria;
+            db.Entry(Cliente).State = EntityState.Modified;
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch
+            {
+                return BadRequest("No se ha podido ejecutar la transaccion de borrado");
+            }
+
+
+            return Ok("Se ha borrado con exito");
         }
+        ///-------------------------------------------
+
+
+
 
         protected override void Dispose(bool disposing)
         {

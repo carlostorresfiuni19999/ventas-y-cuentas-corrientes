@@ -23,6 +23,7 @@ namespace cuentasctacte_web_api.Controllers
         public List<PersonaResponseDTO> GetPersonas()
         {
             return db.Personas
+                .Where(p => !p.Deleted)
                 .ToList()
                 .ConvertAll(p => new PersonaResponseDTO
                 {
@@ -39,6 +40,7 @@ namespace cuentasctacte_web_api.Controllers
         public IHttpActionResult GetPersona(string doc)
         {
             var persona = db.Personas
+                .Where(p => !p.Deleted)
                 .FirstOrDefault(p => p.Documento.Equals(doc));
             if (persona == null)
             {

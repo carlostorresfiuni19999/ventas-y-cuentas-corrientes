@@ -180,7 +180,7 @@ namespace cuentasctacte_web_api.Controllers
                     //Aumentar El Saldo Que le Queda al Cliente.
                     db.PedidoDetalles.Add(PedidoDetalle);
                     Cliente.Saldo += MontoTotal;
-
+                    if (Cliente.Saldo >= Cliente.LineaDeCredito) return BadRequest("Linea de Credito insuficiente");
                     //Guardar En Db
                     db.Entry(Cliente).State = EntityState.Modified;
 

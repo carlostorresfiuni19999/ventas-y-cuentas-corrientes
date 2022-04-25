@@ -14,6 +14,7 @@ using cuentasctacte_web_api.Models.Entities;
 
 namespace cuentasctacte_web_api.Controllers
 {
+    [Authorize]
     public class PersonasController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -33,7 +34,7 @@ namespace cuentasctacte_web_api.Controllers
                 });
         }
 
-        // GET: api/Personas/5
+        // GET: api/Personas/8848584
         [ResponseType(typeof(PersonaResponseDTO))]
         public IHttpActionResult GetPersona(string doc)
         {

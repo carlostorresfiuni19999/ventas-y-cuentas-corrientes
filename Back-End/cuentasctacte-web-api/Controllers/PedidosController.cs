@@ -51,7 +51,12 @@ namespace cuentasctacte_web_api.Controllers
                     Producto = pd.Producto.MarcaProducto + ": " + pd.Producto.NombreProducto,
                     Cantidad = pd.CantidadProducto,
                     PrecioUnitario = pd.Producto.Precio,
-                    PrecioTotal = pd.CantidadProducto*pd.Producto.Precio
+                    PrecioTotal = pd.CantidadProducto*pd.Producto.Precio,
+                    Cliente = Pedido.Cliente.Nombre+" "+Pedido.Cliente.Apellido,
+                    IdCliente = Pedido.Cliente.Id,
+                    Vendedor = Pedido.Vendedor.Nombre + " "+ Pedido.Vendedor.Apellido,
+                    IdVendedor = Pedido.Vendedor.Id
+
                 }) ;
 
             return Ok(result);

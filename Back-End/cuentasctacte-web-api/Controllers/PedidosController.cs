@@ -199,14 +199,7 @@ namespace cuentasctacte_web_api.Controllers
                 pedidodetalle.Deleted = true;
                 var CantidadProducto = pedidodetalle.CantidadProducto;
                 var Producto = db.Productos.Find( pedidodetalle.IdProducto);
-                //var Producto = db.Productos.FirstOrDefault(prod => prod.Id == pedidodetalle.IdProducto);
-
-                /*
-                var Stock = db.Stocks
-                    .Include(s => s.Producto)
-                    .Include(s => s.Deposito)
-                    .FirstOrDefault(s => s.Producto.Id == pedidodetalle.Producto.Id && s.IdDeposito == 3);
-                */
+               
                 var Stock = db.Stocks
                     .Include(s => s.Producto)
                     .Include(s => s.Deposito)

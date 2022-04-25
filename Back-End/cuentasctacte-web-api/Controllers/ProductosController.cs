@@ -21,7 +21,7 @@ namespace cuentasctacte_web_api.Controllers
         // GET: api/Productos
         public IQueryable<Producto> GetProductos()
         {
-            return db.Productos;
+            return db.Productos.Where(p => !p.Deleted );
         }
 
         // GET: api/Productos/5
@@ -29,7 +29,7 @@ namespace cuentasctacte_web_api.Controllers
         public IHttpActionResult GetProducto(int id)
         {
             Producto producto = db.Productos.Find(id);
-            if (producto == null)
+            if (producto == null || producto.Deleted)
             {
                 return NotFound();
             }

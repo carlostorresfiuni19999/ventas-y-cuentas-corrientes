@@ -13,7 +13,7 @@ using Microsoft.AspNet.Identity;
 
 namespace cuentasctacte_web_api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class PedidosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -23,23 +23,38 @@ namespace cuentasctacte_web_api.Controllers
         public List<PedidoResponseDTO> GetPedidos()
         {
             var Pedidos = db.Pedidos
+                .Where(p => !p.Deleted)
                 .Include(p => p.Cliente)
                 .Include(p => p.Vendedor).ToList();
             return PedidosMapper(Pedidos);
-            
+
         }
 
         // GET: api/Pedidos/5
-        [ResponseType(typeof(Pedido))]
+        [ResponseType(typeof(FullProductoDTOResponse))]
         public IHttpActionResult GetPedido(int id)
         {
-            Pedido pedido = db.Pedidos.Find(id);
-            if (pedido == null)
-            {
-                return NotFound();
-            }
 
-            return Ok(pedido);
+            var Pedido = db.Pedidos.Find(id);
+
+            if (Pedido == null || Pedido.Deleted) return BadRequest("No se encontro ningun pedido");
+            var PedidosDetalles = db.PedidoDetalles
+                .Include(pd => pd.Pedido)
+                .Include(pd => pd.Producto)
+                .Where(pd => !pd.Deleted)
+                .Where(pd => pd.IdPedido == id);
+            var result = PedidosDetalles.ToList()
+                .ConvertAll(pd => new FullProductoDTOResponse
+                {
+                    IdPedido = Pedido.Id,
+                    IdProducto = pd.IdProducto,
+                    Producto = pd.Producto.MarcaProducto + ": " + pd.Producto.NombreProducto,
+                    Cantidad = pd.CantidadProducto,
+                    PrecioUnitario = pd.Producto.Precio,
+                    PrecioTotal = pd.CantidadProducto*pd.Producto.Precio
+                }) ;
+
+            return Ok(result);
         }
 
         // PUT: api/Pedidos/5

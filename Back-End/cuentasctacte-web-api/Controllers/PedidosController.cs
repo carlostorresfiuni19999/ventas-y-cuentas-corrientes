@@ -19,7 +19,6 @@ namespace cuentasctacte_web_api.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Pedidos
-        [AllowAnonymous]
         public List<PedidoResponseDTO> GetPedidos()
         {
             var Pedidos = db.Pedidos

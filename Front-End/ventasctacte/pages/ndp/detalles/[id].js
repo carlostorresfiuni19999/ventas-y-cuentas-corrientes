@@ -5,10 +5,10 @@ import Link from 'next/link'
 //componentes
 import Navbar from '../../../components/Navbar'
 //css
-import styles from '../../../styles/ndBody.module.css'
+import styles from '../../../styles/ndbody.module.css'
 //api
 import getProductos from '../../../API/getProductos'
-import { loadGetInitialProps } from 'next/dist/shared/lib/utils'
+
 
 export default function Detalles(props) {
     const [notas, setNotas] = useState([])

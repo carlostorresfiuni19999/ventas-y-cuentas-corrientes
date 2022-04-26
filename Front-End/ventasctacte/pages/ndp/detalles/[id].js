@@ -8,6 +8,7 @@ import Navbar from '../../../components/Navbar'
 import styles from '../../../styles/ndBody.module.css'
 //api
 import getProductos from '../../../API/getProductos'
+import { loadGetInitialProps } from 'next/dist/shared/lib/utils'
 
 export default function detalles(props) {
     const [notas, setNotas] = useState([])
@@ -15,6 +16,9 @@ export default function detalles(props) {
     
     useEffect(() => {
         getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
     }, [])
 
     console.log(productos)

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Navbar from '../../components/Navbar'
 import styles from '../../styles/nlBody.module.css'
@@ -6,16 +7,16 @@ import getPedidos from '../../API/getPedidos'
 import borrarPedido from '../../API/borrarPedido'
 
 export default function lista() {
+    
+    const router = useRouter()
 
     const [notas, setNotas] = useState([]);
 
     useEffect( () =>{
-        console.log(JSON.parse(sessionStorage.getItem('token')).access_token)
         getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
         .then(res => res.text()).
         then(result => {
             const n = JSON.parse(result)
-            console.log(n)
             setNotas(n.map(nota=>{
                 const notaNew = {
                     id: nota.Id,
@@ -31,10 +32,35 @@ export default function lista() {
         })
         .catch(error => console.log(error))
 
-    }, [])
+    }, [notas])
+    
+    useEffect(()=>{
+        getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
+        .then(res => res.text()).
+        then(result => {
+            const n = JSON.parse(result)
+            setNotas(n.map(nota=>{
+                const notaNew = {
+                    id: nota.Id,
+                    cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
+                    cin: nota.Cliente.Documento,
+                    estado: nota.Estado,
+                    vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
+                    fecha: nota.FechePedido
+                } 
+                return notaNew
+            }))
+
+        })
+        .catch(error => console.log(error))
+        return () =>{
+            setNotas([[]])
+        }
+    },[])
     
     const eliminar = (id)  =>{
        borrarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, id)
+    
     }
     
 
@@ -44,9 +70,7 @@ export default function lista() {
             <div className={styles.ndplbody} >
                 {/*La parte de arriba de la lista */}
                 <div className={styles.ndpltop}>
-                    <Link href='/'>
-                        <a> {'<'} </a>
-                    </Link>
+                    <a onClick={() =>{router.push('/ndp/lista')}}> {'<'} </a>
                     <label> {'<'} nombre de vendedor {'>'}</label>
                     <label>V</label>
                 </div>
@@ -60,14 +84,11 @@ export default function lista() {
                 <div className={styles.ndplbottom}>
                     <div>
                         <h1>Notas de Pedidos</h1>
-                        <Link href='/ndp/agregar'>
-                            <button className={styles.bAdd}>Agregar</button>
-                        </Link>
+                        <button className={styles.bAdd} onClick={()=>{router.push('agregar')}}>Agregar</button>
                     </div>
                     <div>
                         <label>Buscador: </label>
                         <input type="text" />
-                        <button >Aplicar</button>
                         <label>Filtros:</label>
                         <input type="checkbox" />
                         <label>Completados</label>

@@ -3,8 +3,7 @@ import Link from 'next/link'
 import Navbar from '../../components/Navbar'
 import styles from '../../styles/nlBody.module.css'
 import getPedidos from '../../API/getPedidos'
-import agregarPedido from '../../API/agregarPedido'
-import getPersonas from '../../API/getPersonas'
+import borrarPedido from '../../API/borrarPedido'
 
 export default function lista() {
 
@@ -12,8 +11,6 @@ export default function lista() {
 
     useEffect( () =>{
         console.log(JSON.parse(sessionStorage.getItem('token')).access_token)
-        getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
-        //agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token)
         getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
         .then(res => res.text()).
         then(result => {
@@ -33,10 +30,11 @@ export default function lista() {
 
         })
         .catch(error => console.log(error))
+
     }, [])
     
     const eliminar = (id)  =>{
-        console.log('se intento eliminar la nota con id ' + id)
+       borrarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, id)
     }
     
 
@@ -102,8 +100,10 @@ export default function lista() {
                                                     <td>{nota.estado}</td>
                                                     <td>{nota.vendedor}</td>
                                                     <td>{nota.fecha}</td>
-                                                    <td><button className={styles.bDetalle}>Detalles</button></td>
-                                                    <td><button className={styles.bEliminar} onClick={eliminar(nota.id)}>Eliminar</button></td>
+                                                    <Link href= {`/ndp/detalles/${nota.id}`} >
+                                                        <td><button className={styles.bDetalle}>Detalles</button></td>
+                                                    </Link>
+                                                    <td><button className={styles.bEliminar} onClick={() => {eliminar(nota.id)}}>Eliminar</button></td>
                                                 </tr>
                                             )
                                         })

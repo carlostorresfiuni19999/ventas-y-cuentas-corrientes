@@ -96,7 +96,7 @@ export default function Agregar() {
             "Estado": "PENDIENTE",
             "Pedidos": listaProductos.map(producto =>{
                 const productoNew ={
-                    "ProductoId": producto.id,
+                    "ProductoId": producto.idProd,
                     "CantidadProducto": parseInt(producto.cantidad, 10),
                     "CantidadCuotas": parseInt(producto.cantCuota, 10)
                 }

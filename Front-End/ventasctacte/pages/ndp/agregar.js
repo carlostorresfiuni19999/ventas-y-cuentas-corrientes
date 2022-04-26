@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import {useRouter} from 'next/router'
 import Navbar from '../../components/Navbar'
 import styles from '../../styles/naBody.module.css'
 import getPersonas from '../../API/getPersonas'
@@ -8,6 +9,8 @@ import agregarPedido from '../../API/agregarPedido'
 //import selectize from 'selectize'
 
 export default function agregar() {
+
+    const router = useRouter()
 
     const [personas, setPersonas] = useState([])
     const [productos, setProductos] = useState([])
@@ -102,6 +105,7 @@ export default function agregar() {
         });
         console.log(JSON.parse(raw))
         agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
+        router.push('/ndp/lista')
     }
 
     return (

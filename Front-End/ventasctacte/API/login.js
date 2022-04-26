@@ -14,7 +14,7 @@ const login = (username, password) => {
         redirect: 'follow'
     };
 
-     return fetch("https://localhost:44300/Token", requestOptions)
+     return fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/Token", requestOptions)
 }
 
 export default login;

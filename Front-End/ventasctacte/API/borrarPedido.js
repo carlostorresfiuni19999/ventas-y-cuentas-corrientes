@@ -8,7 +8,7 @@ const borrarPedido = (token, id) => {
         redirect: 'follow'
     };
 
-    return fetch(`https://localhost:44300/api/Pedidos?Id=${id}`, requestOptions)
+    return fetch(`https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Pedidos?Id=${id}`, requestOptions)
         .then(response => response.text())
         .then(result => console.log(result))
         .catch(error => console.log('error', error));

@@ -6,7 +6,7 @@ import styles from '../../styles/nlBody.module.css'
 import getPedidos from '../../API/getPedidos'
 import borrarPedido from '../../API/borrarPedido'
 
-export default function lista() {
+export default function Lista() {
     
     const router = useRouter()
 
@@ -70,7 +70,7 @@ export default function lista() {
             <div className={styles.ndplbody} >
                 {/*La parte de arriba de la lista */}
                 <div className={styles.ndpltop}>
-                    <a onClick={() =>{router.push('/ndp/lista')}}> {'<'} </a>
+                    <a onClick={() =>{router.push('/ndp/Lista')}}> {'<'} </a>
                     <label> {'<'} nombre de vendedor {'>'}</label>
                     <label>V</label>
                 </div>
@@ -84,7 +84,7 @@ export default function lista() {
                 <div className={styles.ndplbottom}>
                     <div>
                         <h1>Notas de Pedidos</h1>
-                        <button className={styles.bAdd} onClick={()=>{router.push('agregar')}}>Agregar</button>
+                        <button className={styles.bAdd} onClick={()=>{router.push('Agregar')}}>Agregar</button>
                     </div>
                     <div>
                         <label>Buscador: </label>
@@ -121,7 +121,7 @@ export default function lista() {
                                                     <td>{nota.estado}</td>
                                                     <td>{nota.vendedor}</td>
                                                     <td>{nota.fecha}</td>
-                                                    <Link href= {`/ndp/detalles/${nota.id}`} >
+                                                    <Link href= {`/ndp/Detalles/${nota.id}`} >
                                                         <td><button className={styles.bDetalle}>Detalles</button></td>
                                                     </Link>
                                                     <td><button className={styles.bEliminar} onClick={() => {eliminar(nota.id)}}>Eliminar</button></td>

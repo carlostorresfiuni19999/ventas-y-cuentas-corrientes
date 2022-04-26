@@ -29,7 +29,7 @@ function LoginForm() {
                     }else{
                         sessionStorage.setItem("token", JSON.stringify(res));
                         alert("Logeado con exito");
-                        router.push("ndp/lista")
+                        router.push("ndp/Lista")
                     }
                     
                     

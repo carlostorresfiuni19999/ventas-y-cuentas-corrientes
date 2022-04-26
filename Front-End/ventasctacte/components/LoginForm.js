@@ -1,6 +1,6 @@
 import React from 'react'
 import { useFormik } from "formik";
-import * as Yup from "Yup";
+import * as Yup from "yup";
 import styles from '../styles/LogIn.module.css'
 import login from "../API/login"
 import { useRouter } from 'next/router';

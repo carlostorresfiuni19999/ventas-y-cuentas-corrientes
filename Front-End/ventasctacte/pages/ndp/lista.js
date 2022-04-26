@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar'
 import styles from '../../styles/nlBody.module.css'
 import getPedidos from '../../API/getPedidos'
 import agregarPedido from '../../API/agregarPedido'
+import getPersonas from '../../API/getPersonas'
 
 export default function lista() {
 
@@ -11,12 +12,13 @@ export default function lista() {
 
     useEffect( () =>{
         console.log(JSON.parse(sessionStorage.getItem('token')).access_token)
+        getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
         //agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token)
         getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
         .then(res => res.text()).
         then(result => {
             const n = JSON.parse(result)
-            console.log(n[0])
+            console.log(n)
             setNotas(n.map(nota=>{
                 const notaNew = {
                     id: nota.Id,

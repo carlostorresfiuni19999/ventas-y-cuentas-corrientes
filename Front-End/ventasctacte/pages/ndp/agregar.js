@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar'
 import styles from '../../styles/naBody.module.css'
 import crearPedido from '../../API/crearPedido'
 import agregarPedido from '../../API/agregarPedido'
+import getProductos from '../../API/getProductos'
 
 export default function agregar(){
     return(
@@ -43,16 +44,18 @@ export default function agregar(){
                                     <tr>
                                         <th>Cantidad</th>
                                         <th>Producto</th>
-                                        <th>Prec. Unit</th>
-                                        <th>Prec. Total</th>
+                                        <th>Cantidad de Cuotas</th>
                                         <th>Borrar</th>
                                     </tr>
                                 </thead>
                                 <tbody className={styles.ndpatbody}>
                                     <tr className='Agregar'>
                                         <td><input type='text' placeholder='selectize?'/></td>
-                                        <td><input type='text' /></td>
-                                        <td><input type='text' /></td>
+                                        <td>
+                                            <select name='producto'>
+                                                <option value='1'> producto 1 </option>
+                                            </select>
+                                        </td>
                                         <td><input type='text' /></td>
                                         <td><button className={styles.bElim}>x</button></td>
                                     </tr>
@@ -63,7 +66,7 @@ export default function agregar(){
                     </div>
                     <div className={styles.btnDiv}>
                         <button className={styles.bCancelar}>Cancelar</button>
-                        <button className={styles.bAceptar} onClick={agregarPedido()}>Agregar</button>
+                        <button className={styles.bAceptar} onClick={()=>{}}>Agregar</button>
                     </div>
                 </div>
             </div>

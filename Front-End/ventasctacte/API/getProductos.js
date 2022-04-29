@@ -8,7 +8,7 @@ export async function getProductos(token) {
         redirect: 'follow'
     };
 
-    return fetch("https://localhost:44300/api/Productos", requestOptions)
+    return fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Productos", requestOptions)
 
 }
 

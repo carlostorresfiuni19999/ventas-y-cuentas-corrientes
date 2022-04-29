@@ -1,9 +1,24 @@
 {
   "dependencies": {
+    "compute.appService1": {
+      "restored": true,
+      "restoreTime": "2022-04-26T06:00:22.3533101Z"
+    },
     "mssql1": {
       "restored": true,
       "restoreTime": "2022-03-18T18:44:32.4857242Z"
     }
   },
-  "parameters": {}
+  "parameters": {
+    "compute.appService1.subscriptionId": {
+      "Name": "compute.appService1.subscriptionId",
+      "Type": "subscription",
+      "Value": "a64d0b84-0cdc-4ef8-ac56-ac4600e0c788"
+    },
+    "compute.appService1.resourceGroupName": {
+      "Name": "compute.appService1.resourceGroupName",
+      "Type": "resourceGroup",
+      "Value": "FIUNI"
+    }
+  }
 }

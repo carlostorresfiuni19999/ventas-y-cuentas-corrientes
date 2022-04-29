@@ -8,7 +8,7 @@ import getProductos from '../../API/getProductos'
 import agregarPedido from '../../API/agregarPedido'
 //import selectize from 'selectize'
 
-export default function agregar() {
+export default function Agregar() {
 
     const router = useRouter()
 
@@ -96,7 +96,7 @@ export default function agregar() {
             "Estado": "PENDIENTE",
             "Pedidos": listaProductos.map(producto =>{
                 const productoNew ={
-                    "ProductoId": producto.id,
+                    "ProductoId": producto.idProd,
                     "CantidadProducto": parseInt(producto.cantidad, 10),
                     "CantidadCuotas": parseInt(producto.cantCuota, 10)
                 }
@@ -105,7 +105,7 @@ export default function agregar() {
         });
         console.log(JSON.parse(raw))
         agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-        router.push('/ndp/lista')
+        router.push('/ndp/Lista')
     }
 
     return (

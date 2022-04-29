@@ -10,7 +10,7 @@ const agregarPedido = (token, raw) => {
         redirect: 'follow'
     };
 
-    fetch("https://localhost:44300/api/Pedidos", requestOptions)
+    fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Pedidos", requestOptions)
         .then(response => response.text())
         .then(result => console.log(result))
         .catch(error => console.log('error', error));

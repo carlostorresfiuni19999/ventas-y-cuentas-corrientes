@@ -19,7 +19,6 @@ namespace cuentasctacte_web_api.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Pedidos
-        [AllowAnonymous]
         public List<PedidoResponseDTO> GetPedidos()
         {
             var Pedidos = db.Pedidos
@@ -135,7 +134,8 @@ namespace cuentasctacte_web_api.Controllers
                 .FirstOrDefault(c => c.Id == Pedido.ClienteId);
             double MontoTotal = 0.0;
             double IvaTotal = 0.0;
-            
+
+            if (Pedido.Pedidos == null) return BadRequest("Los Detalles del pedido es requerido");
             //Verificamos si hay stocks disponibles para cada producto Pedido
             foreach(var Detalle in Pedido.Pedidos)
             {
@@ -144,10 +144,7 @@ namespace cuentasctacte_web_api.Controllers
 
 
                 MontoTotal += (Producto.Precio) * (Detalle.CantidadProducto);
-
-                if (MontoTotal > Cliente.LineaDeCredito) return BadRequest("Linea de Credito Insuficiente");
-                
-                IvaTotal += Producto.Iva;
+                IvaTotal += Producto.Iva * Detalle.CantidadProducto;
                 var Stock = db.Stocks
                     .Include(p => p.Producto)
                     .Include(d => d.Deposito)
@@ -179,13 +176,12 @@ namespace cuentasctacte_web_api.Controllers
 
                     //Aumentar El Saldo Que le Queda al Cliente.
                     db.PedidoDetalles.Add(PedidoDetalle);
-                    Cliente.Saldo += MontoTotal;
-
-                    //Guardar En Db
-                    db.Entry(Cliente).State = EntityState.Modified;
 
                 }
             }
+            Cliente.Saldo = Cliente.Saldo + MontoTotal;
+            if (MontoTotal >= Cliente.LineaDeCredito) return BadRequest("Linea de Credito Insuficiente - Linea de Credito: " + Cliente.LineaDeCredito + " Saldo: " + Cliente.Saldo);
+            db.Entry(Cliente).State = EntityState.Modified;
             try
             {
                 db.SaveChanges();
@@ -200,16 +196,58 @@ namespace cuentasctacte_web_api.Controllers
         [ResponseType(typeof(Pedido))]
         public IHttpActionResult DeletePedido(int id)
         {
-            Pedido pedido = db.Pedidos.Find(id);
+            Pedido pedido = db.Pedidos.Include(p => p.Cliente).FirstOrDefault(p => p.Id == id);
             if (pedido == null)
             {
                 return NotFound();
             }
+            pedido.Deleted = true;
+            var PedidosDetalles = db.PedidoDetalles
+                .Include(pd => pd.Producto)
+                .Where(pd => pd.IdPedido == id);
 
-            db.Pedidos.Remove(pedido);
-            db.SaveChanges();
+            double sumatoria = 0;
+            foreach (var pedidodetalle in PedidosDetalles)
+            {
+                pedidodetalle.Deleted = true;
+                var CantidadProducto = pedidodetalle.CantidadProducto;
+                var Producto = db.Productos.Find(pedidodetalle.IdProducto);
 
-            return Ok(pedido);
+                var Stock = db.Stocks
+                    .Include(s => s.Producto)
+                    .Include(s => s.Deposito)
+                    .Where(s => s.Producto.Id == pedidodetalle.Producto.Id && s.IdDeposito == 3)
+                    .First();
+                Stock.Cantidad = Stock.Cantidad + CantidadProducto;
+
+
+
+                //Vamos sumando cuanta plata devolver al cliente.
+                sumatoria += pedidodetalle.CantidadProducto * pedidodetalle.PrecioUnitario;
+
+                //Hace el Update de la base de datos 
+                db.Entry(Stock).State = EntityState.Modified;
+                pedidodetalle.CantidadProducto -= pedidodetalle.CantidadProducto;
+                pedidodetalle.CantidadFacturada = 0;
+                db.Entry(pedidodetalle).State = EntityState.Modified;
+
+
+            }
+            var Cliente = db.Personas.FirstOrDefault(c => c.Id == pedido.IdCliente);
+            Cliente.Saldo = Cliente.Saldo - sumatoria;
+            db.Entry(Cliente).State = EntityState.Modified;
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch
+            {
+                return BadRequest("No se ha podido ejecutar la transaccion de borrado");
+            }
+
+
+            return Ok("Se ha borrado con exito");
         }
 
         protected override void Dispose(bool disposing)

@@ -31,8 +31,8 @@ function Navbar(props) {
                     <div className={styles.secciones}>
                         <label className={styles.listMain} id='ndp'>Notas de Pago</label>
                         <div>
-                            <div><Link href='/ndp/lista'><label className={styles.listSub} id='ndpLista'>Lista</label></Link></div>
-                            <div><Link href='/ndp/agregar'><label className={styles.listSub} id='ndpAgregar'>Agregar</label></Link></div>
+                            <div><Link href='/ndp/Lista'><label className={styles.listSub} id='ndpLista'>Lista</label></Link></div>
+                            <div><Link href='/ndp/Agregar'><label className={styles.listSub} id='ndpAgregar'>Agregar</label></Link></div>
                             <div><label className={styles.listSub} id='ndpDetalles'>Detalles</label></div>
                         </div>
                     </div>

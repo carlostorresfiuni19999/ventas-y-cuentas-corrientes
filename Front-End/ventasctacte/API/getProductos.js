@@ -1,17 +1,15 @@
 export async function getProductos(token) {
-    var myHeaders = new Headers();
+    const myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${token}`);
 
-    var requestOptions = {
+    const requestOptions = {
         method: 'GET',
         headers: myHeaders,
         redirect: 'follow'
     };
 
-    fetch("https://localhost:44300/api/Pedidos?Id=1", requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
-        .catch(error => console.log('error', error));
+    return fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Productos", requestOptions)
+
 }
 
 export default getProductos

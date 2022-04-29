@@ -8,10 +8,8 @@ export async function getPersonas(token) {
         redirect: 'follow'
     };
 
-    return fetch("https://localhost:44300/api/Personas", requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
-        .catch(error => console.log('error', error));
+    return fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Personas", requestOptions)
+        
 }
 
 export default getPersonas

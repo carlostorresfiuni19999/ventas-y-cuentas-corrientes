@@ -9,7 +9,7 @@ export async function getPedidos(token) {
         
     };
 
-    return fetch("https://localhost:44300/api/Pedidos", requestOptions)
+    return fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Pedidos", requestOptions)
 }
 
 export default getPedidos

@@ -28,7 +28,7 @@ const crearPedido = () => {
         redirect: 'follow'
     };
 
-    fetch("https://localhost:44300/Pedidos", requestOptions)
+    fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/Pedidos", requestOptions)
         .then(response => response.text())
         .then(result => console.log(result))
         .catch(error => console.log('error', error));

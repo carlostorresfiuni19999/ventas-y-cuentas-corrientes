@@ -19,7 +19,6 @@ namespace cuentasctacte_web_api.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Pedidos
-        [AllowAnonymous]
         public List<PedidoResponseDTO> GetPedidos()
         {
             var Pedidos = db.Pedidos
@@ -135,7 +134,8 @@ namespace cuentasctacte_web_api.Controllers
                 .FirstOrDefault(c => c.Id == Pedido.ClienteId);
             double MontoTotal = 0.0;
             double IvaTotal = 0.0;
-            
+
+            if (Pedido.Pedidos == null) return BadRequest("Los Detalles del pedido es requerido");
             //Verificamos si hay stocks disponibles para cada producto Pedido
             foreach(var Detalle in Pedido.Pedidos)
             {
@@ -144,10 +144,7 @@ namespace cuentasctacte_web_api.Controllers
 
 
                 MontoTotal += (Producto.Precio) * (Detalle.CantidadProducto);
-
-                if (MontoTotal > Cliente.LineaDeCredito) return BadRequest("Linea de Credito Insuficiente");
-                
-                IvaTotal += Producto.Iva;
+                IvaTotal += Producto.Iva * Detalle.CantidadProducto;
                 var Stock = db.Stocks
                     .Include(p => p.Producto)
                     .Include(d => d.Deposito)
@@ -179,13 +176,12 @@ namespace cuentasctacte_web_api.Controllers
 
                     //Aumentar El Saldo Que le Queda al Cliente.
                     db.PedidoDetalles.Add(PedidoDetalle);
-                    Cliente.Saldo += MontoTotal;
-                    if (Cliente.Saldo >= Cliente.LineaDeCredito) return BadRequest("Linea de Credito insuficiente");
-                    //Guardar En Db
-                    db.Entry(Cliente).State = EntityState.Modified;
 
                 }
             }
+            Cliente.Saldo = Cliente.Saldo + MontoTotal;
+            if (MontoTotal >= Cliente.LineaDeCredito) return BadRequest("Linea de Credito Insuficiente - Linea de Credito: " + Cliente.LineaDeCredito + " Saldo: " + Cliente.Saldo);
+            db.Entry(Cliente).State = EntityState.Modified;
             try
             {
                 db.SaveChanges();
@@ -216,14 +212,7 @@ namespace cuentasctacte_web_api.Controllers
                 pedidodetalle.Deleted = true;
                 var CantidadProducto = pedidodetalle.CantidadProducto;
                 var Producto = db.Productos.Find(pedidodetalle.IdProducto);
-                //var Producto = db.Productos.FirstOrDefault(prod => prod.Id == pedidodetalle.IdProducto);
 
-                /*
-                var Stock = db.Stocks
-                    .Include(s => s.Producto)
-                    .Include(s => s.Deposito)
-                    .FirstOrDefault(s => s.Producto.Id == pedidodetalle.Producto.Id && s.IdDeposito == 3);
-                */
                 var Stock = db.Stocks
                     .Include(s => s.Producto)
                     .Include(s => s.Deposito)

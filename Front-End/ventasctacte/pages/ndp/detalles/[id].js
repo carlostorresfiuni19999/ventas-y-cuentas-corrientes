@@ -5,16 +5,20 @@ import Link from 'next/link'
 //componentes
 import Navbar from '../../../components/Navbar'
 //css
-import styles from '../../../styles/ndBody.module.css'
+import styles from '../../../styles/ndbody.module.css'
 //api
 import getProductos from '../../../API/getProductos'
 
-export default function detalles(props) {
+
+export default function Detalles(props) {
     const [notas, setNotas] = useState([])
     const [productos, setProductos] = useState([])
     
     useEffect(() => {
         getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
     }, [])
 
     console.log(productos)
@@ -39,7 +43,7 @@ export default function detalles(props) {
                     <label> {'>'} </label>
                     <label> Detalles </label>
                     <label> {'>'} </label>
-                    {imprimir()}
+                    {Imprimir()}
                 </div>
                 {/*La parte de abajo de la lista */}
                 <div className={styles.ndpdbottom}>
@@ -51,7 +55,7 @@ export default function detalles(props) {
                         <label>Cliente:</label>
                         <label></label>
                         <label className={styles.clienteCin}>CIN:</label>
-                        <label>'cin'</label>
+                        <label>cin</label>
                     </div>
 
                     <div className={styles.ndpdtablediv}>
@@ -101,7 +105,7 @@ export default function detalles(props) {
         </div>
     )
 }
-const imprimir = () =>{
+const Imprimir = () =>{
     const router = useRouter()
     const {id} = router.query
 

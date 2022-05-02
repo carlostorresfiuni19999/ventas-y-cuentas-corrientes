@@ -15,7 +15,7 @@ export default function Home() {
         </Link>
       </li>
       <li>
-        <Link href="/ndp/lista">
+        <Link href="/ndp/Lista">
           <a>Notas de Pago</a>
         </Link>
       </li>

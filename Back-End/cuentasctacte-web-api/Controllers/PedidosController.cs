@@ -30,35 +30,22 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // GET: api/Pedidos/5
-        [ResponseType(typeof(FullProductoDTOResponse))]
+        [ResponseType(typeof(PedidoResponseDTO))]
         public IHttpActionResult GetPedido(int id)
         {
+            var Pedido = db.Pedidos
+                .Include(p => p.Vendedor)
+                .Include(p => p.Cliente)
+                .FirstOrDefault(p => p.Id == id );
+            if(null == Pedido)
+            {
+                return NotFound();
+            }
 
-            var Pedido = db.Pedidos.Find(id);
+            
 
-            if (Pedido == null || Pedido.Deleted) return BadRequest("No se encontro ningun pedido");
-            var PedidosDetalles = db.PedidoDetalles
-                .Include(pd => pd.Pedido)
-                .Include(pd => pd.Producto)
-                .Where(pd => !pd.Deleted)
-                .Where(pd => pd.IdPedido == id);
-            var result = PedidosDetalles.ToList()
-                .ConvertAll(pd => new FullProductoDTOResponse
-                {
-                    IdPedido = Pedido.Id,
-                    IdProducto = pd.IdProducto,
-                    Producto = pd.Producto.MarcaProducto + ": " + pd.Producto.NombreProducto,
-                    Cantidad = pd.CantidadProducto,
-                    PrecioUnitario = pd.Producto.Precio,
-                    PrecioTotal = pd.CantidadProducto * pd.Producto.Precio,
-                    Cliente = Pedido.Cliente.Nombre + " " + Pedido.Cliente.Apellido,
-                    IdCliente = Pedido.Cliente.Id,
-                    Vendedor = Pedido.Vendedor.Nombre + " " + Pedido.Vendedor.Apellido,
-                    IdVendedor = Pedido.Vendedor.Id
 
-                });
-
-            return Ok(result);
+            return Ok(PedidoMapper(Pedido));
         }
 
         // PUT: api/Pedidos/5
@@ -125,7 +112,7 @@ namespace cuentasctacte_web_api.Controllers
                 IdCliente = Pedido.ClienteId,
                 IdVendedor = Vendedor.Id,
                 PedidoDescripcion = Pedido.Descripcion,
-                CondicionVenta = Pedido.CondicionVenta,
+                CondicionVenta = "Credito",
                 Estado = "PENDIENTE",
                 FechaPedido = DateTime.Now
             };
@@ -177,7 +164,7 @@ namespace cuentasctacte_web_api.Controllers
             if (MontoTotal > Cliente.LineaDeCredito || MontoTotal + Cliente.Saldo > Cliente.LineaDeCredito)
             {
                 return BadRequest("Linea de Credito Insuficiente");
-            }else
+            } else
             {
                 Cliente.Saldo += MontoTotal;
                 db.Entry(Cliente).State = EntityState.Modified;
@@ -189,9 +176,9 @@ namespace cuentasctacte_web_api.Controllers
                         db.SaveChanges();
                         return Ok("Guardado, pero Falta Facturar Productos");
 
-                    }catch (Exception ex)
+                    } catch (Exception ex)
                     {
-                        return BadRequest("Error al ejecutar la transaccion "+ex.Message);
+                        return BadRequest("Error al ejecutar la transaccion " + ex.Message);
                     }
                 } else
                 {
@@ -210,7 +197,7 @@ namespace cuentasctacte_web_api.Controllers
                 }
             }
 
-            
+
 
         }
 
@@ -241,7 +228,6 @@ namespace cuentasctacte_web_api.Controllers
                     .Where(s => s.Producto.Id == pedidodetalle.Producto.Id && s.IdDeposito == 3)
                     .First();
 
-                
                 Stock.Cantidad = Stock.Cantidad + pedidodetalle.CantidadFacturada;
 
                 //Vamos sumando cuanta plata devolver al cliente.
@@ -257,7 +243,7 @@ namespace cuentasctacte_web_api.Controllers
             }
             var Cliente = db.Personas.FirstOrDefault(c => c.Id == pedido.IdCliente);
             Cliente.Saldo = Cliente.Saldo - sumatoria;
-            db.Entry(Cliente).State = EntityState.Added;
+            db.Entry(Cliente).State = EntityState.Modified;
 
             try
             {
@@ -290,31 +276,37 @@ namespace cuentasctacte_web_api.Controllers
         {
             var Result = Pedidos
                 .ToList()
-                .ConvertAll(p => new PedidoResponseDTO
-                {
-                    Id = p.Id,
-                    Cliente = new PersonaResponseDTO
-                    {
-                        Id = (int)p.IdCliente,
-                        Nombre = p.Cliente.Nombre,
-                        Apellido = p.Cliente.Apellido,
-                        DocumentoTipo = p.Cliente.DocumentoTipo,
-                        Documento = p.Cliente.Documento
+                .ConvertAll(p => PedidoMapper(p));
+            return Result;
+        }
 
-                    },
-                    Vendedor = new PersonaResponseDTO
-                    {
-                        Id = (int)p.IdVendedor,
-                        Nombre = p.Vendedor.Nombre,
-                        Apellido = p.Vendedor.Apellido,
-                        DocumentoTipo = p.Vendedor.DocumentoTipo,
-                        Documento = p.Vendedor.Documento
-                    },
-                    PedidoDescripcion = p.PedidoDescripcion,
-                    Estado = p.Estado,
-                    CondicionVenta = p.CondicionVenta,
-                    FechePedido = p.FechaPedido,
-                    PedidosDetalles = db.PedidoDetalles
+        private PedidoResponseDTO PedidoMapper(Pedido p)
+        {
+            var prdto = new PedidoResponseDTO
+            {
+                Id = p.Id,
+                Cliente = new PersonaResponseDTO
+                {
+                    Id = (int)p.IdCliente,
+                    Nombre = p.Cliente.Nombre,
+                    Apellido = p.Cliente.Apellido,
+                    DocumentoTipo = p.Cliente.DocumentoTipo,
+                    Documento = p.Cliente.Documento
+
+                },
+                Vendedor = new PersonaResponseDTO
+                {
+                    Id = (int)p.IdVendedor,
+                    Nombre = p.Vendedor.Nombre,
+                    Apellido = p.Vendedor.Apellido,
+                    DocumentoTipo = p.Vendedor.DocumentoTipo,
+                    Documento = p.Vendedor.Documento
+                },
+                PedidoDescripcion = p.PedidoDescripcion,
+                Estado = p.Estado,
+                CondicionVenta = p.CondicionVenta,
+                FechePedido = p.FechaPedido,
+                PedidosDetalles = db.PedidoDetalles
                         .Include(pd => pd.Producto)
                         .Where(pd => pd.IdPedido == p.Id)
                         .ToList()
@@ -331,13 +323,12 @@ namespace cuentasctacte_web_api.Controllers
                                 Precio = pd.Producto.Precio,
                                 Iva = pd.Producto.Iva
                             },
-                            CantidadCuotas = pd.CantidadFacturada,
+                            CantidadFacturada = pd.CantidadFacturada,
                             CantidadProductos = pd.CantidadProducto
 
                         })
-
-                });
-            return Result;
+            };
+            return prdto;
         }
     }
 }

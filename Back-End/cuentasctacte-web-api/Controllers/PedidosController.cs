@@ -227,9 +227,8 @@ namespace cuentasctacte_web_api.Controllers
                     .Include(s => s.Deposito)
                     .Where(s => s.Producto.Id == pedidodetalle.Producto.Id && s.IdDeposito == 3)
                     .First();
+
                 Stock.Cantidad = Stock.Cantidad + pedidodetalle.CantidadFacturada;
-
-
 
                 //Vamos sumando cuanta plata devolver al cliente.
                 sumatoria += pedidodetalle.CantidadFacturada * pedidodetalle.PrecioUnitario;

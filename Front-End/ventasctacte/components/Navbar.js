@@ -5,7 +5,7 @@ import Link from 'next/link'
 function Navbar(props) {
     
     const apareceNav = () => {
-        document.getElementById("mainNav").style.width = "15%";
+        document.getElementById("mainNav").style.width = "200px";
         document.getElementById("subNav").style.width = "0px";
         document.getElementById(props.page).style.color= "black"
         document.getElementById(props.rango).style.color= "black"

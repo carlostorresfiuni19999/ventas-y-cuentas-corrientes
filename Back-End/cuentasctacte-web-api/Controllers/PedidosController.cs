@@ -129,7 +129,7 @@ namespace cuentasctacte_web_api.Controllers
                 Estado = "PENDIENTE",
                 FechaPedido = DateTime.Now
             };
-            Pedido PedidoSaved = db.Pedidos.Add(PedidoDb);
+            db.Pedidos.Add(PedidoDb);
             var Cliente = db.Personas
                 .FirstOrDefault(c => c.Id == Pedido.ClienteId);
             double MontoTotal = 0.0;
@@ -150,8 +150,8 @@ namespace cuentasctacte_web_api.Controllers
                 {
                     IdProducto = PedidoDetalle.ProductoId,
                     Producto = db.Productos.Find(PedidoDetalle.ProductoId),
-                    Pedido = PedidoSaved,
-                    IdPedido = PedidoSaved.Id,
+                    Pedido = PedidoDb,
+                    IdPedido = PedidoDb.Id,
                     CantidadProducto = PedidoDetalle.CantidadProducto,
                     PrecioUnitario = Stock.Producto.Precio
                 };
@@ -168,7 +168,7 @@ namespace cuentasctacte_web_api.Controllers
                 }
 
                 db.Entry(Stock).State = EntityState.Modified;
-                db.Entry(Detalle).State = EntityState.Modified;
+                db.PedidoDetalles.Add(Detalle);
                 MontoTotal += Stock.Producto.Precio * Detalle.CantidadFacturada;
 
 
@@ -197,6 +197,8 @@ namespace cuentasctacte_web_api.Controllers
                 {
                     try
                     {
+                        PedidoDb.Estado = "FACTURADO";
+                        db.Entry(PedidoDb).State = EntityState.Added;
                         db.SaveChanges();
                         return Ok("Guardado, con exito");
 
@@ -255,7 +257,7 @@ namespace cuentasctacte_web_api.Controllers
             }
             var Cliente = db.Personas.FirstOrDefault(c => c.Id == pedido.IdCliente);
             Cliente.Saldo = Cliente.Saldo - sumatoria;
-            db.Entry(Cliente).State = EntityState.Modified;
+            db.Entry(Cliente).State = EntityState.Added;
 
             try
             {

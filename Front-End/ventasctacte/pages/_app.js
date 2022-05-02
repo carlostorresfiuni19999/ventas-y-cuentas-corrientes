@@ -1,4 +1,7 @@
+import 'bootstrap/dist/css/bootstrap.css'
+
 import '../styles/globals.css'
+
 import App from 'next/app';
 
 const MyApp = ({ Component, props }) => {

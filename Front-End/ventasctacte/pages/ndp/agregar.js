@@ -58,7 +58,7 @@ export default function Agregar() {
     }, [])
 
     //console.log(productos)
-    const [cliente, setCliente] = useState({ id: '', cin: '...' })
+    const [cliente, setCliente] = useState({ id: '', cin: 0 })
     const [selectProd, setSelectProd] = useState({ precio: 0 })
     const [idListaProd, setIdListaProd] = useState(1)
     const [precioTotalPedido, setPrecioTotalPedido] = useState({ precio: 0 })
@@ -112,7 +112,7 @@ export default function Agregar() {
     const generarPeticion = () => {
         const raw = JSON.stringify({
             "ClienteId": cliente.id,
-            "Descripcion": document.getElementById('textArea').value,
+            "Descripcion": document.getElementById('textAreaDescripcion').value,
             "Pedidos": listaProductos.map(producto => {
                 const productoNew = {
                     "ProductoId": producto.idProd,
@@ -139,14 +139,14 @@ export default function Agregar() {
                 <nav className="navbar navbar-expand-lg navbar-light bg-light">
                     <div className='ms-5'>
                         <Link href='/' >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16">
+                                <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
                             </svg>
                         </Link>
                     </div>
 
 
-                    <div className="ms-5 collapse navbar-collapse" id="navbarSupportedContent">
+                    {/*<div className="ms-5 collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className=" navbar-nav mr-auto">
                             <li className="nav-item active">
                                 <h6 className='pt-3 nav-link'>Notas de Pago</h6>
@@ -159,7 +159,7 @@ export default function Agregar() {
                             </li>
 
                         </ul>
-                    </div>
+                    </div>*/}
                 </nav>
 
                 {/*La parte de abajo de la agregar */}
@@ -171,7 +171,10 @@ export default function Agregar() {
                     <div className='pt-3'>
                         <label>Cliente: </label>
                         <select className='form-select form-select-sm w-25 pt-2' onChange={() => { setCliente(JSON.parse(document.getElementById('idSelectCliente').value)) }} id='idSelectCliente'>
-                            <option selected>seleccionar...</option>
+                            <option value={JSON.stringify({
+                                id: 0,
+                                cin: 0,
+                            })}>seleccionar...</option>
                             {
                                 personas.map((persona) => {
                                     return (
@@ -213,9 +216,9 @@ export default function Agregar() {
                                                     <td className='text-center'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(producto.precio)}</td>
                                                     <td className='text-center'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(producto.precioTotal)}</td>
                                                     <td><button className='btn btn-danger' onClick={() => handleBorrar(producto.id)} >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
                                                             <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                            <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
                                                         </svg>
                                                     </button></td>
                                                 </tr>
@@ -226,7 +229,7 @@ export default function Agregar() {
                                         <td><input type='number' min='0' defaultValue="0" id='cantidadInput' /></td>
                                         <td><label>{selectProd.codBar}</label></td>
                                         <td>
-                                            <select name='producto' onChange={() => { setSelectProd(JSON.parse(document.getElementById('idSelectProducto').value)) }} id='idSelectProducto' >
+                                            <select className='form-select form-select-sm pt-2' name='producto' onChange={() => { setSelectProd(JSON.parse(document.getElementById('idSelectProducto').value)) }} id='idSelectProducto' >
                                                 <option value={
                                                     JSON.stringify({
                                                         id: '',
@@ -254,7 +257,7 @@ export default function Agregar() {
                                         <td className='text-center'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(selectProd.precio)}</td>
                                         <td className='text-center'>-</td>
                                         <td><button className='btn btn-primary' onClick={() => { generarPedido() }}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
                                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
                                             </svg>
                                         </button></td>
@@ -265,7 +268,8 @@ export default function Agregar() {
                         </div>
                     </div>
                     <div className='w-50 float-start h-50'>
-                        <input type='textarea' className='w-100 h-100' id='textArea' />
+                        <label htmlFor='textAreaDescripcion' >Descripcion:</label>
+                        <input type='textarea' name='descripcion' className='w-100 h-100' id='textAreaDescripcion' />
                     </div>
                     <div className='w-50 float-end ps-5'>
 
@@ -278,8 +282,8 @@ export default function Agregar() {
                         </div>
                     </div>
                     <div className='float-end pe-2 pt-2 pb-5'>
-                        <button className='btn btn-success' onClick={() => { generarPeticion() }}>Agregar</button>
-                        <button className='btn btn-danger'>Cancelar</button>
+                        <button className='btn btn-success me-2' onClick={() => { generarPeticion() }}>Agregar</button>
+                        <button className='btn btn-danger ' onClick={() => { router.back() }}>Cancelar</button>
                     </div>
                 </div>
             </div>

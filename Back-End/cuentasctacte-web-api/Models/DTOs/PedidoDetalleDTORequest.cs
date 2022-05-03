@@ -9,6 +9,5 @@ namespace cuentasctacte_web_api.Models.DTOs
     {
         public int ProductoId { get; set; }
         public int CantidadProducto { get; set; }
-        public int CantidadCuotas { get; set; }
     }
 }

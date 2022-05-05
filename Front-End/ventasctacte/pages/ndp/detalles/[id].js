@@ -7,14 +7,46 @@ import Navbar from '../../../components/Navbar'
 //css
 //api
 import getPedidos from '../../../API/getPedidos'
+import getPedido from '../../../API/getPedido'
 
-export default function Detalles(props) {
+export default function Detalles() {
     const [datos, setDatos] = useState({})
     const [productos, setProductos] = useState([])
     const router = useRouter()
 
     useEffect(() => {
-        getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
+        if (router.isReady) {
+            getPedido(JSON.parse(sessionStorage.getItem('token')).access_token, router.query.id)
+                .then(response => response.text())
+                .then(result => {
+                    const res = JSON.parse(result)
+                    console.log(res)
+
+                    setDatos({
+                        nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
+                        cin: res.Cliente.Documento,
+                        desc: res.PedidoDescripcion,
+                        fecha: res.FechePedido.split('T')[0],
+                        estado: res.Estado
+                    })
+
+                    setProductos(res.PedidosDetalles.map((p) => {
+                        const newProd = {
+                            id: p.Id,
+                            cantidad: p.CantidadProductos,
+                            nombre: p.Producto.MarcaProducto + ' ' + p.Producto.NombreProducto,
+                            codBarr: p.Producto.CodigoDeBarra,
+                            precio: p.Producto.Precio + p.Producto.Iva,
+                            precioTotal: (p.Producto.Precio + p.Producto.Iva) * p.CantidadProductos
+                        }
+                        return newProd
+                    }))
+                }).catch(err => console.log(err))
+        }
+
+
+
+        {/*getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
             .then(response => response.text())
             .then(result => {
                 const res = JSON.parse(result)
@@ -42,13 +74,11 @@ export default function Detalles(props) {
 
 
             })
-            .catch(error => console.log('error', error));
+        .catch(error => console.log('error', error));*/}
 
 
-    }, [])
+    }, [router.isReady])
 
-
-    console.log(productos.map(p=>p.precioTotal).reduce((a,b)=> a+b,0))
 
     return (
         <div>
@@ -57,15 +87,14 @@ export default function Detalles(props) {
                 {/*La parte de arriba de la lista */}
                 <nav className="navbar navbar-expand-lg navbar-light bg-light">
                     <div className='ms-5'>
-                        <Link href='/' >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
-                            </svg>
-                        </Link>
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16" onClick={() => { router.back() }}>
+                            <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
+                        </svg>
+
                     </div>
 
-
-                    <div className="ms-5">
+                    {/*<div className="ms-5">
                         <ul className=" navbar-nav mr-auto">
                             <li className="nav-item active">
                                 <h6 className='pt-3 nav-link'>Notas de Pago</h6>
@@ -78,7 +107,8 @@ export default function Detalles(props) {
                             </li>
 
                         </ul>
-                    </div>
+                    </div> */}
+
                 </nav>
                 {/*La parte de abajo de la lista */}
                 <div className='ms-5 mt-3'>
@@ -114,7 +144,7 @@ export default function Detalles(props) {
                                 {//en prueba
                                     productos.map(prod => {
                                         return (
-                                            <tr>
+                                            <tr key={prod.id}>
                                                 <td>{prod.cantidad}</td>
                                                 <td>{prod.codBarr}</td>
                                                 <td>{prod.nombre}</td>
@@ -129,9 +159,10 @@ export default function Detalles(props) {
                         </table>
                     </div>
                     <div>
+                        <h6 className='float-end pe-5'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(productos.map(p => p.precioTotal).reduce((a, b) => a + b, 0))}</h6>
+                        <h6 className='float-end pe-2'>Total:</h6>
+                        <h6>Descripcion:</h6>
                         <label>{datos.desc}</label>
-                        <label className='float-end pe-5'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(productos.map(p=>p.precioTotal).reduce((a,b)=> a+b,0))}</label>
-                        <label className='float-end pe-2'>Total:</label>
                     </div>
 
                 </div>

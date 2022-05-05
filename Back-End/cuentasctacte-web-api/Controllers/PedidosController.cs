@@ -282,6 +282,17 @@ namespace cuentasctacte_web_api.Controllers
 
         private PedidoResponseDTO PedidoMapper(Pedido p)
         {
+            var detalles = db.PedidoDetalles
+                .Include(x => x.Pedido)
+                .Include(x => x.Producto)
+                .Where(x => x.IdPedido == p.Id);
+            double precioTotal = 0;
+            double ivaTotal = 0;
+            foreach(var pdt in detalles)
+            {
+                precioTotal = precioTotal + pdt.Producto.Precio * pdt.CantidadFacturada;
+                ivaTotal = ivaTotal + pdt.Producto.Iva * pdt.CantidadFacturada;
+            }
             var prdto = new PedidoResponseDTO
             {
                 Id = p.Id,
@@ -306,6 +317,8 @@ namespace cuentasctacte_web_api.Controllers
                 Estado = p.Estado,
                 CondicionVenta = p.CondicionVenta,
                 FechePedido = p.FechaPedido,
+                PrecioTotal = precioTotal,
+                IvaTotal = ivaTotal,
                 PedidosDetalles = db.PedidoDetalles
                         .Include(pd => pd.Producto)
                         .Where(pd => pd.IdPedido == p.Id)

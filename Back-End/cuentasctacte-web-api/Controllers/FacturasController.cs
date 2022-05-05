@@ -75,15 +75,7 @@ namespace cuentasctacte_web_api.Controllers
         [ResponseType(typeof(Factura))]
         public IHttpActionResult PostFactura(Factura factura)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            db.Facturas.Add(factura);
-            db.SaveChanges();
-
-            return CreatedAtRoute("DefaultApi", new { id = factura.Id }, factura);
+            return null;
         }
 
         // DELETE: api/Facturas/5

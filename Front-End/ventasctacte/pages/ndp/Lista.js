@@ -8,11 +8,11 @@ import borrarPedido from '../../API/borrarPedido'
 
 export default function Lista() {
 
-    const router = useRouter()
-
+    const router = useRouter();
     const [notas, setNotas] = useState([]);
-
+    
     useEffect(() => {
+        JSON.parse(sessionStorage.getItem("token")) == null && router.push("/LogIn");
         getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
             .then(res => res.text()).
             then(result => {
@@ -25,8 +25,13 @@ export default function Lista() {
                         estado: nota.Estado,
                         vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
                         fecha: nota.FechePedido.split('T')[0],
+<<<<<<< HEAD
 
+=======
+                        precioTotal: new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(nota.PrecioTotal + nota.IvaTotal)
+>>>>>>> 0d03203c56a2b577392ea92f081ad14ba1b5c037
                     }
+                    
                     return notaNew
                 }))
 
@@ -36,9 +41,11 @@ export default function Lista() {
     }, [notas])
 
     useEffect(() => {
+        if(null == JSON.parse(sessionStorage.getItem('token'))) router.push("/LogIn");
         getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
             .then(res => res.text()).
             then(result => {
+                
                 const n = JSON.parse(result)
                 console.log(n)
                 setNotas(n.map(nota => {
@@ -48,7 +55,12 @@ export default function Lista() {
                         cin: nota.Cliente.Documento,
                         estado: nota.Estado,
                         vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
+<<<<<<< HEAD
                         fecha: nota.FechePedido.split('T')[0]
+=======
+                        fecha: nota.FechePedido.split('T')[0],
+                        precioTotal: new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(nota.PrecioTotal)
+>>>>>>> 0d03203c56a2b577392ea92f081ad14ba1b5c037
                     }
                     return notaNew
                 }))
@@ -152,8 +164,9 @@ export default function Lista() {
                                                         <td>{nota.cin}</td>
                                                         <td>{nota.estado}</td>
                                                         <td>{nota.vendedor}</td>
-                                                        <td></td>
+                                                        <td>{nota.precioTotal}</td>
                                                         <td>{nota.fecha}</td>
+<<<<<<< HEAD
 <<<<<<< HEAD:Front-End/ventasctacte/pages/ndp/lista.js
                                                         <Link href={`/ndp/Detalles/${nota.id}`} >
                                                             <td><button className='btn btn-info btn-sm'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
@@ -164,11 +177,18 @@ export default function Lista() {
 =======
 
                                                         <td><button className='btn btn-info btn-sm'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16" onClick={()=>{router.push(`/ndp/Detalles/${nota.id}`)}}>
+=======
+
+                                                        <td><button className='btn btn-info btn-sm'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16" onClick={()=>{router.push(`/ndp/detalle/${nota.id}`)}}>
+>>>>>>> 0d03203c56a2b577392ea92f081ad14ba1b5c037
                                                             <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
                                                             <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
                                                         </svg></button></td>
 
+<<<<<<< HEAD
 >>>>>>> 27ee910326146b4787eda10a4082eab828574974:Front-End/ventasctacte/pages/ndp/Lista.js
+=======
+>>>>>>> 0d03203c56a2b577392ea92f081ad14ba1b5c037
                                                         <td><button className='btn btn-danger btn-sm' onClick={() => { eliminar(nota.id) }}>
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
                                                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />

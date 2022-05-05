@@ -14,7 +14,7 @@ namespace cuentasctacte_web_api.Models.Entities
         public int Cantidad { get; set; }
         public double Iva { get; set; }
         public double PrecioUnitario { get; set; }
-        public int CantidadFacturada { get; set; }
+        public int CantidadCuotas { get; set; }
 
         [ForeignKey("FacturaId")]
         public Factura Factura { get; set; }

@@ -19,6 +19,8 @@ namespace cuentasctacte_web_api.Models.DTOs
         public double PrecioTotal { get;set; }
 
         public double IvaTotal { get;set; }
+
+        public double CostoTotal { get; set; }
         public List<PedidoDetalleResponseDTO> PedidosDetalles { get; set; }
 
     }

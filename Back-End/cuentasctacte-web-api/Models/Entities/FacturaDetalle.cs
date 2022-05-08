@@ -6,6 +6,7 @@ using System.Web;
 
 namespace cuentasctacte_web_api.Models.Entities
 {
+ 
     public class FacturaDetalle : Data
     {
         public int Id { get; set; }
@@ -14,7 +15,6 @@ namespace cuentasctacte_web_api.Models.Entities
         public int Cantidad { get; set; }
         public double Iva { get; set; }
         public double PrecioUnitario { get; set; }
-        public int CantidadCuotas { get; set; }
 
         [ForeignKey("FacturaId")]
         public Factura Factura { get; set; }

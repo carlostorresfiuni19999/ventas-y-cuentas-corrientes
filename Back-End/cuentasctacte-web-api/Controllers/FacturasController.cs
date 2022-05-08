@@ -14,14 +14,31 @@ using cuentasctacte_web_api.Models.Entities;
 
 namespace cuentasctacte_web_api.Controllers
 {
+    [Authorize]
     public class FacturasController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Facturas
-        public IQueryable<Factura> GetFacturas()
+        
+        public List<FacturaResponseDTO> GetFacturas()
         {
-            return db.Facturas;
+  
+            return db.Facturas
+                .Include(c => c.Cliente)
+                .Where(f => !f.Deleted)
+                .ToList()
+                .ConvertAll(f => new FacturaResponseDTO
+                {
+                    Id = f.Id,
+                    MontoTotal = f.Monto,
+                    SaldoTotal = f.Saldo,
+                    FechaFacturada = f.FechaFactura,
+                    Cliente = f.Cliente.Nombre+" "+f.Cliente.Apellido,
+                    CondicionVenta = f.CondicionVenta,
+                    Estado = f.Estado
+                })
+                ;
         }
 
         // GET: api/Facturas/5
@@ -76,6 +93,7 @@ namespace cuentasctacte_web_api.Controllers
         [ResponseType(typeof(FacturaRequestDTO))]
         public IHttpActionResult PostFactura(FacturaRequestDTO factura)
         {
+            if (factura.CantidadCuotas < 1) return BadRequest("Cuota no valida");
             var Pedido = db.Pedidos
                 .Include(p => p.Cliente)
                 .Include(p => p.Vendedor)
@@ -84,6 +102,7 @@ namespace cuentasctacte_web_api.Controllers
             var Pedidos = db.PedidoDetalles
                 .Include(pd => pd.Pedido)
                 .Include(pd => pd.Producto)
+                .Where(pd => !pd.Deleted)
                 .Where(pd => pd.IdPedido == factura.IdPedido);
 
 
@@ -92,10 +111,11 @@ namespace cuentasctacte_web_api.Controllers
                 PedidoId = factura.IdPedido,
                 VendedorId = Pedido.IdVendedor,
                 ClienteId = Pedido.IdCliente,
-                CondicionVenta = factura.CondicionVenta,
-                FechaFactura = DateTime.Now
+                CondicionVenta = factura.CantidadCuotas > 1 ? "CREDITO": "CONTADO",
+                FechaFactura = DateTime.Now,
+                CantidadCuotas = factura.CantidadCuotas
             };
-
+            
             double monto = 0.0;
             double iva = 0.0;
             bool pendiente = false;
@@ -125,50 +145,32 @@ namespace cuentasctacte_web_api.Controllers
             db.Entry(Pedido).State = EntityState.Modified;
             db.Facturas.Add(Factura);
 
-            foreach(var facturaDetalle in factura.FacturaDetalles)
+            foreach (var item in Pedidos)
             {
-                var Producto = db.Productos
-                    .FirstOrDefault(pr => pr.Id == facturaDetalle.IdProducto);
-
-                var PedidosDetalles = db.PedidoDetalles
-                    .Include(pd => pd.Producto)
-                    .Include(pd => pd.Pedido)
-                    .Where(pd => pd.IdProducto == facturaDetalle.IdProducto)
-                    .Where(pd => pd.IdPedido == factura.IdPedido)
-                    .Where(pd => !pd.Deleted);
-
-                int cant_productos = 0;
-                foreach(var item in PedidosDetalles)
+                var FacturaDetalle = new FacturaDetalle
                 {
-                    cant_productos += item.CantidadFacturada;
-                }
-               
-                var fd = new FacturaDetalle
+                    FacturaId = Factura.Id,
+                    ProductoId = item.IdProducto,
+                    Cantidad = item.CantidadFacturada,
+                    PrecioUnitario = item.PrecioUnitario,
+                    Iva = item.Producto.Iva
+                };
+
+                db.FacturaDetalles.Add(FacturaDetalle);
+            }
+            for(int i = 0; i < factura.CantidadCuotas; i++)
+            {
+                var cuota = new VencimientoFactura
                 {
-                    ProductoId = facturaDetalle.IdProducto,
-                    CantidadCuotas = facturaDetalle.CantidadCuotas,
-                    PrecioUnitario = Producto.Precio,
-                    Iva = Producto.Iva,
-                    Cantidad = cant_productos,
-                    FacturaId = Factura.Id
-                 };
+                    FacturaId = Factura.Id,
+                    FechaVencimiento = Factura.FechaFactura.AddMonths(i),
+                    Monto = Factura.Monto/Factura.CantidadCuotas,
+                    Saldo = Factura.Monto/Factura.CantidadCuotas
+                };
 
-                db.FacturaDetalles.Add(fd);
+                db.VencimientoFacturas.Add(cuota);
+            }
 
-                for(int i = 0; i < fd.CantidadCuotas; i++)
-                {
-                    var cuota = new VencimientoFactura
-                    {
-                        FacturaId = Factura.Id,
-                        Monto = (fd.Cantidad * fd.PrecioUnitario + fd.Iva * fd.Cantidad) / fd.CantidadCuotas,
-                        Saldo = (fd.Cantidad * fd.PrecioUnitario + fd.Iva * fd.Cantidad) / fd.CantidadCuotas,
-                        FechaVencimiento = Factura.FechaFactura.AddMonths(i + 1)
-
-                    };
-
-                    db.VencimientoFacturas.Add(cuota);
-                }
-             }
             try
             {
                 db.SaveChanges();

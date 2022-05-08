@@ -120,7 +120,6 @@ namespace cuentasctacte_web_api.Controllers
             var Cliente = db.Personas
                 .FirstOrDefault(c => c.Id == Pedido.ClienteId);
             double MontoTotal = 0.0;
-            bool pendiente = false;
 
             if (Pedido.Pedidos == null) return BadRequest("Los Detalles del pedido es requerido");
             //Verificamos si hay stocks disponibles para cada producto Pedido
@@ -145,7 +144,6 @@ namespace cuentasctacte_web_api.Controllers
 
                 if (StockDisponible < PedidoDetalle.CantidadProducto)
                 {
-                    pendiente = true;
                     Detalle.CantidadFacturada = StockDisponible;
                     Stock.Cantidad = 0;
                 } else
@@ -169,32 +167,17 @@ namespace cuentasctacte_web_api.Controllers
                 Cliente.Saldo += MontoTotal;
                 db.Entry(Cliente).State = EntityState.Modified;
 
-                if (pendiente)
+                
+                try
                 {
-                    try
-                    {
-                        db.SaveChanges();
-                        return Ok("Guardado, pero Falta Facturar Productos");
+                    db.SaveChanges();
+                    return Ok("Guardado con exito");
 
-                    } catch (Exception ex)
-                    {
-                        return BadRequest("Error al ejecutar la transaccion " + ex.Message);
-                    }
-                } else
+                } catch (Exception ex)
                 {
-                    try
-                    {
-                        PedidoDb.Estado = "FACTURADO";
-                        db.Entry(PedidoDb).State = EntityState.Added;
-                        db.SaveChanges();
-                        return Ok("Guardado, con exito");
-
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest("Error al ejecutar la transaccion " + ex.Message);
-                    }
+                    return BadRequest("Error al ejecutar la transaccion " + ex.Message);
                 }
+                
             }
 
 
@@ -285,6 +268,7 @@ namespace cuentasctacte_web_api.Controllers
             var detalles = db.PedidoDetalles
                 .Include(x => x.Pedido)
                 .Include(x => x.Producto)
+                .Where(x => !x.Deleted)
                 .Where(x => x.IdPedido == p.Id);
             double precioTotal = 0;
             double ivaTotal = 0;
@@ -319,6 +303,7 @@ namespace cuentasctacte_web_api.Controllers
                 FechePedido = p.FechaPedido,
                 PrecioTotal = precioTotal,
                 IvaTotal = ivaTotal,
+                CostoTotal = precioTotal + ivaTotal,
                 PedidosDetalles = db.PedidoDetalles
                         .Include(pd => pd.Producto)
                         .Where(pd => pd.IdPedido == p.Id)

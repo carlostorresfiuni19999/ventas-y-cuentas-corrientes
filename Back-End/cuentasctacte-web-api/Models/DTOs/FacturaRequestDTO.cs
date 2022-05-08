@@ -8,8 +8,6 @@ namespace cuentasctacte_web_api.Models.DTOs
     public class FacturaRequestDTO
     {
         public int IdPedido { get; set; }
-        public string CondicionVenta { get; set; }
-
-        public List<FacturaDetalleRequestDTO> FacturaDetalles { get; set; }
+        public int CantidadCuotas { get; set; }
     }
 }

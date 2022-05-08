@@ -41,23 +41,11 @@
 .listMain {
     padding-left: 10px;
     color: white;
-    font-family: "Comic Sans MS", cursive, sans-serif;
-    font-weight: normal;
-    text-decoration: none;
-    font-style: normal;
-    font-variant: normal;
-    text-transform: none;
 }
 
 .listSub {
     padding-left: 25px;
     color: white;
-    font-family: "Comic Sans MS", cursive, sans-serif;
-    font-weight: normal;
-    text-decoration: none;
-    font-style: normal;
-    font-variant: normal;
-    text-transform: none;
     transition-duration: 0.5s;
 }
 
@@ -71,12 +59,6 @@
     padding-top: 10px;
     padding-left: 10px;
     color: white;
-    font-family: "Comic Sans MS", cursive, sans-serif;
-    font-weight: normal;
-    text-decoration: none;
-    font-style: normal;
-    font-variant: normal;
-    text-transform: none;
 }
 
 .noTitulo{

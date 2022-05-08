@@ -27,7 +27,8 @@ export default function Detalles() {
                         cin: res.Cliente.Documento,
                         desc: res.PedidoDescripcion,
                         fecha: res.FechePedido.split('T')[0],
-                        estado: res.Estado
+                        estado: res.Estado,
+                        costoTotal: res.CostoTotal
                     })
 
                     setProductos(res.PedidosDetalles.map((p) => {
@@ -112,7 +113,7 @@ export default function Detalles() {
                 </nav>
                 {/*La parte de abajo de la lista */}
                 <div className='ms-5 mt-3'>
-                    <h1>Notas Detalle</h1>
+                    <h5>Detalles</h5>
                     {/* lista de los objetos que se pidio, se deberia tener que cambiar se tiene que implementar
                         selectize, para eso necesito la lista de los productos.
                     */ }
@@ -159,7 +160,7 @@ export default function Detalles() {
                         </table>
                     </div>
                     <div>
-                        <h6 className='float-end pe-5'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(productos.map(p => p.precioTotal).reduce((a, b) => a + b, 0))}</h6>
+                        <h6 className='float-end pe-5'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(productos.map(p => datos.costoTotal).reduce((a, b) => a + b, 0))}</h6>
                         <h6 className='float-end pe-2'>Total:</h6>
                         <h6>Descripcion:</h6>
                         <label>{datos.desc}</label>

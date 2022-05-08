@@ -25,7 +25,7 @@ export default function Lista() {
                         estado: nota.Estado,
                         vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
                         fecha: nota.FechePedido.split('T')[0],
-
+                        precioTotal: nota.CostoTotal
                     }
                     return notaNew
                 }))
@@ -112,7 +112,7 @@ export default function Lista() {
                     {/*La parte de abajo de la lista */}
                     <div className='p-4'>
                         <div>
-                            <h1>Notas de Pedidos</h1>
+                            <h5>Notas de Pedidos</h5>
 
                         </div>
 
@@ -149,10 +149,10 @@ export default function Lista() {
                                                 return (
                                                     <tr key={nota.id}>
                                                         <th scope='row'>{nota.cliente}</th>
-                                                        <td>{nota.cin}</td>
+                                                        <td>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(nota.cin)}</td>
                                                         <td>{nota.estado}</td>
                                                         <td>{nota.vendedor}</td>
-                                                        <td></td>
+                                                        <td>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(nota.precioTotal)}</td>
                                                         <td>{nota.fecha}</td>
 
                                                         <td><button className='btn btn-info btn-sm'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16" onClick={()=>{router.push(`/ndp/Detalles/${nota.id}`)}}>

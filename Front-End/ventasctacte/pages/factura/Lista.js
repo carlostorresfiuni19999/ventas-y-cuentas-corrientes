@@ -104,12 +104,12 @@ export default function Lista() {
                     </div>
 
                 </nav>
-                <div className='p-4'>
+                <div className='pt-4 ps-4'>
                     <h5>Lista de Facturas</h5>
 
                 </div>
 
-                <div className='p-4' >
+                <div className='ps-4 pt-3' >
                     <div>
                         <table className='table'>
                             <thead className='thead-dark'>
@@ -121,7 +121,7 @@ export default function Lista() {
                                     <th scope='col'>Estado</th>
                                     <th scope='col'>Condicion</th>
                                     <th scope='col'> </th>
-                                    <th scope='col'> <button className='btn btn-primary float-right btn-sm'>Crear</button></th>
+                                    <th scope='col'> <button className='btn btn-primary float-right btn-sm' onClick={()=>{router.push('Crear')}}>Crear</button></th>
                                 </tr>
                             </thead>
                             <tbody>

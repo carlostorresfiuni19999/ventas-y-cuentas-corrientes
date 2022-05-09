@@ -8,15 +8,19 @@ import { useRouter } from 'next/router'
 
 //components
 import Navbar from '../../components/Navbar'
+import FDPControl from '../../components/fdpControl'
 
 //api
 import getPedidos from '../../API/getPedidos'
 
 export default function Crear() {
 
+    //router
     const router = useRouter()
 
+    //estados
     const [notas, setNotas] = useState([])
+    const [condPago, setCondPago] = useState("CONTADO")
     const [selectNota, setSelectNota] = useState({
         id: 0,
         cliente: "",
@@ -26,6 +30,8 @@ export default function Crear() {
         pedidoDesc: 0,
         productos: []
     })
+
+
     //recive las notas
     useEffect(() => {
         getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
@@ -113,6 +119,7 @@ export default function Crear() {
         return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(changeInt)
     }
 
+
     console.log(notas)
 
     return (
@@ -158,11 +165,11 @@ export default function Crear() {
                 <div className='pt-4 container'>
                     <div className='row'>
                         <div className='col-8'>
-                            <h5>Crear una Nueva Factura</h5>
+                            <h5 className='pb-2'>Crear una Nueva Factura</h5>
                             {/* lista de los objetos que se pidio, se deberia tener que cambiar se tiene que implementar
                                 selectize, para eso necesito la lista de los productos.
                             */ }
-                            <select className='form-select form-select-sm pt-2' name='producto' onChange={() => { setSelectNota(JSON.parse(document.getElementById('idSelectPedido').value)) }} id='idSelectPedido' >
+                            <select className='form-select form-select-sm mt-2 mb-3' name='producto' onChange={() => { setSelectNota(JSON.parse(document.getElementById('idSelectPedido').value)) }} id='idSelectPedido' >
                                 <option value={
                                     JSON.stringify({
                                         id: 0,
@@ -241,11 +248,19 @@ export default function Crear() {
                             </div>
 
                         </div>
-                        <div className='col-4 bg-light h-100'>
-                            <label>b</label>
+                        <div className='col-4 bg-light h-100 '>
+                            <h5 className='py-2'>Seleccione la forma de pago</h5>
+                            <select className='form-select form-select-sm ' name='formaPago' onChange={() => { setCondPago(document.getElementById('formaPago').value) }} id='formaPago' >
+                                <option value='CONTADO'> Contado </option>
+                                <option value='CREDITO'> Credito </option>
+                            </select>
+                            <FDPControl fdp={condPago} />
+                            <div className='float-end pe-2 pt-2 pb-5'>
+                                <button className='btn btn-success me-2' onClick={() => {}}>Crear</button>
+                                <button className='btn btn-danger ' onClick={() => { router.back() }}>Cancelar</button>
+                            </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

@@ -327,10 +327,24 @@
     <Compile Include="Migrations\202204211444458_changeNameDeposito.designer.cs">
       <DependentUpon>202204211444458_changeNameDeposito.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202205051443173_CantidadCuotas.cs" />
+    <Compile Include="Migrations\202205051443173_CantidadCuotas.designer.cs">
+      <DependentUpon>202205051443173_CantidadCuotas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205062144020_dropCantidadCuotas.cs" />
+    <Compile Include="Migrations\202205062144020_dropCantidadCuotas.designer.cs">
+      <DependentUpon>202205062144020_dropCantidadCuotas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205062201575_addCantidadCuotas.cs" />
+    <Compile Include="Migrations\202205062201575_addCantidadCuotas.designer.cs">
+      <DependentUpon>202205062201575_addCantidadCuotas.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Data.cs" />
+    <Compile Include="Models\DTOs\FacturaRequestDTO.cs" />
+    <Compile Include="Models\DTOs\FacturaResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullProductoDTOResponse.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleDTORequest.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleResponseDTO.cs" />
@@ -519,6 +533,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204211444458_changeNameDeposito.resx">
       <DependentUpon>202204211444458_changeNameDeposito.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205051443173_CantidadCuotas.resx">
+      <DependentUpon>202205051443173_CantidadCuotas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205062144020_dropCantidadCuotas.resx">
+      <DependentUpon>202205062144020_dropCantidadCuotas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205062201575_addCantidadCuotas.resx">
+      <DependentUpon>202205062201575_addCantidadCuotas.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

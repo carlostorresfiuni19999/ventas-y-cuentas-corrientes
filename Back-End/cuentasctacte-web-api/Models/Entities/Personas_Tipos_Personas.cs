@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace cuentasctacte_web_api.Models.Entities
 {
@@ -12,7 +8,7 @@ namespace cuentasctacte_web_api.Models.Entities
         public Persona Persona { get; set; }
         public TipoPersona TipoPersona { get; set; }
         [ForeignKey("Persona")]
-        public int? IdPersona { get; set; } 
+        public int? IdPersona { get; set; }
         [ForeignKey("TipoPersona")]
         public int? IdTipoPersona { get; set; }
     }

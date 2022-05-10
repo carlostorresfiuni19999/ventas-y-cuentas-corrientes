@@ -1,8 +1,7 @@
 ﻿namespace cuentasctacte_web_api.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class Stocks1 : DbMigration
     {
         public override void Up()
@@ -26,7 +25,7 @@
             AddForeignKey("dbo.Stocks", "IdDeposito", "dbo.Depositos", "Id");
             AddForeignKey("dbo.Stocks", "IdProducto", "dbo.Productos", "Id");
         }
-        
+
         public override void Down()
         {
             DropForeignKey("dbo.Stocks", "IdProducto", "dbo.Productos");

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using cuentasctacte_web_api.Models;
+using cuentasctacte_web_api.Models.Entities;
 using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
-using cuentasctacte_web_api.Models;
-using cuentasctacte_web_api.Models.Entities;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -21,7 +15,7 @@ namespace cuentasctacte_web_api.Controllers
         // GET: api/Productos
         public IQueryable<Producto> GetProductos()
         {
-            return db.Productos.Where(p => !p.Deleted );
+            return db.Productos.Where(p => !p.Deleted);
         }
 
         // GET: api/Productos/5

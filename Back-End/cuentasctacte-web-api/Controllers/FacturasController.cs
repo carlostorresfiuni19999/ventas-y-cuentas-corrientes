@@ -1,16 +1,15 @@
-﻿using System;
+﻿using cuentasctacte_web_api.Models;
+using cuentasctacte_web_api.Models.DTOs;
+using cuentasctacte_web_api.Models.Entities;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
-using cuentasctacte_web_api.Models;
-using cuentasctacte_web_api.Models.DTOs;
-using cuentasctacte_web_api.Models.Entities;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -20,11 +19,11 @@ namespace cuentasctacte_web_api.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Facturas
-        
+
         public List<FacturaResponseDTO> GetFacturas()
         {
 
-  
+
             return db.Facturas
                 .Include(c => c.Cliente)
                 .Where(f => !f.Deleted)
@@ -35,7 +34,7 @@ namespace cuentasctacte_web_api.Controllers
                     MontoTotal = f.Monto,
                     SaldoTotal = f.Saldo,
                     FechaFacturada = f.FechaFactura,
-                    Cliente = f.Cliente.Nombre+" "+f.Cliente.Apellido,
+                    Cliente = f.Cliente.Nombre + " " + f.Cliente.Apellido,
                     CondicionVenta = f.CondicionVenta,
                     Estado = f.Estado
                 })
@@ -105,24 +104,24 @@ namespace cuentasctacte_web_api.Controllers
                 .ToList()
                 .Exists(f => f.PedidoId == factura.IdPedido);
 
-            if (exist) return BadRequest("El pedido que intenta facturar, ya existe"); ;
+            if (exist) return BadRequest("El pedido que intenta facturar, ya existe");
             var Pedidos = db.PedidoDetalles
                 .Include(pd => pd.Pedido)
                 .Include(pd => pd.Producto)
                 .Where(pd => !pd.Deleted)
                 .Where(pd => pd.IdPedido == factura.IdPedido);
-            
+
 
             var Factura = new Factura
             {
                 PedidoId = factura.IdPedido,
                 VendedorId = Pedido.IdVendedor,
                 ClienteId = Pedido.IdCliente,
-                CondicionVenta = factura.CantidadCuotas > 1 ? "CREDITO": "CONTADO",
+                CondicionVenta = factura.CantidadCuotas > 1 ? "CREDITO" : "CONTADO",
                 FechaFactura = DateTime.Now,
                 CantidadCuotas = factura.CantidadCuotas
             };
-            
+
             double monto = 0.0;
             double iva = 0.0;
             bool pendiente = false;
@@ -141,7 +140,8 @@ namespace cuentasctacte_web_api.Controllers
             if (pendiente)
             {
                 Factura.Estado = "PENDIENTE";
-            } else
+            }
+            else
             {
                 Factura.Estado = "FACTURADO";
             }
@@ -165,14 +165,14 @@ namespace cuentasctacte_web_api.Controllers
 
                 db.FacturaDetalles.Add(FacturaDetalle);
             }
-            for(int i = 0; i < factura.CantidadCuotas; i++)
+            for (int i = 0; i < factura.CantidadCuotas; i++)
             {
                 var cuota = new VencimientoFactura
                 {
                     FacturaId = Factura.Id,
                     FechaVencimiento = Factura.FechaFactura.AddMonths(i),
-                    Monto = Factura.Monto/Factura.CantidadCuotas,
-                    Saldo = Factura.Monto/Factura.CantidadCuotas
+                    Monto = Factura.Monto / Factura.CantidadCuotas,
+                    Saldo = Factura.Monto / Factura.CantidadCuotas
                 };
 
                 db.VencimientoFacturas.Add(cuota);
@@ -182,9 +182,10 @@ namespace cuentasctacte_web_api.Controllers
             {
                 db.SaveChanges();
                 return Ok("Se ha guardado con exito");
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                return BadRequest("Error al ejecutar la transaccion: "+ex.Message);
+                return BadRequest("Error al ejecutar la transaccion: " + ex.Message);
             }
         }
 

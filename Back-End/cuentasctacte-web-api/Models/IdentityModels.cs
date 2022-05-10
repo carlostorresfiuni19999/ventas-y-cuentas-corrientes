@@ -1,10 +1,7 @@
-﻿using System.Data.Entity;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using cuentasctacte_web_api.Models.Entities;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
 
 namespace cuentasctacte_web_api.Models
 {
@@ -26,7 +23,7 @@ namespace cuentasctacte_web_api.Models
             : base("VentasYCuentasCorrientes", throwIfV1Schema: false)
         {
         }
-        
+
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();

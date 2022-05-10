@@ -1,8 +1,7 @@
 ﻿namespace cuentasctacte_web_api.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class Productos : DbMigration
     {
         public override void Up()
@@ -12,24 +11,24 @@
             CreateTable(
                 "dbo.Pedidos",
                 c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        PedidoDescripcion = c.String(),
-                        NumeroPedido = c.Int(nullable: false),
-                        CondicionVenta = c.String(),
-                        Estado = c.String(),
-                        FechaPedido = c.DateTime(nullable: false),
-                        IdCliente = c.Int(),
-                        IdVendedor = c.Int(),
-                    })
+                {
+                    Id = c.Int(nullable: false, identity: true),
+                    PedidoDescripcion = c.String(),
+                    NumeroPedido = c.Int(nullable: false),
+                    CondicionVenta = c.String(),
+                    Estado = c.String(),
+                    FechaPedido = c.DateTime(nullable: false),
+                    IdCliente = c.Int(),
+                    IdVendedor = c.Int(),
+                })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Personas", t => t.IdCliente)
                 .ForeignKey("dbo.Personas", t => t.IdVendedor)
                 .Index(t => t.IdCliente)
                 .Index(t => t.IdVendedor);
-            
+
         }
-        
+
         public override void Down()
         {
             DropForeignKey("dbo.Pedidos", "IdVendedor", "dbo.Personas");

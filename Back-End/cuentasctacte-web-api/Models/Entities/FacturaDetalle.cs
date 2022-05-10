@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace cuentasctacte_web_api.Models.Entities
 {
- 
+
     public class FacturaDetalle : Data
     {
         public int Id { get; set; }
@@ -20,7 +16,7 @@ namespace cuentasctacte_web_api.Models.Entities
         public Factura Factura { get; set; }
 
         [ForeignKey("ProductoId")]
-        public Producto Producto { get; set; }  
+        public Producto Producto { get; set; }
 
     }
 }

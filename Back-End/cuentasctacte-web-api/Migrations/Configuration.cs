@@ -1,9 +1,6 @@
 ﻿namespace cuentasctacte_web_api.Migrations
 {
-    using System;
-    using System.Data.Entity;
     using System.Data.Entity.Migrations;
-    using System.Linq;
 
     internal sealed class Configuration : DbMigrationsConfiguration<cuentasctacte_web_api.Models.ApplicationDbContext>
     {

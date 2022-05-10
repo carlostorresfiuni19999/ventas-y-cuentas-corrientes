@@ -1,9 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using cuentasctacte_web_api.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
-using cuentasctacte_web_api.Models;
 
 namespace cuentasctacte_web_api
 {

@@ -1,4 +1,8 @@
-﻿using System;
+﻿using cuentasctacte_web_api.Models;
+using cuentasctacte_web_api.Models.DTOs;
+using cuentasctacte_web_api.Models.Entities;
+using Microsoft.AspNet.Identity;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
@@ -6,10 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
-using cuentasctacte_web_api.Models;
-using cuentasctacte_web_api.Models.DTOs;
-using cuentasctacte_web_api.Models.Entities;
-using Microsoft.AspNet.Identity;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -36,13 +36,13 @@ namespace cuentasctacte_web_api.Controllers
             var Pedido = db.Pedidos
                 .Include(p => p.Vendedor)
                 .Include(p => p.Cliente)
-                .FirstOrDefault(p => p.Id == id );
-            if(null == Pedido)
+                .FirstOrDefault(p => p.Id == id);
+            if (null == Pedido)
             {
                 return NotFound();
             }
 
-            
+
 
 
             return Ok(PedidoMapper(Pedido));
@@ -62,7 +62,11 @@ namespace cuentasctacte_web_api.Controllers
             /*
                 *Ver si existe el pedido.
             */
+<<<<<<< HEAD
             if ( db.Pedidos.Include(p => p.Cliente).ToList().Exists(p => p.Id == id) == false)
+=======
+            if (db.Pedidos.Include(p => p.Cliente).Where(p => p.Id == id) == null)
+>>>>>>> 8394bf92ecde6ab892adac5a03684ad575d296d6
             {
                 return BadRequest();
             }
@@ -94,7 +98,7 @@ namespace cuentasctacte_web_api.Controllers
 
                 //Buscar en el stock el producto con mismo ID.
 
-                
+
                 foreach (var producto in pedidoDTO_R.Pedidos)
                 {
                     if (producto.ProductoId == pedidoDetalle_DB.IdProducto)
@@ -120,38 +124,55 @@ namespace cuentasctacte_web_api.Controllers
 
 
                 /*--------------------*///Me aseguro que no elimino ese producto al comparar con 0.
-                if (cantidad_producto_DTO != pedidoDetalle_DB.CantidadProducto && cantidad_producto_DTO != 0) { //Hubo modificacion.
-                    
+                if (cantidad_producto_DTO != pedidoDetalle_DB.CantidadProducto && cantidad_producto_DTO != 0)
+                { //Hubo modificacion.
+
                     int temp = cantidad_producto_DTO - pedidoDetalle_DB.CantidadFacturada;
                     pedidoDetalle_DB.CantidadProducto = cantidad_producto_DTO;//si o si cambia.
-                   
+
                     /**************/
                     /*Si aumenta el pedido, pero no hay stock, entonces nada se toca, 
                      Pues ya se aumento la cantidad de productos, sotck, saldo y facturado no 
                     tiene motivo apra cambiar*/
                     if (temp > 0 && temp < Stock_DB.Cantidad)
                     {//hay que aumentar saldo cliente. restar stock y actualizar cantidad facturada.                                                
-                       pedidoDetalle_DB.CantidadFacturada = cantidad_producto_DTO;
-                       Stock_DB.Cantidad -= temp;
-                       sumatoria += temp* (int)pedidoDetalle_DB.PrecioUnitario; //temp positivo, aumentamos saldo                       
+                        pedidoDetalle_DB.CantidadFacturada = cantidad_producto_DTO;
+                        Stock_DB.Cantidad -= temp;
+                        sumatoria += temp * (int)pedidoDetalle_DB.PrecioUnitario; //temp positivo, aumentamos saldo                       
                     }
                     if (temp < 0) //se resto la cantidad del pedido.
                     {
                         pedidoDetalle_DB.CantidadFacturada = cantidad_producto_DTO;
-                        Stock_DB.Cantidad += temp*(-1); //casteo a positivo.
+                        Stock_DB.Cantidad += temp * (-1); //casteo a positivo.
                         sumatoria += temp * (int)pedidoDetalle_DB.PrecioUnitario; //temp -, desminuye saldo
                     }
                 }
+<<<<<<< HEAD
              
 
                 
+=======
+
+                //Cuarto si la cantidad de producto actualizado es 0, entonces eliminamos el pedidi
+                //detalles
+                if (cantidad_producto_DTO == 0)
+                {   //Devolvemos todo del Pd al estock.
+                    //Seteamos a 0 la cantidad en Pdetalles
+                    sumatoria -= pedidoDetalle_DB.CantidadFacturada * (int)pedidoDetalle_DB.PrecioUnitario;
+                    Stock_DB.Cantidad += pedidoDetalle_DB.CantidadFacturada;
+                    pedidoDetalle_DB.CantidadProducto = 0;
+                    pedidoDetalle_DB.CantidadFacturada = 0;
+                    pedidoDetalle_DB.Deleted = true;
+                }
+>>>>>>> 8394bf92ecde6ab892adac5a03684ad575d296d6
 
                 /**UPDATE stock and pedidoDetalles**/
                 //Hace el Update de la base de datos 
-                db.Entry(Stock_DB).State = EntityState.Modified;    
+                db.Entry(Stock_DB).State = EntityState.Modified;
                 db.Entry(pedidoDetalle_DB).State = EntityState.Modified;
             }
 
+<<<<<<< HEAD
             /******/
             /*ELIMINAMOS TODOS LOS 'PEDIDOS DETALLES' QUE NO APAREZCA EN EL DTO*/
             int vandera = 0;
@@ -190,6 +211,13 @@ namespace cuentasctacte_web_api.Controllers
             
             
             
+=======
+
+
+
+
+
+>>>>>>> 8394bf92ecde6ab892adac5a03684ad575d296d6
             /**UPDATE Clientes Y el Pedido*/
             //Le aumentamos, restamos o dejamos intacto el saldo del cliente.
             //Sumatoria seria un valor, positivo o negativo de acuerdo a si 
@@ -288,7 +316,8 @@ namespace cuentasctacte_web_api.Controllers
                 {
                     Detalle.CantidadFacturada = StockDisponible;
                     Stock.Cantidad = 0;
-                } else
+                }
+                else
                 {
                     Detalle.CantidadFacturada = PedidoDetalle.CantidadProducto;
                     Stock.Cantidad -= PedidoDetalle.CantidadProducto;
@@ -304,22 +333,24 @@ namespace cuentasctacte_web_api.Controllers
             if (MontoTotal > Cliente.LineaDeCredito || MontoTotal + Cliente.Saldo > Cliente.LineaDeCredito)
             {
                 return BadRequest("Linea de Credito Insuficiente");
-            } else
+            }
+            else
             {
                 Cliente.Saldo += MontoTotal;
                 db.Entry(Cliente).State = EntityState.Modified;
 
-                
+
                 try
                 {
                     db.SaveChanges();
                     return Ok("Guardado con exito");
 
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     return BadRequest("Error al ejecutar la transaccion " + ex.Message);
                 }
-                
+
             }
 
 
@@ -414,7 +445,7 @@ namespace cuentasctacte_web_api.Controllers
                 .Where(x => x.IdPedido == p.Id);
             double precioTotal = 0;
             double ivaTotal = 0;
-            foreach(var pdt in detalles)
+            foreach (var pdt in detalles)
             {
                 precioTotal = precioTotal + pdt.Producto.Precio * pdt.CantidadFacturada;
                 ivaTotal = ivaTotal + pdt.Producto.Iva * pdt.CantidadFacturada;

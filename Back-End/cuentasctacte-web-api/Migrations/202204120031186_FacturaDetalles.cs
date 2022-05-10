@@ -1,8 +1,7 @@
 ﻿namespace cuentasctacte_web_api.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class FacturaDetalles : DbMigration
     {
         public override void Up()
@@ -21,7 +20,7 @@
                 })
                 .PrimaryKey(t => t.Id); ;
             AddForeignKey("FacturaDetalles", "ProductoId", "Productos", "Id");
-            AddForeignKey("FacturaDetalles", "FacturaId","Facturas","Id");
+            AddForeignKey("FacturaDetalles", "FacturaId", "Facturas", "Id");
 
 
         }

@@ -11,7 +11,7 @@ import Navbar from '../../components/Navbar'
 import FDPControl from '../../components/fdpControl'
 
 //api
-import getPedidos from '../../API/getPedidos'
+import getPedidosSF from '../../API/getPedidosSF'
 import crearFactura from '../../API/crearFactura'
 
 export default function Crear() {
@@ -35,10 +35,11 @@ export default function Crear() {
 
     //recive las notas
     useEffect(() => {
-        getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
+        getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
             .then(res => res.text()).
             then(result => {
                 const n = JSON.parse(result)
+                console.log(n)
                 setNotas(n.map(nota => {
                     const notaNew = {
                         id: nota.Id,
@@ -69,7 +70,7 @@ export default function Crear() {
     }, [])
 
     useEffect(() => {
-        getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
+        getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
             .then(res => res.text()).
             then(result => {
                 const n = JSON.parse(result)

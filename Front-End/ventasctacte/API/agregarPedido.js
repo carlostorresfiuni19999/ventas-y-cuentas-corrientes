@@ -12,7 +12,7 @@ const agregarPedido = (token, raw) => {
 
     fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Pedidos", requestOptions)
         .then(response => response.text())
-        .then(result => alert(JSON.parse(result).Message))
+        .then(result => console.log(JSON.parse(result)))
         .catch(error => alert(error.Message));
 }
 export default agregarPedido

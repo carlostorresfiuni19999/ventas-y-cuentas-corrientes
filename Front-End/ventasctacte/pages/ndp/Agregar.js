@@ -32,7 +32,7 @@ export default function Agregar() {
                     return newpersona
                 }))
             })
-            .catch(error => console.log('error', error));
+            .catch(error => alert(error));
 
 
         getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
@@ -52,31 +52,20 @@ export default function Agregar() {
                 }))
 
             })
-            .catch(error => console.log('error', error));
+            .catch(error => alert(error));
 
 
     }, [])
 
     //console.log(productos)
     const [cliente, setCliente] = useState({ id: '', cin: 0 })
-    const [selectProd, setSelectProd] = useState({ precio: 0 })
+    const [selectProd, setSelectProd] = useState({ id: '', codBar: '', prod: '', precio: 0 })
     const [idListaProd, setIdListaProd] = useState(1)
     const [precioTotalPedido, setPrecioTotalPedido] = useState({ precio: 0 })
 
     const generarPedido = () => {
-
-        setListaProductos([...listaProductos, {
-            id: idListaProd,
-            idProd: selectProd.id,
-            cantidad: document.getElementById('cantidadInput').value,
-            codBar: selectProd.codBar,
-            prod: selectProd.prod,
-            precio: selectProd.precio,
-            precioTotal: selectProd.precio * document.getElementById('cantidadInput').value
-        }])
-
-        setPrecioTotalPedido({
-            precio: [...listaProductos, {
+        if(document.getElementById('cantidadInput').value != 0 && selectProd.id != ''){
+            setListaProductos([...listaProductos, {
                 id: idListaProd,
                 idProd: selectProd.id,
                 cantidad: document.getElementById('cantidadInput').value,
@@ -84,11 +73,26 @@ export default function Agregar() {
                 prod: selectProd.prod,
                 precio: selectProd.precio,
                 precioTotal: selectProd.precio * document.getElementById('cantidadInput').value
-            }].map(p => { return p.precioTotal }).reduce((a, b) => a + b, 0)
-        })
-
-        setIdListaProd(idListaProd + 1)
-        document.getElementById('cantidadInput').value = 0
+            }])
+    
+            setPrecioTotalPedido({
+                precio: [...listaProductos, {
+                    id: idListaProd,
+                    idProd: selectProd.id,
+                    cantidad: document.getElementById('cantidadInput').value,
+                    codBar: selectProd.codBar,
+                    prod: selectProd.prod,
+                    precio: selectProd.precio,
+                    precioTotal: selectProd.precio * document.getElementById('cantidadInput').value
+                }].map(p => { return p.precioTotal }).reduce((a, b) => a + b, 0)
+            })
+    
+            setIdListaProd(idListaProd + 1)
+            document.getElementById('cantidadInput').value = 0
+        }else{
+            alert('no se puede agregar el nuevo producto, revise su producto a agregar.')
+        }
+        
 
     }
 
@@ -110,20 +114,24 @@ export default function Agregar() {
     }
 
     const generarPeticion = () => {
-        const raw = JSON.stringify({
-            "ClienteId": cliente.id,
-            "Descripcion": document.getElementById('textAreaDescripcion').value,
-            "Pedidos": listaProductos.map(producto => {
-                const productoNew = {
-                    "ProductoId": producto.idProd,
-                    "CantidadProducto": parseInt(producto.cantidad, 10)
-                }
-                return productoNew
-            })
-        });
-        console.log(JSON.parse(raw))
-        agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-        router.push('/ndp/Lista')
+        if( cliente.cin != 0 && listaProductos.length != 0){
+            const raw = JSON.stringify({
+                "ClienteId": cliente.id,
+                "Descripcion": document.getElementById('textAreaDescripcion').value,
+                "Pedidos": listaProductos.map(producto => {
+                    const productoNew = {
+                        "ProductoId": producto.idProd,
+                        "CantidadProducto": parseInt(producto.cantidad, 10)
+                    }
+                    return productoNew
+                })
+            });
+            agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
+            router.push('/ndp/Lista')
+        }else{
+            alert("No se puede crear la peticion porque no contiene datos suficientes")
+        }
+        
     }
 
 
@@ -165,7 +173,7 @@ export default function Agregar() {
                 {/*La parte de abajo de la agregar */}
                 <div className='ms-5 mt-3'>
                     <div>
-                        <h1>Agregar pedido</h1>
+                        <h1>Crear Nuevo Pedido</h1>
                     </div>
 
                     <div className='pt-3'>
@@ -282,7 +290,7 @@ export default function Agregar() {
                         </div>
                     </div>
                     <div className='float-end pe-2 pt-2 pb-5'>
-                        <button className='btn btn-success me-2' onClick={() => { generarPeticion() }}>Agregar</button>
+                        <button className='btn btn-success me-2' onClick={() => { generarPeticion() }}>Crear</button>
                         <button className='btn btn-danger ' onClick={() => { router.back() }}>Cancelar</button>
                     </div>
                 </div>

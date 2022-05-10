@@ -204,7 +204,20 @@ namespace cuentasctacte_web_api.Controllers
 
             return Ok(factura);
         }
+        [ResponseType(typeof(List<PedidoResponseDTO>))]
+        [Route("/PedidosSinFactura")]
+        [HttpGet]
+        public IHttpActionResult GetPedidosSinFactura()
+        {
+           List<Pedido> result = (from f in db.Facturas
+             join p in db.Pedidos
+             on f.PedidoId  equals null
+             where f.Deleted == false
+             where p.Deleted == false
+             select p).ToList();
+           return Ok(result.ConvertAll(p => PedidoMapper(p)));
 
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -217,6 +230,71 @@ namespace cuentasctacte_web_api.Controllers
         private bool FacturaExists(int id)
         {
             return db.Facturas.Count(e => e.Id == id) > 0;
+        }
+        private PedidoResponseDTO PedidoMapper(Pedido p)
+        {
+            var detalles = db.PedidoDetalles
+                .Include(x => x.Pedido)
+                .Include(x => x.Producto)
+                .Where(x => !x.Deleted)
+                .Where(x => x.IdPedido == p.Id);
+            double precioTotal = 0;
+            double ivaTotal = 0;
+            foreach (var pdt in detalles)
+            {
+                precioTotal = precioTotal + pdt.Producto.Precio * pdt.CantidadFacturada;
+                ivaTotal = ivaTotal + pdt.Producto.Iva * pdt.CantidadFacturada;
+            }
+            var prdto = new PedidoResponseDTO
+            {
+                Id = p.Id,
+                Cliente = new PersonaResponseDTO
+                {
+                    Id = (int)p.IdCliente,
+                    Nombre = p.Cliente.Nombre,
+                    Apellido = p.Cliente.Apellido,
+                    DocumentoTipo = p.Cliente.DocumentoTipo,
+                    Documento = p.Cliente.Documento
+
+                },
+                Vendedor = new PersonaResponseDTO
+                {
+                    Id = (int)p.IdVendedor,
+                    Nombre = p.Vendedor.Nombre,
+                    Apellido = p.Vendedor.Apellido,
+                    DocumentoTipo = p.Vendedor.DocumentoTipo,
+                    Documento = p.Vendedor.Documento
+                },
+                PedidoDescripcion = p.PedidoDescripcion,
+                Estado = p.Estado,
+                CondicionVenta = p.CondicionVenta,
+                FechePedido = p.FechaPedido,
+                PrecioTotal = precioTotal,
+                IvaTotal = ivaTotal,
+                CostoTotal = precioTotal + ivaTotal,
+                PedidosDetalles = db.PedidoDetalles
+                        .Include(pd => pd.Producto)
+                        .Where(pd => pd.IdPedido == p.Id)
+                        .ToList()
+                        .ConvertAll(pd => new PedidoDetalleResponseDTO
+                        {
+                            Id = pd.Id,
+                            Producto = new ProductoResponseDTO
+                            {
+                                Id = pd.Producto.Id,
+                                NombreProducto = pd.Producto.NombreProducto,
+                                DescripcionProducto = pd.Producto.DescripcionProducto,
+                                CodigoDeBarra = pd.Producto.CodigoDeBarra,
+                                MarcaProducto = pd.Producto.MarcaProducto,
+                                Precio = pd.Producto.Precio,
+                                Iva = pd.Producto.Iva
+                            },
+                            CantidadFacturada = pd.CantidadFacturada,
+                            CantidadProductos = pd.CantidadProducto
+
+                        })
+            };
+            return prdto;
         }
     }
 }

@@ -23,6 +23,7 @@ namespace cuentasctacte_web_api.Controllers
         
         public List<FacturaResponseDTO> GetFacturas()
         {
+
   
             return db.Facturas
                 .Include(c => c.Cliente)
@@ -98,13 +99,19 @@ namespace cuentasctacte_web_api.Controllers
                 .Include(p => p.Cliente)
                 .Include(p => p.Vendedor)
                 .FirstOrDefault(p => p.Id == factura.IdPedido);
+            bool exist = db.Facturas
+                .Include(f => f.Pedido)
+                .Where(f => !f.Deleted)
+                .ToList()
+                .Exists(f => f.PedidoId == factura.IdPedido);
 
+            if (exist) return BadRequest("El pedido que intenta facturar, ya existe"); ;
             var Pedidos = db.PedidoDetalles
                 .Include(pd => pd.Pedido)
                 .Include(pd => pd.Producto)
                 .Where(pd => !pd.Deleted)
                 .Where(pd => pd.IdPedido == factura.IdPedido);
-
+            
 
             var Factura = new Factura
             {

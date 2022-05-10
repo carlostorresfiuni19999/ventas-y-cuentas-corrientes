@@ -26,5 +26,7 @@ namespace cuentasctacte_web_api.Models.Entities
         public Persona Cliente { get; set; }
         [ForeignKey("VendedorId")]
         public Persona Vendedor { get; set; }
+
+        public int CantidadCuotas { get; set; }
     }
 }

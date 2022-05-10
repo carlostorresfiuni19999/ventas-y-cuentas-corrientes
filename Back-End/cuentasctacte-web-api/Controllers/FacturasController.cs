@@ -9,18 +9,36 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
 using cuentasctacte_web_api.Models;
+using cuentasctacte_web_api.Models.DTOs;
 using cuentasctacte_web_api.Models.Entities;
 
 namespace cuentasctacte_web_api.Controllers
 {
+    [Authorize]
     public class FacturasController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Facturas
-        public IQueryable<Factura> GetFacturas()
+        
+        public List<FacturaResponseDTO> GetFacturas()
         {
-            return db.Facturas;
+  
+            return db.Facturas
+                .Include(c => c.Cliente)
+                .Where(f => !f.Deleted)
+                .ToList()
+                .ConvertAll(f => new FacturaResponseDTO
+                {
+                    Id = f.Id,
+                    MontoTotal = f.Monto,
+                    SaldoTotal = f.Saldo,
+                    FechaFacturada = f.FechaFactura,
+                    Cliente = f.Cliente.Nombre+" "+f.Cliente.Apellido,
+                    CondicionVenta = f.CondicionVenta,
+                    Estado = f.Estado
+                })
+                ;
         }
 
         // GET: api/Facturas/5
@@ -72,18 +90,95 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // POST: api/Facturas
-        [ResponseType(typeof(Factura))]
-        public IHttpActionResult PostFactura(Factura factura)
+        [ResponseType(typeof(FacturaRequestDTO))]
+        public IHttpActionResult PostFactura(FacturaRequestDTO factura)
         {
-            if (!ModelState.IsValid)
+            if (factura.CantidadCuotas < 1) return BadRequest("Cuota no valida");
+            var Pedido = db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Vendedor)
+                .FirstOrDefault(p => p.Id == factura.IdPedido);
+
+            var Pedidos = db.PedidoDetalles
+                .Include(pd => pd.Pedido)
+                .Include(pd => pd.Producto)
+                .Where(pd => !pd.Deleted)
+                .Where(pd => pd.IdPedido == factura.IdPedido);
+
+
+            var Factura = new Factura
             {
-                return BadRequest(ModelState);
+                PedidoId = factura.IdPedido,
+                VendedorId = Pedido.IdVendedor,
+                ClienteId = Pedido.IdCliente,
+                CondicionVenta = factura.CantidadCuotas > 1 ? "CREDITO": "CONTADO",
+                FechaFactura = DateTime.Now,
+                CantidadCuotas = factura.CantidadCuotas
+            };
+            
+            double monto = 0.0;
+            double iva = 0.0;
+            bool pendiente = false;
+            foreach (var item in Pedidos)
+            {
+                if (item.CantidadProducto > item.CantidadFacturada) pendiente = true;
+                monto += item.CantidadFacturada * item.Producto.Precio;
+                iva += item.CantidadFacturada * item.Producto.Iva;
+
             }
 
-            db.Facturas.Add(factura);
-            db.SaveChanges();
+            Factura.Saldo = monto + iva;
+            Factura.Monto = monto + iva;
+            Factura.Iva = iva;
 
-            return CreatedAtRoute("DefaultApi", new { id = factura.Id }, factura);
+            if (pendiente)
+            {
+                Factura.Estado = "PENDIENTE";
+            } else
+            {
+                Factura.Estado = "FACTURADO";
+            }
+
+            Pedido.Estado = Factura.Estado;
+            Pedido.CondicionVenta = Factura.CondicionVenta;
+
+            db.Entry(Pedido).State = EntityState.Modified;
+            db.Facturas.Add(Factura);
+
+            foreach (var item in Pedidos)
+            {
+                var FacturaDetalle = new FacturaDetalle
+                {
+                    FacturaId = Factura.Id,
+                    ProductoId = item.IdProducto,
+                    Cantidad = item.CantidadFacturada,
+                    PrecioUnitario = item.PrecioUnitario,
+                    Iva = item.Producto.Iva
+                };
+
+                db.FacturaDetalles.Add(FacturaDetalle);
+            }
+            for(int i = 0; i < factura.CantidadCuotas; i++)
+            {
+                var cuota = new VencimientoFactura
+                {
+                    FacturaId = Factura.Id,
+                    FechaVencimiento = Factura.FechaFactura.AddMonths(i),
+                    Monto = Factura.Monto/Factura.CantidadCuotas,
+                    Saldo = Factura.Monto/Factura.CantidadCuotas
+                };
+
+                db.VencimientoFacturas.Add(cuota);
+            }
+
+            try
+            {
+                db.SaveChanges();
+                return Ok("Se ha guardado con exito");
+            }catch(Exception ex)
+            {
+                return BadRequest("Error al ejecutar la transaccion: "+ex.Message);
+            }
         }
 
         // DELETE: api/Facturas/5

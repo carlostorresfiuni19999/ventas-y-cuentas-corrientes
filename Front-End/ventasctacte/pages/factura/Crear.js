@@ -12,6 +12,7 @@ import FDPControl from '../../components/fdpControl'
 
 //api
 import getPedidos from '../../API/getPedidos'
+import crearFactura from '../../API/crearFactura'
 
 export default function Crear() {
 
@@ -119,6 +120,26 @@ export default function Crear() {
         return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(changeInt)
     }
 
+    function getCantCuotas(){
+        if(condPago == "CONTADO"){
+            return 1
+        }else{
+            return document.getElementById("cantCuotasCred").value
+        }
+    }
+
+    function crearPeticionFactura() {
+        if (selectNota.id == 0) {
+            alert("faltan datos, seleccione una nota de pedido")
+        } else {
+            const raw = JSON.stringify({
+                "IdPedido": selectNota.id,
+                "CantidadCuotas": getCantCuotas()
+            })
+            crearFactura(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
+            router.back()
+        }
+    }
 
     console.log(notas)
 
@@ -254,9 +275,11 @@ export default function Crear() {
                                 <option value='CONTADO'> Contado </option>
                                 <option value='CREDITO'> Credito </option>
                             </select>
+
                             <FDPControl fdp={condPago} />
+
                             <div className='float-end pe-2 pt-2 pb-5'>
-                                <button className='btn btn-success me-2' onClick={() => {}}>Crear</button>
+                                <button className='btn btn-success me-2' onClick={() => { crearPeticionFactura() }}>Crear</button>
                                 <button className='btn btn-danger ' onClick={() => { router.back() }}>Cancelar</button>
                             </div>
                         </div>

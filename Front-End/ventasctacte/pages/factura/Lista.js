@@ -23,7 +23,6 @@ export default function Lista() {
             .then(res => res.text()).
             then(result => {
                 const f = JSON.parse(result)
-                console.log(f)
                 setFacturas(f.map(fac => {
                     const facturaNew = {
                         id: fac.Id,
@@ -40,7 +39,7 @@ export default function Lista() {
             })
             .catch(error => console.log(error))
 
-    }, [])
+    }, [facturas])
 
     useEffect(() => {
         getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)

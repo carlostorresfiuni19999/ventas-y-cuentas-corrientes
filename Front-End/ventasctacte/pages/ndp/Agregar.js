@@ -32,7 +32,7 @@ export default function Agregar() {
                     return newpersona
                 }))
             })
-            .catch(error => console.log('error', error));
+            .catch(error => alert(error));
 
 
         getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
@@ -52,7 +52,7 @@ export default function Agregar() {
                 }))
 
             })
-            .catch(error => console.log('error', error));
+            .catch(error => alert(error));
 
 
     }, [])
@@ -126,7 +126,6 @@ export default function Agregar() {
                     return productoNew
                 })
             });
-            console.log(JSON.parse(raw))
             agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
             router.push('/ndp/Lista')
         }else{

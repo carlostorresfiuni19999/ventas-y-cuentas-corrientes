@@ -40,7 +40,6 @@ export default function Lista() {
             .then(res => res.text()).
             then(result => {
                 const n = JSON.parse(result)
-                console.log(n)
                 setNotas(n.map(nota => {
                     const notaNew = {
                         id: nota.Id,

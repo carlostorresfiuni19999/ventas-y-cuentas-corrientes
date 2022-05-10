@@ -17,7 +17,7 @@ function FDPControl(props){
                 <div>
                     <p>El pago se realizara en credito, por lo que se pide que ingrese la cantidad de cuotas a pagar</p>
                     <label htmlFor='cantCuotas'className=''>Cantidad de Cuotas:</label>
-                    <input type='number' className='form-control form-control-sm' defaultValue={1} min={1} max={10} id='cantCuotas' />
+                    <input type='number' className='form-control form-control-sm' defaultValue={2} min={2} max={8} id='cantCuotasCred' />
                 </div>
             )
         default:

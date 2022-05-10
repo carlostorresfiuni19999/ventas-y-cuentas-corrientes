@@ -51,18 +51,6 @@ namespace cuentasctacte_web_api.Controllers
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
         // PUT: api/Pedidos/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutPedido(int id, PedidoDTORequest pedidoDTO_R)
@@ -74,16 +62,16 @@ namespace cuentasctacte_web_api.Controllers
             /*
                 *Ver si existe el pedido.
             */
-            if ( db.Pedidos.Include(p => p.Cliente).Where(p => p.Id == id) == null)
+            if ( db.Pedidos.Include(p => p.Cliente).ToList().Exists(p => p.Id == id) == false)
             {
                 return BadRequest();
             }
-            db.Entry(pedidoDTO_R).State = EntityState.Modified;
+            //db.Entry(pedidoDTO_R).State = EntityState.Modified;
 
 
             /*VARIABLES*/
             int cantidad_producto_DTO = 0;
-            int id_producto_DTO = 0;
+            int id_producto_DTO = -1;
             int sumatoria = 0;
             /****/
             //Primero Buscar un pedido dentro de base de datos con argumento 'id'
@@ -118,11 +106,18 @@ namespace cuentasctacte_web_api.Controllers
                     }
 
                 }
+
+                if (id_producto_DTO == -1) { continue; }
                 var Stock_DB = db.Stocks //Saco del stock el produco correcto. de mi lista de productos modificados.
                         .Include(s => s.Producto)
                         .Include(s => s.Deposito)
                         .Where(s => s.Producto.Id == id_producto_DTO && s.IdDeposito == 3)
                         .First();
+
+
+                
+
+
 
                 /*--------------------*///Me aseguro que no elimino ese producto al comparar con 0.
                 if (cantidad_producto_DTO != pedidoDetalle_DB.CantidadProducto && cantidad_producto_DTO != 0) { //Hubo modificacion.
@@ -148,26 +143,50 @@ namespace cuentasctacte_web_api.Controllers
                     }
                 }
              
-                //Cuarto si la cantidad de producto actualizado es 0, entonces eliminamos el pedidi
-                //detalles
-                if (cantidad_producto_DTO == 0)
-                {   //Devolvemos todo del Pd al estock.
-                    //Seteamos a 0 la cantidad en Pdetalles
-                    sumatoria -= pedidoDetalle_DB.CantidadFacturada * (int)pedidoDetalle_DB.PrecioUnitario;
-                    Stock_DB.Cantidad += pedidoDetalle_DB.CantidadFacturada;
-                    pedidoDetalle_DB.CantidadProducto = 0;
-                    pedidoDetalle_DB.CantidadFacturada = 0;
-                    pedidoDetalle_DB.Deleted = true;
-                }
+
+                
 
                 /**UPDATE stock and pedidoDetalles**/
                 //Hace el Update de la base de datos 
                 db.Entry(Stock_DB).State = EntityState.Modified;    
                 db.Entry(pedidoDetalle_DB).State = EntityState.Modified;
             }
-            
 
-         
+            /******/
+            /*ELIMINAMOS TODOS LOS 'PEDIDOS DETALLES' QUE NO APAREZCA EN EL DTO*/
+            int vandera = 0;
+            foreach (var pedidoDetalle_DB in PedidosDetalles_DB) {
+
+                foreach (var producto_temp in pedidoDTO_R.Pedidos) {
+                    if (pedidoDetalle_DB.IdProducto == producto_temp.ProductoId)
+                    {
+                        
+                        vandera = 1; //Existe ese producto dentro de los editados.
+                        break;
+                    }
+
+                }
+                if (vandera == 0) {
+
+                    var Stock_DB = db.Stocks //Saco del stock el produco correcto. de mi lista de productos modificados.
+                        .Include(s => s.Producto)
+                        .Include(s => s.Deposito)
+                        .Where(s => s.Producto.Id == id_producto_DTO && s.IdDeposito == 3)
+                        .First();
+
+                    //Devolvemos todo del Pd al estock.
+                    //Seteamos a 0 la cantidad en Pdetalles
+                    sumatoria -= pedidoDetalle_DB.CantidadFacturada * (int)pedidoDetalle_DB.PrecioUnitario;
+                    Stock_DB.Cantidad += pedidoDetalle_DB.CantidadFacturada;
+                    pedidoDetalle_DB.CantidadProducto = 0;
+                    pedidoDetalle_DB.CantidadFacturada = 0;
+                    pedidoDetalle_DB.Deleted = true;
+
+                }
+                
+
+            }
+            
             
             
             
@@ -197,33 +216,8 @@ namespace cuentasctacte_web_api.Controllers
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok("Actualizado con exito");
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

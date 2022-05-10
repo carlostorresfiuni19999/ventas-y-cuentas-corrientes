@@ -186,17 +186,14 @@ namespace cuentasctacte_web_api.Controllers
             
             
             
-            /**UPDATE Clientes**/
+            /**UPDATE Clientes Y el Pedido*/
             //Le aumentamos, restamos o dejamos intacto el saldo del cliente.
             //Sumatoria seria un valor, positivo o negativo de acuerdo a si 
             //el cliente a comprado mas productos o restado.
             var Cliente = db.Personas.FirstOrDefault(c => c.Id == pedidoDTO_R.ClienteId);
             Cliente.Saldo = Cliente.Saldo + sumatoria;
             db.Entry(Cliente).State = EntityState.Modified;
-
-
-
-
+            db.Entry(pedido_DB).State = EntityState.Modified;
 
 
             return StatusCode(HttpStatusCode.NoContent);

@@ -59,7 +59,13 @@ export default function Lista() {
         }
     }, [])
 
-
+    const formatFecha = (dateStr) => {
+        if (dateStr == null) {
+            return ''
+        }
+        const dArr = dateStr.split("-");  // ex input "2010-01-18"
+        return dArr[2] + "/" + dArr[1] + "/" + dArr[0].substring(2); //ex out: "18/01/10"
+    }
 
     const eliminar = (id) => {
         if (confirm('Esta seguro que desea eliminar esta nota?')) {
@@ -152,7 +158,7 @@ export default function Lista() {
                                                         <td>{nota.estado}</td>
                                                         <td>{nota.vendedor}</td>
                                                         <td>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(nota.precioTotal)}</td>
-                                                        <td>{nota.fecha}</td>
+                                                        <td>{formatFecha(nota.fecha)}</td>
 
                                                         <td><button className='btn btn-info btn-sm'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16" onClick={()=>{router.push(`/ndp/Detalles/${nota.id}`)}}>
                                                             <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />

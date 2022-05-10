@@ -105,7 +105,7 @@ export default function Crear() {
     }, [])
 
     //funciones
-    function formatfecha(dateStr) {
+    const formatfecha = (dateStr) => {
         if (dateStr == null) {
             return ''
         }
@@ -113,14 +113,14 @@ export default function Crear() {
         return dArr[2] + "/" + dArr[1] + "/" + dArr[0].substring(2); //ex out: "18/01/10"
     }
 
-    function formatNum(changeInt) {
+    const formatNum = (changeInt) => {
         if (changeInt == null) {
             return '---'
         }
         return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(changeInt)
     }
 
-    function getCantCuotas(){
+    const getCantCuotas = () => {
         if(condPago == "CONTADO"){
             return 1
         }else{
@@ -128,7 +128,7 @@ export default function Crear() {
         }
     }
 
-    function crearPeticionFactura() {
+    const  crearPeticionFactura = () => {
         if (selectNota.id == 0) {
             alert("faltan datos, seleccione una nota de pedido")
         } else {

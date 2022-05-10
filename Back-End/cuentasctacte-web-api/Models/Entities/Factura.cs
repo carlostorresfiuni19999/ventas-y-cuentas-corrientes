@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace cuentasctacte_web_api.Models.Entities
 {
@@ -14,7 +11,7 @@ namespace cuentasctacte_web_api.Models.Entities
         public string Estado { get; set; }
         public double Monto { get; set; }
         public double Saldo { get; set; }
-        public DateTime FechaFactura { get; set; }  
+        public DateTime FechaFactura { get; set; }
 
         public int? PedidoId { get; set; }
         public int? ClienteId { get; set; }

@@ -1,9 +1,5 @@
-﻿using cuentasctacte_web_api.Models.Entities;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace cuentasctacte_web_api.Models
 {

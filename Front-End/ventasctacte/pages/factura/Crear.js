@@ -39,7 +39,6 @@ export default function Crear() {
             .then(res => res.text()).
             then(result => {
                 const n = JSON.parse(result)
-                console.log(n)
                 setNotas(n.map(nota => {
                     const notaNew = {
                         id: nota.Id,
@@ -67,7 +66,7 @@ export default function Crear() {
             })
             .catch(error => console.log(error))
 
-    }, [])
+    }, [notas])
 
     useEffect(() => {
         getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
@@ -150,7 +149,7 @@ export default function Crear() {
                 <title>Crear Nueva Factura</title>
             </Head>
             <div>
-                <Navbar rango='fac' page='facLista' />
+                <Navbar rango='fac' page='facCrear' />
             </div>
             <div className='ms-4'>
                 {/*La parte de arriba*/}

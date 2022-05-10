@@ -80,6 +80,13 @@ export default function Detalles() {
 
     }, [router.isReady])
 
+    const formatFecha = (dateStr) => {
+        if (dateStr == null) {
+            return ''
+        }
+        const dArr = dateStr.split("-");  // ex input "2010-01-18"
+        return dArr[2] + "/" + dArr[1] + "/" + dArr[0].substring(2); //ex out: "18/01/10"
+    }
 
     return (
         <div>
@@ -123,7 +130,7 @@ export default function Detalles() {
                         <label className=''>CIN:</label>
                         <label className='px-3 pe-5'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(datos.cin)}</label>
                         <label className='ps-5'>Fecha:</label>
-                        <label className='px-3'>{datos.fecha}</label>
+                        <label className='px-3'>{formatFecha(datos.fecha)}</label>
                     </div>
 
                     <div className='pe-3'>

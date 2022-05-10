@@ -40,7 +40,7 @@ function Navbar(props) {
                         <label className={styles.listMain} id='fac'>Facturas</label>
                         <div>
                             <div><Link href='/factura/Lista'><label className={styles.listSub} id='facLista' >Lista</label></Link></div>
-                            <div><label className={styles.listSub} id='facCrear' >Crear</label></div>
+                            <div><Link href='/factura/Crear'><label className={styles.listSub} id='facCrear' >Crear</label></Link></div>
                             <div><label className={styles.listSub} id='facPagos' >Pagos</label></div>
                             <div><label className={styles.listSub} id='facDetalles' >Detalles</label></div>
                         </div>

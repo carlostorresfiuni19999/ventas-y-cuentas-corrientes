@@ -205,7 +205,7 @@ namespace cuentasctacte_web_api.Controllers
             return Ok(factura);
         }
         [ResponseType(typeof(List<PedidoResponseDTO>))]
-        [Route("/PedidosSinFactura")]
+        [Route("api/PedidosSinFactura")]
         [HttpGet]
         public IHttpActionResult GetPedidosSinFactura()
         {

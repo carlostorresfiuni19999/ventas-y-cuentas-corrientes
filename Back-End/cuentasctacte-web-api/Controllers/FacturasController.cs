@@ -204,18 +204,33 @@ namespace cuentasctacte_web_api.Controllers
 
             return Ok(factura);
         }
-        [ResponseType(typeof(List<PedidoResponseDTO>))]
         [Route("api/PedidosSinFactura")]
         [HttpGet]
-        public IHttpActionResult GetPedidosSinFactura()
+        public List<PedidoResponseDTO> GetPedidosSinFactura()
         {
-           List<Pedido> result = (from f in db.Facturas
-             join p in db.Pedidos
-             on f.PedidoId  equals null
-             where f.Deleted == false
-             where p.Deleted == false
-             select p).ToList();
-           return Ok(result.ConvertAll(p => PedidoMapper(p)));
+            List<Pedido> PedidosFacturados = db.Facturas
+                 .Include(pd => pd.Pedido)
+                 .Where(p => !p.Deleted)
+                 .ToList()
+                 .ConvertAll(pd => pd.Pedido);
+
+            List<Pedido> Pedidos = db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Vendedor)
+                .ToList();
+
+            List<PedidoResponseDTO> result = new List<PedidoResponseDTO>();
+            foreach(var pf in PedidosFacturados)
+            {
+                foreach(var p in Pedidos)
+                {
+                    if(pf.Id != p.Id)
+                    {
+                        result.Add(PedidoMapper(p));
+                    }
+                }
+            }
+            return result;
 
         }
         protected override void Dispose(bool disposing)

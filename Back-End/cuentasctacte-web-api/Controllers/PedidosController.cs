@@ -62,11 +62,11 @@ namespace cuentasctacte_web_api.Controllers
             /*
                 *Ver si existe el pedido.
             */
-<<<<<<< HEAD
+
             if ( db.Pedidos.Include(p => p.Cliente).ToList().Exists(p => p.Id == id) == false)
-=======
-            if (db.Pedidos.Include(p => p.Cliente).Where(p => p.Id == id) == null)
->>>>>>> 8394bf92ecde6ab892adac5a03684ad575d296d6
+
+
+
             {
                 return BadRequest();
             }

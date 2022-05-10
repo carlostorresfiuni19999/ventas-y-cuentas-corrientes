@@ -208,30 +208,78 @@ namespace cuentasctacte_web_api.Controllers
         [HttpGet]
         public List<PedidoResponseDTO> GetPedidosSinFactura()
         {
-            List<Pedido> PedidosFacturados = db.Facturas
-                 .Include(pd => pd.Pedido)
-                 .Where(p => !p.Deleted)
-                 .ToList()
-                 .ConvertAll(pd => pd.Pedido);
+            return (((from pedido in db.Pedidos
 
-            List<Pedido> Pedidos = db.Pedidos
-                .Include(p => p.Cliente)
-                .Include(p => p.Vendedor)
-                .ToList();
+                    join cliente in db.Personas
+                    on pedido.IdCliente equals cliente.Id
 
-            List<PedidoResponseDTO> result = new List<PedidoResponseDTO>();
-            foreach(var pf in PedidosFacturados)
-            {
-                foreach(var p in Pedidos)
-                {
-                    if(pf.Id != p.Id)
+                    join vendedor in db.Personas
+                    on pedido.IdVendedor equals vendedor.Id
+
+                    join factura in db.Facturas.Include(f => f.Pedido)
+                    on pedido.Id equals factura.PedidoId
+
+                    into PedidosTotales
+                    from p in PedidosTotales.DefaultIfEmpty()
+
+                    where pedido.Deleted == false
+                    where p.Pedido == null
+                    select new 
                     {
-                        result.Add(PedidoMapper(p));
-                    }
-                }
-            }
-            return result;
+                        Id = (int)pedido.Id,
+                        Vendedor = pedido.Vendedor,
+                        Cliente = pedido.Cliente,
+                        IdCliente = pedido.IdCliente,
+                        IdVendedor = pedido.IdVendedor,
+                        Estado = pedido.Estado,
+                        CondicionVenta = pedido.CondicionVenta,
+                        PedidoDescripcion = pedido.PedidoDescripcion,
+                        FechaPedido = pedido.FechaPedido,
+                        NumeroPedido = pedido.NumeroPedido
 
+                    }))).ToList().ConvertAll(p =>
+                    new Pedido{
+                        Id = (int)p.Id,
+                        Vendedor = p.Vendedor,
+                        Cliente = p.Cliente,
+                        IdCliente = p.IdCliente,
+                        IdVendedor = p.IdVendedor,
+                        Estado = p.Estado,
+                        CondicionVenta = p.CondicionVenta,
+                        PedidoDescripcion = p.PedidoDescripcion,
+                        FechaPedido = p.FechaPedido,
+                        NumeroPedido = p.NumeroPedido
+                    }).ConvertAll(p => PedidoMapper(p));
+                /*(from pedido in db.Pedidos.Include(c => c.Cliente)
+                    .Include(v => v.Vendedor)
+                    join cliente in db.Personas
+                    on pedido.IdCliente equals cliente.Id
+
+                    join vendedor in db.Personas
+                    on pedido.IdVendedor equals vendedor.Id
+
+                    join factura in db.Facturas.Include(f => f.Pedido)
+                    on pedido.Id equals factura.PedidoId
+
+                    into PedidosTotales from p in PedidosTotales.DefaultIfEmpty()
+                    where p != null
+                    select p).ToList().FindAll(p => p.Pedido!= null).ConvertAll(
+                p => new Pedido{
+                    Id = (int)p.PedidoId,
+                        Vendedor = p.Vendedor,
+                        Cliente = p.Cliente,
+                        IdCliente = p.ClienteId,
+                        IdVendedor = p.VendedorId,
+                        Estado = p.Estado,
+                        CondicionVenta = p.CondicionVenta,
+                        PedidoDescripcion = p.Pedido.PedidoDescripcion,
+                        FechaPedido = p.Pedido.FechaPedido,
+                        NumeroPedido = p.Pedido.NumeroPedido
+
+
+                    });
+            */
+            
         }
         protected override void Dispose(bool disposing)
         {

@@ -168,3 +168,5 @@ C:\Users\wwwal\Escritorio\editar_pedidos\Back-End\cuentasctacte-web-api\obj\Debu
 C:\Users\wwwal\Escritorio\editar_pedidos\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.csproj.CopyComplete
 C:\Users\wwwal\Escritorio\editar_pedidos\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.dll
 C:\Users\wwwal\Escritorio\editar_pedidos\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte-web-api.pdb
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\bin\System.Web.Razor.dll
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Debug\cuentasctacte_web_api.Migrations.initproducts.resources

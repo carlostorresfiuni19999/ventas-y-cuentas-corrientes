@@ -80,21 +80,6 @@ namespace cuentasctacte_web_api.Controllers
             }
             db.Entry(pedidoDTO_R).State = EntityState.Modified;
 
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PedidoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
             /*VARIABLES*/
             int cantidad_producto_DTO = 0;
@@ -195,6 +180,22 @@ namespace cuentasctacte_web_api.Controllers
             db.Entry(Cliente).State = EntityState.Modified;
             db.Entry(pedido_DB).State = EntityState.Modified;
 
+            try
+            {
+                db.SaveChanges();
+                return Ok(); //Todo salio bien.
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PedidoExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return StatusCode(HttpStatusCode.NoContent);
         }

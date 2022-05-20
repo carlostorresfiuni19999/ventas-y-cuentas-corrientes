@@ -173,7 +173,7 @@ export default function Agregar() {
                 {/*La parte de abajo de la agregar */}
                 <div className='ms-5 mt-3'>
                     <div>
-                        <h1>Crear Nuevo Pedido</h1>
+                        <h5>Crear Nuevo Pedido</h5>
                     </div>
 
                     <div className='pt-3'>

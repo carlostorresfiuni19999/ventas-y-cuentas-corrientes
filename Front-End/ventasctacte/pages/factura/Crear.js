@@ -11,7 +11,7 @@ import Navbar from '../../components/Navbar'
 import FDPControl from '../../components/fdpControl'
 
 //api
-import getPedidos from '../../API/getPedidos'
+import getPedidosSF from '../../API/getPedidosSF'
 import crearFactura from '../../API/crearFactura'
 
 export default function Crear() {
@@ -35,7 +35,7 @@ export default function Crear() {
 
     //recive las notas
     useEffect(() => {
-        getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
+        getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
             .then(res => res.text()).
             then(result => {
                 const n = JSON.parse(result)
@@ -66,10 +66,10 @@ export default function Crear() {
             })
             .catch(error => console.log(error))
 
-    }, [])
+    }, [notas])
 
     useEffect(() => {
-        getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
+        getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
             .then(res => res.text()).
             then(result => {
                 const n = JSON.parse(result)
@@ -105,7 +105,7 @@ export default function Crear() {
     }, [])
 
     //funciones
-    function formatfecha(dateStr) {
+    const formatfecha = (dateStr) => {
         if (dateStr == null) {
             return ''
         }
@@ -113,14 +113,14 @@ export default function Crear() {
         return dArr[2] + "/" + dArr[1] + "/" + dArr[0].substring(2); //ex out: "18/01/10"
     }
 
-    function formatNum(changeInt) {
+    const formatNum = (changeInt) => {
         if (changeInt == null) {
             return '---'
         }
         return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(changeInt)
     }
 
-    function getCantCuotas(){
+    const getCantCuotas = () => {
         if(condPago == "CONTADO"){
             return 1
         }else{
@@ -128,7 +128,7 @@ export default function Crear() {
         }
     }
 
-    function crearPeticionFactura() {
+    const  crearPeticionFactura = () => {
         if (selectNota.id == 0) {
             alert("faltan datos, seleccione una nota de pedido")
         } else {
@@ -149,7 +149,7 @@ export default function Crear() {
                 <title>Crear Nueva Factura</title>
             </Head>
             <div>
-                <Navbar rango='fac' page='facLista' />
+                <Navbar rango='fac' page='facCrear' />
             </div>
             <div className='ms-4'>
                 {/*La parte de arriba*/}

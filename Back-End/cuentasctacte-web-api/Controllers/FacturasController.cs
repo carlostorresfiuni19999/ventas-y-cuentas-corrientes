@@ -204,19 +204,82 @@ namespace cuentasctacte_web_api.Controllers
 
             return Ok(factura);
         }
-        [ResponseType(typeof(List<PedidoResponseDTO>))]
         [Route("api/PedidosSinFactura")]
         [HttpGet]
-        public IHttpActionResult GetPedidosSinFactura()
+        public List<PedidoResponseDTO> GetPedidosSinFactura()
         {
-           List<Pedido> result = (from f in db.Facturas
-             join p in db.Pedidos
-             on f.PedidoId  equals null
-             where f.Deleted == false
-             where p.Deleted == false
-             select p).ToList();
-           return Ok(result.ConvertAll(p => PedidoMapper(p)));
+            return (((from pedido in db.Pedidos
 
+                    join cliente in db.Personas
+                    on pedido.IdCliente equals cliente.Id
+
+                    join vendedor in db.Personas
+                    on pedido.IdVendedor equals vendedor.Id
+
+                    join factura in db.Facturas.Include(f => f.Pedido)
+                    on pedido.Id equals factura.PedidoId
+
+                    into PedidosTotales
+                    from p in PedidosTotales.DefaultIfEmpty()
+
+                    where pedido.Deleted == false
+                    where p.Pedido == null
+                    select new 
+                    {
+                        Id = (int)pedido.Id,
+                        Vendedor = pedido.Vendedor,
+                        Cliente = pedido.Cliente,
+                        IdCliente = pedido.IdCliente,
+                        IdVendedor = pedido.IdVendedor,
+                        Estado = pedido.Estado,
+                        CondicionVenta = pedido.CondicionVenta,
+                        PedidoDescripcion = pedido.PedidoDescripcion,
+                        FechaPedido = pedido.FechaPedido,
+                        NumeroPedido = pedido.NumeroPedido
+
+                    }))).ToList().ConvertAll(p =>
+                    new Pedido{
+                        Id = (int)p.Id,
+                        Vendedor = p.Vendedor,
+                        Cliente = p.Cliente,
+                        IdCliente = p.IdCliente,
+                        IdVendedor = p.IdVendedor,
+                        Estado = p.Estado,
+                        CondicionVenta = p.CondicionVenta,
+                        PedidoDescripcion = p.PedidoDescripcion,
+                        FechaPedido = p.FechaPedido,
+                        NumeroPedido = p.NumeroPedido
+                    }).ConvertAll(p => PedidoMapper(p));
+                /*(from pedido in db.Pedidos.Include(c => c.Cliente)
+                    .Include(v => v.Vendedor)
+                    join cliente in db.Personas
+                    on pedido.IdCliente equals cliente.Id
+
+                    join vendedor in db.Personas
+                    on pedido.IdVendedor equals vendedor.Id
+
+                    join factura in db.Facturas.Include(f => f.Pedido)
+                    on pedido.Id equals factura.PedidoId
+
+                    into PedidosTotales from p in PedidosTotales.DefaultIfEmpty()
+                    where p != null
+                    select p).ToList().FindAll(p => p.Pedido!= null).ConvertAll(
+                p => new Pedido{
+                    Id = (int)p.PedidoId,
+                        Vendedor = p.Vendedor,
+                        Cliente = p.Cliente,
+                        IdCliente = p.ClienteId,
+                        IdVendedor = p.VendedorId,
+                        Estado = p.Estado,
+                        CondicionVenta = p.CondicionVenta,
+                        PedidoDescripcion = p.Pedido.PedidoDescripcion,
+                        FechaPedido = p.Pedido.FechaPedido,
+                        NumeroPedido = p.Pedido.NumeroPedido
+
+
+                    });
+            */
+            
         }
         protected override void Dispose(bool disposing)
         {

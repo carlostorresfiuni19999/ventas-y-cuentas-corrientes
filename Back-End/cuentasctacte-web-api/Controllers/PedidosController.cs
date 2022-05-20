@@ -168,7 +168,10 @@ namespace cuentasctacte_web_api.Controllers
                 db.Entry(pedidoDetalle_DB).State = EntityState.Modified;
             }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
             /******/
             /*ELIMINAMOS TODOS LOS 'PEDIDOS DETALLES' QUE NO APAREZCA EN EL DTO*/
             int vandera = 0;
@@ -206,7 +209,12 @@ namespace cuentasctacte_web_api.Controllers
             
             
             
+<<<<<<< HEAD
           
+=======
+            
+
+>>>>>>> main
             /**UPDATE Clientes Y el Pedido*/
             //Le aumentamos, restamos o dejamos intacto el saldo del cliente.
             //Sumatoria seria un valor, positivo o negativo de acuerdo a si 

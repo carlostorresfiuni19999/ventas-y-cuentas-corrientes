@@ -147,11 +147,7 @@ namespace cuentasctacte_web_api.Controllers
                         sumatoria += temp * (int)pedidoDetalle_DB.PrecioUnitario; //temp -, desminuye saldo
                     }
                 }
-<<<<<<< HEAD
-             
 
-                
-=======
 
                 //Cuarto si la cantidad de producto actualizado es 0, entonces eliminamos el pedidi
                 //detalles
@@ -164,7 +160,7 @@ namespace cuentasctacte_web_api.Controllers
                     pedidoDetalle_DB.CantidadFacturada = 0;
                     pedidoDetalle_DB.Deleted = true;
                 }
->>>>>>> 8394bf92ecde6ab892adac5a03684ad575d296d6
+
 
                 /**UPDATE stock and pedidoDetalles**/
                 //Hace el Update de la base de datos 
@@ -172,7 +168,7 @@ namespace cuentasctacte_web_api.Controllers
                 db.Entry(pedidoDetalle_DB).State = EntityState.Modified;
             }
 
-<<<<<<< HEAD
+
             /******/
             /*ELIMINAMOS TODOS LOS 'PEDIDOS DETALLES' QUE NO APAREZCA EN EL DTO*/
             int vandera = 0;
@@ -210,14 +206,7 @@ namespace cuentasctacte_web_api.Controllers
             
             
             
-            
-=======
-
-
-
-
-
->>>>>>> 8394bf92ecde6ab892adac5a03684ad575d296d6
+          
             /**UPDATE Clientes Y el Pedido*/
             //Le aumentamos, restamos o dejamos intacto el saldo del cliente.
             //Sumatoria seria un valor, positivo o negativo de acuerdo a si 

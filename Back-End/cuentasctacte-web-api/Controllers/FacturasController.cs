@@ -93,100 +93,141 @@ namespace cuentasctacte_web_api.Controllers
         [ResponseType(typeof(FacturaRequestDTO))]
         public IHttpActionResult PostFactura(FacturaRequestDTO factura)
         {
-            if (factura.CantidadCuotas < 1) return BadRequest("Cuota no valida");
+            //Validamos la cantidad de Cuotas
+            if (factura.CantidadCuotas < 0) return BadRequest("Cuota no valida");
+            //Obtenemos el Pedido Original de la base de datos
             var Pedido = db.Pedidos
-                .Include(p => p.Cliente)
-                .Include(p => p.Vendedor)
-                .FirstOrDefault(p => p.Id == factura.IdPedido);
-            bool exist = db.Facturas
-                .Include(f => f.Pedido)
-                .Where(f => !f.Deleted)
-                .ToList()
-                .Exists(f => f.PedidoId == factura.IdPedido);
+                .Include(c => c.Cliente)
+                .Include(c => c.Vendedor)
+                .FirstOrDefault(c => c.Id == factura.IdPedido);
+            //Creamos la factura
 
-            if (exist) return BadRequest("El pedido que intenta facturar, ya existe");
-            var Pedidos = db.PedidoDetalles
-                .Include(pd => pd.Pedido)
-                .Include(pd => pd.Producto)
-                .Where(pd => !pd.Deleted)
-                .Where(pd => pd.IdPedido == factura.IdPedido);
-
-
-            var Factura = new Factura
+            var FacturaDb = new Factura
             {
-                PedidoId = factura.IdPedido,
+                CantidadCuotas = factura.CantidadCuotas,
+                ClienteId = factura.Pedido.ClienteId,
                 VendedorId = Pedido.IdVendedor,
-                ClienteId = Pedido.IdCliente,
-                CondicionVenta = factura.CantidadCuotas > 1 ? "CREDITO" : "CONTADO",
+                PedidoId = factura.IdPedido,
                 FechaFactura = DateTime.Now,
-                CantidadCuotas = factura.CantidadCuotas
+                Estado = "PENDIENTE",
+                CondicionVenta = factura.CantidadCuotas > 1 ? "CREDITO" : "CONTADO",
+                Monto = 0.0,
+                Saldo = 0.0,
+                Iva = 0.0
             };
 
+            //Guardamos la factura en el contexto
+
+            var FacturaSaved = db.Facturas.Add(FacturaDb);
             double monto = 0.0;
+            double saldo = 0.0;
             double iva = 0.0;
-            bool pendiente = false;
-            foreach (var item in Pedidos)
+
+            //Iterar sobre los Productos que se van a facturar
+            foreach(var item in factura.Pedido.Pedidos)
             {
-                if (item.CantidadProducto > item.CantidadFacturada) pendiente = true;
-                monto += item.CantidadFacturada * item.Producto.Precio;
-                iva += item.CantidadFacturada * item.Producto.Iva;
+                //Obtenemos el PedidoDetalle que queremos Setear
+                var PedidoDetalle = db.PedidoDetalles
+                    .Include(p => p.Pedido)
+                    .Include(p => p.Producto)
+                    .Where(p => p.IdPedido == factura.IdPedido)
+                    .Where(p => !p.Deleted)
+                    .Where(p => p.IdProducto == item.ProductoId)
+                    .FirstOrDefault();
+                
+                
 
-            }
+               
 
-            Factura.Saldo = monto + iva;
-            Factura.Monto = monto + iva;
-            Factura.Iva = iva;
 
-            if (pendiente)
-            {
-                Factura.Estado = "PENDIENTE";
-            }
-            else
-            {
-                Factura.Estado = "FACTURADO";
-            }
+                //Ahora, Seleccionamos el Stock que se va a modificar
 
-            Pedido.Estado = Factura.Estado;
-            Pedido.CondicionVenta = Factura.CondicionVenta;
+                var Stock = db.Stocks.Include(s => s.Producto)
+                    .Include(s => s.Deposito)
+                    .Where(s => !s.Deleted)
+                    .FirstOrDefault(s => s.IdDeposito == 3 && s.IdProducto == item.ProductoId);
 
-            db.Entry(Pedido).State = EntityState.Modified;
-            db.Facturas.Add(Factura);
+                //Verificamos si hay Stock suficiente para facturar
 
-            foreach (var item in Pedidos)
-            {
+                if(item.CantidadProducto >= Stock.Cantidad)
+                {
+                    PedidoDetalle.CantidadFacturada = Stock.Cantidad;
+                    Stock.Cantidad = 0;
+                }else
+                {
+                    PedidoDetalle.CantidadFacturada = Stock.Cantidad - item.CantidadProducto;
+                    Stock.Cantidad -= item.CantidadProducto;
+                }
+                //Actualizamos el Stock
+
+                db.Entry(Stock).State = EntityState.Modified;
+
+                //Guardamos el PedidoDetalle Modificado
+
+                db.Entry(PedidoDetalle).State = EntityState.Modified;
+
+                //Calculamos el Monto, Saldo e Iva de todos los Productos Facturados
+
+                monto += PedidoDetalle.CantidadFacturada * PedidoDetalle.Producto.Precio;
+                iva += PedidoDetalle.CantidadFacturada * PedidoDetalle.Producto.Iva;
+
+                //Empezamos con la Carga de los detalles de las Facturas
                 var FacturaDetalle = new FacturaDetalle
                 {
-                    FacturaId = Factura.Id,
-                    ProductoId = item.IdProducto,
-                    Cantidad = item.CantidadFacturada,
-                    PrecioUnitario = item.PrecioUnitario,
-                    Iva = item.Producto.Iva
+                    FacturaId = FacturaDb.Id,
+                    ProductoId = PedidoDetalle.IdProducto,
+                    PrecioUnitario = PedidoDetalle.Producto.Precio,
+                    Iva = PedidoDetalle.Producto.Iva,
+                    Cantidad = PedidoDetalle.CantidadFacturada
+
                 };
 
+                //Guardamos los detalles de las Facturas
                 db.FacturaDetalles.Add(FacturaDetalle);
             }
+
+            saldo = monto;
+            //Verificamos si la factura es Contado o Credito
+            FacturaDb.Monto = monto;
+            FacturaDb.Saldo = saldo;
+            FacturaDb.Iva = iva;
+
+            //Si es Credito Verificamos si hay Saldo Disponible
+            if(FacturaDb.CantidadCuotas > 1)
+            {
+                var Cliente = FacturaDb.Cliente;
+
+                Cliente.Saldo += monto;
+                if (Cliente.Saldo > Cliente.LineaDeCredito) return BadRequest("Linea de Credito insuficiente");
+                
+                //Guardamos los cambios hechos al cliente
+                db.Entry(Cliente).State = EntityState.Modified;
+            }
+            //Guardamos los cambios Generados en el Contexto
+            db.Entry(FacturaDb).State = EntityState.Added;
+
+            //Generamos los vencimientos de las Facturas
             for (int i = 0; i < factura.CantidadCuotas; i++)
             {
-                var cuota = new VencimientoFactura
+                var Vencimiento = FacturaDb.FechaFactura;
+                var cuota = new VencimientoFactura()
                 {
-                    FacturaId = Factura.Id,
-                    FechaVencimiento = Factura.FechaFactura.AddMonths(i),
-                    Monto = Factura.Monto / Factura.CantidadCuotas,
-                    Saldo = Factura.Monto / Factura.CantidadCuotas
+                    FacturaId = FacturaDb.Id,
+                    FechaVencimiento = Vencimiento.AddMonths(i + 1),
+                    Monto = (FacturaDb.Monto + FacturaDb.Iva) / factura.CantidadCuotas,
+                    Saldo = (FacturaDb.Monto + FacturaDb.Iva) / factura.CantidadCuotas,
                 };
 
                 db.VencimientoFacturas.Add(cuota);
             }
-
             try
             {
                 db.SaveChanges();
-                return Ok("Se ha guardado con exito");
-            }
-            catch (Exception ex)
+            }catch(Exception e)
             {
-                return BadRequest("Error al ejecutar la transaccion: " + ex.Message);
+                return BadRequest("Ocurrio un error al efectuar la transaccion: " + e.Message);
             }
+            return Ok("Guardado con exito");
         }
 
         // DELETE: api/Facturas/5

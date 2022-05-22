@@ -24,7 +24,10 @@ namespace cuentasctacte_web_api.Controllers
             var Pedidos = db.Pedidos
                 .Where(p => !p.Deleted)
                 .Include(p => p.Cliente)
-                .Include(p => p.Vendedor).ToList();
+                .Include(p => p.Vendedor)
+                .OrderBy(p => p.Estado.Equals("PENDIENTE"))
+                .OrderBy(p => p.FechaPedido)
+                .ToList();
             return PedidosMapper(Pedidos);
 
         }
@@ -275,15 +278,16 @@ namespace cuentasctacte_web_api.Controllers
                 Estado = "PENDIENTE",
                 FechaPedido = DateTime.Now
             };
-            db.Pedidos.Add(PedidoDb);
+           db.Pedidos.Add(PedidoDb);
             var Cliente = db.Personas
                 .FirstOrDefault(c => c.Id == Pedido.ClienteId);
-            double MontoTotal = 0.0;
+            
 
             if (Pedido.Pedidos == null) return BadRequest("Los Detalles del pedido es requerido");
             //Verificamos si hay stocks disponibles para cada producto Pedido
             foreach (var PedidoDetalle in Pedido.Pedidos)
             {
+                //Obtenemos los stocks disponibles
 
                 var Stock = db.Stocks
                     .Include(s => s.Producto)
@@ -291,41 +295,57 @@ namespace cuentasctacte_web_api.Controllers
                     .FirstOrDefault(s => s.IdProducto == PedidoDetalle.ProductoId && s.IdDeposito == 3);
 
                 var StockDisponible = Stock.Cantidad;
-                var Detalle = new PedidoDetalle
+                var PDs = db.PedidoDetalles
+                    .Include(p => p.Pedido)
+                    .Include(p => p.Producto)
+                    .Where(p => !p.Deleted)
+                    .Where(p => p.IdPedido == PedidoDb.Id)
+                    .FirstOrDefault(p => p.IdProducto == PedidoDetalle.ProductoId);
+                PedidoDetalle Detalle;
+                if(PDs != null)
                 {
-                    IdProducto = PedidoDetalle.ProductoId,
-                    Producto = db.Productos.Find(PedidoDetalle.ProductoId),
-                    Pedido = PedidoDb,
-                    IdPedido = PedidoDb.Id,
-                    CantidadProducto = PedidoDetalle.CantidadProducto,
-                    PrecioUnitario = Stock.Producto.Precio
-                };
+                    Detalle = PDs;
+                    Detalle.CantidadProducto += PDs.CantidadProducto;
+
+                    db.Entry(Detalle).State = EntityState.Added;
+                }
+                else
+                {
+                    Detalle = new PedidoDetalle
+                    {
+                        IdProducto = PedidoDetalle.ProductoId,
+                        Producto = db.Productos.Find(PedidoDetalle.ProductoId),
+                        Pedido = PedidoDb,
+                        IdPedido = PedidoDb.Id,
+                        CantidadProducto = PedidoDetalle.CantidadProducto,
+                        PrecioUnitario = Stock.Producto.Precio
+                    };
+
+                    db.PedidoDetalles.Add(Detalle);
+                }
+
+               
 
                 if (StockDisponible < PedidoDetalle.CantidadProducto)
                 {
                     Detalle.CantidadFacturada = StockDisponible;
-                    Stock.Cantidad = 0;
+                    
                 }
                 else
                 {
                     Detalle.CantidadFacturada = PedidoDetalle.CantidadProducto;
-                    Stock.Cantidad -= PedidoDetalle.CantidadProducto;
+                    
                 }
 
                 db.Entry(Stock).State = EntityState.Modified;
-                db.PedidoDetalles.Add(Detalle);
-                MontoTotal += Stock.Producto.Precio * Detalle.CantidadFacturada;
+         
+                
 
 
             }
 
-            if (MontoTotal > Cliente.LineaDeCredito || MontoTotal + Cliente.Saldo > Cliente.LineaDeCredito)
-            {
-                return BadRequest("Linea de Credito Insuficiente");
-            }
-            else
-            {
-                Cliente.Saldo += MontoTotal;
+           
+               
                 db.Entry(Cliente).State = EntityState.Modified;
 
 
@@ -340,7 +360,7 @@ namespace cuentasctacte_web_api.Controllers
                     return BadRequest("Error al ejecutar la transaccion " + ex.Message);
                 }
 
-            }
+            
 
 
 
@@ -490,5 +510,7 @@ namespace cuentasctacte_web_api.Controllers
             };
             return prdto;
         }
+
+   
     }
 }

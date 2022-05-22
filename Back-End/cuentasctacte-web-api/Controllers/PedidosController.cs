@@ -79,8 +79,8 @@ namespace cuentasctacte_web_api.Controllers
             //Luego si su estado no es pendiente, retorna null porque no podemos editar pedidos facturados.
             Pedido pedido_DB = db.Pedidos.Include(p => p.Cliente).FirstOrDefault(p => p.Id == id);
             if(pedido_DB.Estado != "PENDIENTE") {
-                return Ok("pedido facturado, no se puede modificar.");
-                
+               return BadRequest("Solo se pueden editar pedidos pendientes");
+
             }
 
             //Actualizamos descripcion
@@ -310,7 +310,7 @@ namespace cuentasctacte_web_api.Controllers
 
             if (pedido.Estado != "PENDIENTE")
             {
-                return Ok("pedido facturado, no se puede eliminar.");
+                return BadRequest("Solo se pueden eliminar pedidos pendientes");
             }
 
             pedido.Deleted = true;

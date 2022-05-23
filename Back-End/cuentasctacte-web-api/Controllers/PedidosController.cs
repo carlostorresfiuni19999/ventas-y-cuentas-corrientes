@@ -24,7 +24,10 @@ namespace cuentasctacte_web_api.Controllers
             var Pedidos = db.Pedidos
                 .Where(p => !p.Deleted)
                 .Include(p => p.Cliente)
-                .Include(p => p.Vendedor).ToList();
+                .Include(p => p.Vendedor)
+                .OrderBy(p => p.Estado.Equals("PENDIENTE"))
+                .OrderBy(p => p.FechaPedido)
+                .ToList();
             return PedidosMapper(Pedidos);
 
         }
@@ -185,13 +188,22 @@ namespace cuentasctacte_web_api.Controllers
                 }
             }
 
-            return Ok("Actualizado con exito");
         }
 
 
 
 
-
+        [Route("api/PedidosSinFactura")]
+        [HttpGet]
+        public List<PedidoResponseDTO> GetPedidosSinFactura()
+        {
+            return db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Vendedor)
+                .Where(p => p.Estado == "PENDIENTE")
+                .ToList()
+                .ConvertAll(p => PedidoMapper(p));
+        }
 
 
         // POST: api/Pedidos
@@ -227,64 +239,66 @@ namespace cuentasctacte_web_api.Controllers
                 Estado = "PENDIENTE",
                 FechaPedido = DateTime.Now
             };
-            db.Pedidos.Add(PedidoDb);
+           PedidoDb = db.Pedidos.Add(PedidoDb);
             var Cliente = db.Personas
                 .FirstOrDefault(c => c.Id == Pedido.ClienteId);
-            double MontoTotal = 0.0;
 
+     
+            List<PedidoDetalle> PedidosExistentes = new List<PedidoDetalle>();
             if (Pedido.Pedidos == null) return BadRequest("Los Detalles del pedido es requerido");
             //Verificamos si hay stocks disponibles para cada producto Pedido
             foreach (var PedidoDetalle in Pedido.Pedidos)
             {
+             
 
-                var Stock = db.Stocks
-                    .Include(s => s.Producto)
-                    .Include(s => s.Deposito)
-                    .FirstOrDefault(s => s.IdProducto == PedidoDetalle.ProductoId && s.IdDeposito == 3);
+             
+                
+                PedidoDetalle Detalle;
 
-                var StockDisponible = Stock.Cantidad;
-                var Detalle = new PedidoDetalle
+                bool DetalleExist = 0 < PedidosExistentes
+                    .Count(pd =>
+                    pd.IdPedido == PedidoDb.Id
+                    && pd.IdProducto == PedidoDetalle.ProductoId);
+
+
+                
+                if(DetalleExist)
                 {
-                    IdProducto = PedidoDetalle.ProductoId,
-                    Producto = db.Productos.Find(PedidoDetalle.ProductoId),
-                    Pedido = PedidoDb,
-                    IdPedido = PedidoDb.Id,
-                    CantidadProducto = PedidoDetalle.CantidadProducto,
-                    PrecioUnitario = Stock.Producto.Precio
-                };
+                    Detalle = PedidosExistentes
+   
+                    .Where(p => !p.Deleted)
+                    .FirstOrDefault(p =>
+                    p.IdProducto == PedidoDetalle.ProductoId
+                    && p.IdPedido == PedidoDb.Id
+                    );
+                    PedidosExistentes.Remove(Detalle);
+                    
+                    Detalle.CantidadProducto += Detalle.CantidadProducto;
 
-                if (StockDisponible < PedidoDetalle.CantidadProducto)
-                {
-                    Detalle.CantidadFacturada = StockDisponible;
-                    Stock.Cantidad = 0;
+                    PedidosExistentes.Add(Detalle);
+        
                 }
                 else
                 {
-                    Detalle.CantidadFacturada = PedidoDetalle.CantidadProducto;
-                    Stock.Cantidad -= PedidoDetalle.CantidadProducto;
+                    Detalle = new PedidoDetalle
+                    {
+                        IdProducto = PedidoDetalle.ProductoId,
+                        IdPedido = PedidoDb.Id,
+                        CantidadProducto = PedidoDetalle.CantidadProducto,
+                        PrecioUnitario = db.Productos.Find(PedidoDetalle.ProductoId).Precio,
+                        CantidadFacturada = 0
+                    };
+                    PedidosExistentes.Add(Detalle);
                 }
 
-                db.Entry(Stock).State = EntityState.Modified;
-                db.PedidoDetalles.Add(Detalle);
-                MontoTotal += Stock.Producto.Precio * Detalle.CantidadFacturada;
-
-
             }
 
-            if (MontoTotal > Cliente.LineaDeCredito || MontoTotal + Cliente.Saldo > Cliente.LineaDeCredito)
-            {
-                return BadRequest("Linea de Credito Insuficiente");
-            }
-            else
-            {
-                Cliente.Saldo += MontoTotal;
-                db.Entry(Cliente).State = EntityState.Modified;
-
-
+            //Guardamos todos los PedidosDetalles
+            PedidosExistentes.ForEach(p => db.PedidoDetalles.Add(p));
                 try
                 {
                     db.SaveChanges();
-                    return Ok("Guardado con exito");
+                    return Ok("Guardado con exito Detalle");
 
                 }
                 catch (Exception ex)
@@ -292,10 +306,17 @@ namespace cuentasctacte_web_api.Controllers
                     return BadRequest("Error al ejecutar la transaccion " + ex.Message);
                 }
 
-            }
+            
 
 
 
+        }
+        [ResponseType(typeof(PedidoDetalleResponseDTO))]
+        [Route("api/Pedidos/PedidoParaFacturar")]
+        [HttpGet]
+        public PedidoDTORequest GetPedidoFacturar(int id)
+        {
+            return ToDTORequest(id);
         }
 
         // DELETE: api/Pedidos/5
@@ -377,8 +398,8 @@ namespace cuentasctacte_web_api.Controllers
             double ivaTotal = 0;
             foreach (var pdt in detalles)
             {
-                precioTotal = precioTotal + pdt.Producto.Precio * pdt.CantidadFacturada;
-                ivaTotal = ivaTotal + pdt.Producto.Iva * pdt.CantidadFacturada;
+                precioTotal = precioTotal + pdt.Producto.Precio * pdt.CantidadProducto;
+                ivaTotal = ivaTotal + pdt.Producto.Iva * pdt.CantidadProducto;
             }
             var prdto = new PedidoResponseDTO
             {
@@ -408,6 +429,7 @@ namespace cuentasctacte_web_api.Controllers
                 IvaTotal = ivaTotal,
                 CostoTotal = precioTotal + ivaTotal,
                 PedidosDetalles = db.PedidoDetalles
+                        .Include(pd => pd.Pedido)
                         .Include(pd => pd.Producto)
                         .Where(pd => pd.IdPedido == p.Id)
                         .ToList()
@@ -431,5 +453,38 @@ namespace cuentasctacte_web_api.Controllers
             };
             return prdto;
         }
+
+       
+
+        private PedidoDTORequest ToDTORequest(int id)
+        {
+            var Pedido = db.Pedidos
+                .Include(p => p.Vendedor)
+                .Include(p => p.Cliente)
+                .FirstOrDefault(p => p.Id == id);
+            if (Pedido == null) throw new Exception("Pedido no encontrado");
+
+            var Pedidos = db.PedidoDetalles
+                .Include(p => p.Pedido)
+                .Include(p => p.Producto)
+                .Where(p => p.IdPedido == id);
+
+            if (Pedidos.Count() <= 0) throw new Exception("Pedidos no encontrado");
+            PedidoDTORequest result = new PedidoDTORequest()
+            {
+                ClienteId = Pedido.Cliente.Id,
+                Descripcion = Pedido.PedidoDescripcion,
+                Pedidos = Pedidos
+                 .ToList()
+                 .ConvertAll(p => new PedidoDetalleDTORequest()
+                 {
+                     ProductoId = p.IdProducto,
+                     CantidadProducto = p.CantidadProducto - p.CantidadFacturada
+                 })
+            };
+
+            return result;
+        }
+
     }
 }

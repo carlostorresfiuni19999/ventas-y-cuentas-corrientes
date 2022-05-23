@@ -243,8 +243,7 @@ namespace cuentasctacte_web_api.Controllers
             var Cliente = db.Personas
                 .FirstOrDefault(c => c.Id == Pedido.ClienteId);
 
-            int contadorPD = 0;
-            int ContadorExist = 0;
+     
             List<PedidoDetalle> PedidosExistentes = new List<PedidoDetalle>();
             if (Pedido.Pedidos == null) return BadRequest("Los Detalles del pedido es requerido");
             //Verificamos si hay stocks disponibles para cada producto Pedido
@@ -299,7 +298,7 @@ namespace cuentasctacte_web_api.Controllers
                 try
                 {
                     db.SaveChanges();
-                    return Ok("Guardado con exito Detalle: "+contadorPD+" Contador: "+ContadorExist);
+                    return Ok("Guardado con exito Detalle");
 
                 }
                 catch (Exception ex)

@@ -220,6 +220,24 @@ namespace cuentasctacte_web_api.Controllers
 
                 db.VencimientoFacturas.Add(cuota);
             }
+
+            //Verificamos si el Pedido se esta Facturando, Pendiente, o ya esta Facturado
+            bool pendiente = true;
+
+            //Recuperamos los Pedidos Detalles
+
+            var PedidosDetalles = db.PedidoDetalles
+                .Include(p => p.Pedido)
+                .Include(p => p.Producto);
+
+            Pedido.Estado = PedidosDetalles
+                .Where(p => p.CantidadFacturada == p.CantidadProducto)
+                .Count() < PedidosDetalles.Count() ? "PENDIENTE" : "FACTURADO";
+
+
+            //Guardamos El nuevo estado del Pedido
+            db.Entry(Pedido).State = EntityState.Modified;
+
             try
             {
                 db.SaveChanges();

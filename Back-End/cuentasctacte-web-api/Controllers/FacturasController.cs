@@ -42,16 +42,20 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // GET: api/Facturas/5
-        [ResponseType(typeof(Factura))]
+        [ResponseType(typeof(FullFacturaResponseDTO))]
         public IHttpActionResult GetFactura(int id)
         {
-            Factura factura = db.Facturas.Find(id);
+            Factura factura = db.Facturas
+                .Include(f => f.Pedido)
+                .Include(f => f.Cliente)
+                .FirstOrDefault(f => f.Id == id);
             if (factura == null)
             {
                 return NotFound();
             }
 
-            return Ok(factura);
+
+            return Ok(MapToFullFactura(factura));
         }
 
         // PUT: api/Facturas/5
@@ -94,7 +98,7 @@ namespace cuentasctacte_web_api.Controllers
         public IHttpActionResult PostFactura(FacturaRequestDTO factura)
         {
             //Validamos la cantidad de Cuotas
-            if (factura.CantidadCuotas < 0) return BadRequest("Cuota no valida");
+            if (factura.CantidadCuotas < 1) return BadRequest("Cuota no valida");
             //Obtenemos el Pedido Original de la base de datos
             var Pedido = db.Pedidos
                 .Include(c => c.Cliente)
@@ -134,11 +138,6 @@ namespace cuentasctacte_web_api.Controllers
                     .Where(p => !p.Deleted)
                     .Where(p => p.IdProducto == item.ProductoId)
                     .FirstOrDefault();
-                
-                
-
-               
-
 
                 //Ahora, Seleccionamos el Stock que se va a modificar
 
@@ -155,7 +154,7 @@ namespace cuentasctacte_web_api.Controllers
                     Stock.Cantidad = 0;
                 }else
                 {
-                    PedidoDetalle.CantidadFacturada = Stock.Cantidad - item.CantidadProducto;
+                    PedidoDetalle.CantidadFacturada = item.CantidadProducto;
                     Stock.Cantidad -= item.CantidadProducto;
                 }
                 //Actualizamos el Stock
@@ -163,7 +162,7 @@ namespace cuentasctacte_web_api.Controllers
                 db.Entry(Stock).State = EntityState.Modified;
 
                 //Guardamos el PedidoDetalle Modificado
-
+                if (item.CantidadProducto < PedidoDetalle.CantidadFacturada) return BadRequest("Su Pedido de Facturacion sobrepasa a la cantidad de Pedido que tiene inicialmente");
                 db.Entry(PedidoDetalle).State = EntityState.Modified;
 
                 //Calculamos el Monto, Saldo e Iva de todos los Productos Facturados
@@ -222,7 +221,7 @@ namespace cuentasctacte_web_api.Controllers
             }
 
             //Verificamos si el Pedido se esta Facturando, Pendiente, o ya esta Facturado
-            bool pendiente = true;
+          
 
             //Recuperamos los Pedidos Detalles
 
@@ -233,7 +232,7 @@ namespace cuentasctacte_web_api.Controllers
             Pedido.Estado = PedidosDetalles
                 .Where(p => p.CantidadFacturada == p.CantidadProducto)
                 .Count() < PedidosDetalles.Count() ? "PENDIENTE" : "FACTURADO";
-
+            Pedido.CondicionVenta = FacturaDb.CondicionVenta;
 
             //Guardamos El nuevo estado del Pedido
             db.Entry(Pedido).State = EntityState.Modified;
@@ -263,83 +262,7 @@ namespace cuentasctacte_web_api.Controllers
 
             return Ok(factura);
         }
-        [Route("api/PedidosSinFactura")]
-        [HttpGet]
-        public List<PedidoResponseDTO> GetPedidosSinFactura()
-        {
-            return (((from pedido in db.Pedidos
-
-                    join cliente in db.Personas
-                    on pedido.IdCliente equals cliente.Id
-
-                    join vendedor in db.Personas
-                    on pedido.IdVendedor equals vendedor.Id
-
-                    join factura in db.Facturas.Include(f => f.Pedido)
-                    on pedido.Id equals factura.PedidoId
-
-                    into PedidosTotales
-                    from p in PedidosTotales.DefaultIfEmpty()
-
-                    where pedido.Deleted == false
-                    where p.Pedido == null
-                    select new 
-                    {
-                        Id = (int)pedido.Id,
-                        Vendedor = pedido.Vendedor,
-                        Cliente = pedido.Cliente,
-                        IdCliente = pedido.IdCliente,
-                        IdVendedor = pedido.IdVendedor,
-                        Estado = pedido.Estado,
-                        CondicionVenta = pedido.CondicionVenta,
-                        PedidoDescripcion = pedido.PedidoDescripcion,
-                        FechaPedido = pedido.FechaPedido,
-                        NumeroPedido = pedido.NumeroPedido
-
-                    }))).ToList().ConvertAll(p =>
-                    new Pedido{
-                        Id = (int)p.Id,
-                        Vendedor = p.Vendedor,
-                        Cliente = p.Cliente,
-                        IdCliente = p.IdCliente,
-                        IdVendedor = p.IdVendedor,
-                        Estado = p.Estado,
-                        CondicionVenta = p.CondicionVenta,
-                        PedidoDescripcion = p.PedidoDescripcion,
-                        FechaPedido = p.FechaPedido,
-                        NumeroPedido = p.NumeroPedido
-                    }).ConvertAll(p => PedidoMapper(p));
-                /*(from pedido in db.Pedidos.Include(c => c.Cliente)
-                    .Include(v => v.Vendedor)
-                    join cliente in db.Personas
-                    on pedido.IdCliente equals cliente.Id
-
-                    join vendedor in db.Personas
-                    on pedido.IdVendedor equals vendedor.Id
-
-                    join factura in db.Facturas.Include(f => f.Pedido)
-                    on pedido.Id equals factura.PedidoId
-
-                    into PedidosTotales from p in PedidosTotales.DefaultIfEmpty()
-                    where p != null
-                    select p).ToList().FindAll(p => p.Pedido!= null).ConvertAll(
-                p => new Pedido{
-                    Id = (int)p.PedidoId,
-                        Vendedor = p.Vendedor,
-                        Cliente = p.Cliente,
-                        IdCliente = p.ClienteId,
-                        IdVendedor = p.VendedorId,
-                        Estado = p.Estado,
-                        CondicionVenta = p.CondicionVenta,
-                        PedidoDescripcion = p.Pedido.PedidoDescripcion,
-                        FechaPedido = p.Pedido.FechaPedido,
-                        NumeroPedido = p.Pedido.NumeroPedido
-
-
-                    });
-            */
-            
-        }
+        
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -417,6 +340,43 @@ namespace cuentasctacte_web_api.Controllers
                         })
             };
             return prdto;
+        }
+
+        private FullFacturaResponseDTO MapToFullFactura(Factura factura)
+        {
+            var Result = new FullFacturaResponseDTO()
+            {
+                Cliente = factura.Cliente.Nombre + " " + factura.Cliente.Apellido,
+                DocCliente = factura.Cliente.Documento,
+                PrecioTotal = factura.Monto,
+                IvaTotal = factura.Iva,
+                SaldoTotal = factura.Saldo,
+                FechaFacturacion = factura.FechaFactura,
+                Detalles = db.FacturaDetalles
+                .Include(fd => fd.Factura)
+                .Include(fd => fd.Producto)
+                .Where(fd => fd.FacturaId == factura.Id)
+                .ToList()
+                .ConvertAll(fd => new FacturaDetalleResponseDTO
+                {
+                    Producto = fd.Producto.MarcaProducto + " "+ fd.Producto.NombreProducto,
+                    Cantidad = fd.Cantidad,
+                    Iva = fd.Iva,
+                    PrecioUnitario = fd.PrecioUnitario
+                }),
+                Cuotas = db.VencimientoFacturas
+                    .Include(c => c.Factura)
+                    .Where(c => c.FacturaId == factura.Id)
+                    .ToList()
+                    .ConvertAll(c => new FullCuotaResponseDTO()
+                    {
+                        Monto = c.Monto,
+                        Saldo = c.Saldo,
+                        FechaVencimiento = c.FechaVencimiento
+                    })
+
+            };
+            return Result;
         }
     }
 }

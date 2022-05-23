@@ -236,13 +236,22 @@ namespace cuentasctacte_web_api.Controllers
                 }
             }
 
-            return Ok("Actualizado con exito");
         }
 
 
 
 
-
+        [Route("api/PedidosSinFactura")]
+        [HttpGet]
+        public List<PedidoResponseDTO> GetPedidosSinFactura()
+        {
+            return db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Vendedor)
+                .Where(p => p.Estado == "PENDIENTE")
+                .ToList()
+                .ConvertAll(p => PedidoMapper(p));
+        }
 
 
         // POST: api/Pedidos
@@ -350,6 +359,13 @@ namespace cuentasctacte_web_api.Controllers
 
 
 
+        }
+        [ResponseType(typeof(PedidoDetalleResponseDTO))]
+        [Route("api/Pedidos/PedidoParaFacturar")]
+        [HttpGet]
+        public PedidoDTORequest GetPedidoFacturar(int id)
+        {
+            return ToDTORequest(id);
         }
 
         // DELETE: api/Pedidos/5
@@ -498,6 +514,37 @@ namespace cuentasctacte_web_api.Controllers
             return prdto;
         }
 
-   
+       
+
+        private PedidoDTORequest ToDTORequest(int id)
+        {
+            var Pedido = db.Pedidos
+                .Include(p => p.Vendedor)
+                .Include(p => p.Cliente)
+                .FirstOrDefault(p => p.Id == id);
+            if (Pedido == null) throw new Exception("Pedido no encontrado");
+
+            var Pedidos = db.PedidoDetalles
+                .Include(p => p.Pedido)
+                .Include(p => p.Producto)
+                .Where(p => p.IdPedido == id);
+
+            if (Pedidos.Count() <= 0) throw new Exception("Pedidos no encontrado");
+            PedidoDTORequest result = new PedidoDTORequest()
+            {
+                ClienteId = Pedido.Cliente.Id,
+                Descripcion = Pedido.PedidoDescripcion,
+                Pedidos = Pedidos
+                 .ToList()
+                 .ConvertAll(p => new PedidoDetalleDTORequest()
+                 {
+                     ProductoId = p.IdProducto,
+                     CantidadProducto = p.CantidadProducto - p.CantidadFacturada
+                 })
+            };
+
+            return result;
+        }
+
     }
 }

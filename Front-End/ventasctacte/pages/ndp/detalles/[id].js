@@ -120,6 +120,8 @@ export default function Detalles() {
         }
         if (productos.filter(prod => prod.id == id)[0].cantidad > 10) {
             getDoc(`tr${id}`).className = 'table-danger'
+        } else{
+            getDoc(`tr${id}`).className = ''   
         }
         setProductos(productos.map(p => {return p}))
         setPrecioTotal({

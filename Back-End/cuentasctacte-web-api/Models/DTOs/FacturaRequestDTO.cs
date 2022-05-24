@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace cuentasctacte_web_api.Models.DTOs
+﻿namespace cuentasctacte_web_api.Models.DTOs
 {
     public class FacturaRequestDTO
     {

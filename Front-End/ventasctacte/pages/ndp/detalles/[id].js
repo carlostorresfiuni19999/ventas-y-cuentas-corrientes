@@ -8,10 +8,12 @@ import Navbar from '../../../components/Navbar'
 //api
 import getPedidos from '../../../API/getPedidos'
 import getPedido from '../../../API/getPedido'
+import getProductos from '../../../API/getProductos'
 
 export default function Detalles() {
     const [datos, setDatos] = useState({})
     const [productos, setProductos] = useState([])
+    const [listProd, setListProd] = useState([])
     const router = useRouter()
 
     useEffect(() => {
@@ -20,7 +22,6 @@ export default function Detalles() {
                 .then(response => response.text())
                 .then(result => {
                     const res = JSON.parse(result)
-                    console.log(res)
 
                     setDatos({
                         nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
@@ -43,8 +44,25 @@ export default function Detalles() {
                         return newProd
                     }))
                 }).catch(err => console.log(err))
-        }
 
+            getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(response => response.text())
+                .then(result => {
+                    const res = JSON.parse(result)
+
+                    setListProd(res.map(producto => {
+                        const newProducto = {
+                            id: producto.Id,
+                            nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
+                            codigoBar: producto.CodigoDeBarra,
+                            precio: producto.Precio,
+                            precioIva: producto.Precio + producto.Iva
+                        }
+                        return newProducto
+                    }))
+
+                }).catch
+        }
 
 
         {/*getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
@@ -80,12 +98,37 @@ export default function Detalles() {
 
     }, [router.isReady])
 
+    console.log(productos)
+
     const formatFecha = (dateStr) => {
         if (dateStr == null) {
             return ''
         }
         const dArr = dateStr.split("-");  // ex input "2010-01-18"
         return dArr[2] + "/" + dArr[1] + "/" + dArr[0].substring(2); //ex out: "18/01/10"
+    }
+    
+    const formatNum = (data) =>{
+        return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(data)
+    }
+
+    const getDoc = (id) => {
+        return document.getElementById(id)
+    }
+
+    const handleChange = (id) =>{
+        const modificar = productos.map((prod) =>{
+            if(prod.id == id){
+                return prod
+            }
+        })[0]
+        modificar.cantidad = parseInt(getDoc(`cantidadProd${id}`).value)
+        console.log(modificar)
+        productos.forEach((prod) =>{
+            if(prod.id == id){
+                prod = modificar
+            }
+        })
     }
 
     return (
@@ -128,7 +171,7 @@ export default function Detalles() {
                         <label>Cliente:</label>
                         <label className='px-3'>{datos.nombre}</label>
                         <label className=''>CIN:</label>
-                        <label className='px-3 pe-5'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(datos.cin)}</label>
+                        <label className='px-3 pe-5'>{formatNum(datos.cin)}</label>
                         <label className='ps-5'>Fecha:</label>
                         <label className='px-3'>{formatFecha(datos.fecha)}</label>
                     </div>
@@ -153,15 +196,27 @@ export default function Detalles() {
                                     productos.map(prod => {
                                         return (
                                             <tr key={prod.id}>
-                                                <td>{prod.cantidad}</td>
+                                                <td><input type="number" min={1} max={10} defaultValue={prod.cantidad} onBlur={()=>handleChange(prod.id)} id={`cantidadProd${prod.id}`}></input></td>
                                                 <td>{prod.codBarr}</td>
-                                                <td>{prod.nombre}</td>
-                                                <td className='text-center'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(prod.precio)}</td>
-                                                <td className='text-center'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(prod.precioTotal)}</td>
+                                                <td>
+                                                    <input type="text" list='productosSelectData' className='form-control' defaultValue={prod.nombre} id={`producto${prod.id}`} onBlur={() => handleChange(prod.id)}></input>
+                                                    <datalist id="productosSelectData">
+                                                        {
+                                                            listProd.map((prod)=>{
+                                                                return(
+                                                                    <option key={prod.id} value={prod.nombre}>{formatNum(prod.precio)} - {formatNum(prod.precioIva)}</option>
+                                                                )
+                                                            })   
+                                                        }
+                                                    </datalist>
+                                                </td>
+                                                <td className='text-center'>{formatNum(prod.precio)}</td>
+                                                <td className='text-center'>{formatNum(prod.precioTotal)}</td>
                                             </tr>
                                         )
                                     })
                                 }
+                                
 
                             </tbody>
                         </table>

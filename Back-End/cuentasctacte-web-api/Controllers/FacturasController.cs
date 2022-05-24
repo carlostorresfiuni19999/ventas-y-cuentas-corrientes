@@ -128,7 +128,7 @@ namespace cuentasctacte_web_api.Controllers
             double iva = 0.0;
 
             //Iterar sobre los Productos que se van a facturar
-            foreach(var item in factura.Pedido.Pedidos)
+            foreach (var item in factura.Pedido.Pedidos)
             {
                 //Obtenemos el PedidoDetalle que queremos Setear
                 var PedidoDetalle = db.PedidoDetalles
@@ -148,11 +148,12 @@ namespace cuentasctacte_web_api.Controllers
 
                 //Verificamos si hay Stock suficiente para facturar
 
-                if(item.CantidadProducto >= Stock.Cantidad)
+                if (item.CantidadProducto >= Stock.Cantidad)
                 {
                     PedidoDetalle.CantidadFacturada = Stock.Cantidad;
                     Stock.Cantidad = 0;
-                }else
+                }
+                else
                 {
                     PedidoDetalle.CantidadFacturada = item.CantidadProducto;
                     Stock.Cantidad -= item.CantidadProducto;
@@ -192,13 +193,13 @@ namespace cuentasctacte_web_api.Controllers
             FacturaDb.Iva = iva;
 
             //Si es Credito Verificamos si hay Saldo Disponible
-            if(FacturaDb.CantidadCuotas > 1)
+            if (FacturaDb.CantidadCuotas > 1)
             {
                 var Cliente = FacturaDb.Cliente;
 
                 Cliente.Saldo += monto;
                 if (Cliente.Saldo > Cliente.LineaDeCredito) return BadRequest("Linea de Credito insuficiente");
-                
+
                 //Guardamos los cambios hechos al cliente
                 db.Entry(Cliente).State = EntityState.Modified;
             }
@@ -221,7 +222,7 @@ namespace cuentasctacte_web_api.Controllers
             }
 
             //Verificamos si el Pedido se esta Facturando, Pendiente, o ya esta Facturado
-          
+
 
             //Recuperamos los Pedidos Detalles
 
@@ -231,7 +232,7 @@ namespace cuentasctacte_web_api.Controllers
 
             Pedido.Estado = PedidosDetalles
                 .Where(p => p.CantidadFacturada == p.CantidadProducto)
-                .Count() < PedidosDetalles.Count() ? "PENDIENTE" : "FACTURADO";
+                .Count() < PedidosDetalles.Count() ? "FACTURANDO" : "FACTURADO";
             Pedido.CondicionVenta = FacturaDb.CondicionVenta;
 
             //Guardamos El nuevo estado del Pedido
@@ -240,7 +241,8 @@ namespace cuentasctacte_web_api.Controllers
             try
             {
                 db.SaveChanges();
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 return BadRequest("Ocurrio un error al efectuar la transaccion: " + e.Message);
             }
@@ -251,18 +253,64 @@ namespace cuentasctacte_web_api.Controllers
         [ResponseType(typeof(Factura))]
         public IHttpActionResult DeleteFactura(int id)
         {
-            Factura factura = db.Facturas.Find(id);
+            Factura factura = db.Facturas
+                .Where(f => !f.Deleted)
+                .Include(f => f.Pedido)
+                .Include(f => f.Cliente)
+                .FirstOrDefault(f => f.Id == id);
             if (factura == null)
             {
                 return NotFound();
             }
+            if (factura.Estado != "PENDIENTE") return BadRequest("No se puede borrar una factura que ha comenzado el proceso de Pago");
+            var FacturaDetalles = db.FacturaDetalles
+                .Include(fd => fd.Factura)
+                .Include(fd => fd.Producto)
+                .Where(fd => !fd.Deleted)
+                .Where(fd => fd.FacturaId == id);
 
-            db.Facturas.Remove(factura);
-            db.SaveChanges();
+            //Iteramos sobre las facturasdetalles y seteamos los valores del PedidoDetalle
 
-            return Ok(factura);
+            foreach (var item in FacturaDetalles)
+            {
+                var PedidoDetalle = db.PedidoDetalles
+                    .Include(pd => pd.Pedido)
+                    .Include(pd => pd.Producto)
+                    .FirstOrDefault(pd =>
+                    pd.IdPedido == factura.PedidoId
+                    && pd.IdProducto == item.ProductoId);
+
+                PedidoDetalle.CantidadFacturada -= item.Cantidad;
+                item.Deleted = true;
+                db.Entry(PedidoDetalle).State = EntityState.Modified;
+                db.Entry(item).State = EntityState.Modified;
+            }
+            var Cuotas = db.VencimientoFacturas
+                .Include(c => c.Factura)
+                .Where(c => !c.Deleted);
+
+            //Eliminamos las cuotas
+            foreach (var item in Cuotas)
+            {
+                item.Deleted = true;
+                db.Entry(item).State = EntityState.Modified;
+            }
+
+            factura.Deleted = true;
+
+            db.Entry(factura).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+                return Ok("Eliminado Con Exito");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al ejecutar la transaccion: " + ex.Message);
+            }
+
         }
-        
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -275,71 +323,6 @@ namespace cuentasctacte_web_api.Controllers
         private bool FacturaExists(int id)
         {
             return db.Facturas.Count(e => e.Id == id) > 0;
-        }
-        private PedidoResponseDTO PedidoMapper(Pedido p)
-        {
-            var detalles = db.PedidoDetalles
-                .Include(x => x.Pedido)
-                .Include(x => x.Producto)
-                .Where(x => !x.Deleted)
-                .Where(x => x.IdPedido == p.Id);
-            double precioTotal = 0;
-            double ivaTotal = 0;
-            foreach (var pdt in detalles)
-            {
-                precioTotal = precioTotal + pdt.Producto.Precio * pdt.CantidadFacturada;
-                ivaTotal = ivaTotal + pdt.Producto.Iva * pdt.CantidadFacturada;
-            }
-            var prdto = new PedidoResponseDTO
-            {
-                Id = p.Id,
-                Cliente = new PersonaResponseDTO
-                {
-                    Id = (int)p.IdCliente,
-                    Nombre = p.Cliente.Nombre,
-                    Apellido = p.Cliente.Apellido,
-                    DocumentoTipo = p.Cliente.DocumentoTipo,
-                    Documento = p.Cliente.Documento
-
-                },
-                Vendedor = new PersonaResponseDTO
-                {
-                    Id = (int)p.IdVendedor,
-                    Nombre = p.Vendedor.Nombre,
-                    Apellido = p.Vendedor.Apellido,
-                    DocumentoTipo = p.Vendedor.DocumentoTipo,
-                    Documento = p.Vendedor.Documento
-                },
-                PedidoDescripcion = p.PedidoDescripcion,
-                Estado = p.Estado,
-                CondicionVenta = p.CondicionVenta,
-                FechePedido = p.FechaPedido,
-                PrecioTotal = precioTotal,
-                IvaTotal = ivaTotal,
-                CostoTotal = precioTotal + ivaTotal,
-                PedidosDetalles = db.PedidoDetalles
-                        .Include(pd => pd.Producto)
-                        .Where(pd => pd.IdPedido == p.Id)
-                        .ToList()
-                        .ConvertAll(pd => new PedidoDetalleResponseDTO
-                        {
-                            Id = pd.Id,
-                            Producto = new ProductoResponseDTO
-                            {
-                                Id = pd.Producto.Id,
-                                NombreProducto = pd.Producto.NombreProducto,
-                                DescripcionProducto = pd.Producto.DescripcionProducto,
-                                CodigoDeBarra = pd.Producto.CodigoDeBarra,
-                                MarcaProducto = pd.Producto.MarcaProducto,
-                                Precio = pd.Producto.Precio,
-                                Iva = pd.Producto.Iva
-                            },
-                            CantidadFacturada = pd.CantidadFacturada,
-                            CantidadProductos = pd.CantidadProducto
-
-                        })
-            };
-            return prdto;
         }
 
         private FullFacturaResponseDTO MapToFullFactura(Factura factura)
@@ -359,7 +342,7 @@ namespace cuentasctacte_web_api.Controllers
                 .ToList()
                 .ConvertAll(fd => new FacturaDetalleResponseDTO
                 {
-                    Producto = fd.Producto.MarcaProducto + " "+ fd.Producto.NombreProducto,
+                    Producto = fd.Producto.MarcaProducto + " " + fd.Producto.NombreProducto,
                     Cantidad = fd.Cantidad,
                     Iva = fd.Iva,
                     PrecioUnitario = fd.PrecioUnitario

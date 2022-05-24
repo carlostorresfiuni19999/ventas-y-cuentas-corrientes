@@ -14,6 +14,7 @@ export default function Detalles() {
     const [datos, setDatos] = useState({})
     const [productos, setProductos] = useState([])
     const [listProd, setListProd] = useState([])
+    const [precioTotal, setPrecioTotal] = useState({precio: 0});
     const router = useRouter()
 
     useEffect(() => {
@@ -22,34 +23,24 @@ export default function Detalles() {
                 .then(response => response.text())
                 .then(result => {
                     const res = JSON.parse(result)
-
+                    console.log(res)
                     setDatos({
                         nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
                         cin: res.Cliente.Documento,
                         desc: res.PedidoDescripcion,
                         fecha: res.FechePedido.split('T')[0],
                         estado: res.Estado,
-                        costoTotal: res.CostoTotal
+                        costoTotal: res.CostoTotal,
+                        pedidosDetalles: res.PedidosDetalles
                     })
 
-                    setProductos(res.PedidosDetalles.map((p) => {
-                        const newProd = {
-                            id: p.Id,
-                            cantidad: p.CantidadProductos,
-                            nombre: p.Producto.MarcaProducto + ' ' + p.Producto.NombreProducto,
-                            codBarr: p.Producto.CodigoDeBarra,
-                            precio: p.Producto.Precio + p.Producto.Iva,
-                            precioTotal: (p.Producto.Precio + p.Producto.Iva) * p.CantidadProductos
-                        }
-                        return newProd
-                    }))
+
                 }).catch(err => console.log(err))
 
             getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
                 .then(response => response.text())
                 .then(result => {
                     const res = JSON.parse(result)
-
                     setListProd(res.map(producto => {
                         const newProducto = {
                             id: producto.Id,
@@ -60,46 +51,47 @@ export default function Detalles() {
                         }
                         return newProducto
                     }))
+                    
 
-                }).catch
+                }).catch(err => console.log(err))
         }
 
-
-        {/*getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(response => response.text())
-            .then(result => {
-                const res = JSON.parse(result)
-                const pedido = res.filter(p => p.Id == router.query.id)
-                console.log(pedido)
-
-                setDatos({
-                    nombre: pedido[0].Cliente.Nombre + ' ' + pedido[0].Cliente.Apellido,
-                    cin: pedido[0].Cliente.Documento,
-                    desc: pedido[0].PedidoDescripcion,
-                    fecha: pedido[0].FechePedido.split('T')[0],
-                    estado: pedido[0].Estado
-                })
-
-                setProductos(pedido[0].PedidosDetalles.map((p) => {
-                    const newProd = {
-                        cantidad: p.CantidadProductos,
-                        nombre: p.Producto.MarcaProducto + ' ' + p.Producto.NombreProducto,
-                        codBarr: p.Producto.CodigoDeBarra,
-                        precio: p.Producto.Precio + p.Producto.Iva,
-                        precioTotal: (p.Producto.Precio + p.Producto.Iva) * p.CantidadProductos
-                    }
-                    return newProd
-                }))
-
-
-            })
-        .catch(error => console.log('error', error));*/}
 
 
     }, [router.isReady])
 
-    console.log(productos)
+    console.log(datos)
 
+    const crearDetalles = () =>{
+        setProductos(datos.pedidosDetalles.map((p) => {
+            const newProd = {
+                id: p.Id,
+                prodId:p.Producto.Id,
+                cantidad: p.CantidadProductos,
+                nombre: p.Producto.MarcaProducto + ' ' + p.Producto.NombreProducto,
+                codBarr: p.Producto.CodigoDeBarra,
+                precio: p.Producto.Precio + p.Producto.Iva,
+                precioTotal: (p.Producto.Precio + p.Producto.Iva) * p.CantidadProductos
+            }
+            return newProd
+        }))
+        setPrecioTotal({
+            precio: datos.pedidosDetalles.map((p) => {
+                const newProd = {
+                    id: p.Id,
+                    prodId:p.Producto.Id,
+                    cantidad: p.CantidadProductos,
+                    nombre: p.Producto.MarcaProducto + ' ' + p.Producto.NombreProducto,
+                    codBarr: p.Producto.CodigoDeBarra,
+                    precio: p.Producto.Precio + p.Producto.Iva,
+                    precioTotal: (p.Producto.Precio + p.Producto.Iva) * p.CantidadProductos
+                }
+                return newProd
+            }).map(p => { return p.precioTotal }).reduce((a, b) => a + b, 0)
+        })
+    }
+
+    console.log(productos)
     const formatFecha = (dateStr) => {
         if (dateStr == null) {
             return ''
@@ -107,8 +99,8 @@ export default function Detalles() {
         const dArr = dateStr.split("-");  // ex input "2010-01-18"
         return dArr[2] + "/" + dArr[1] + "/" + dArr[0].substring(2); //ex out: "18/01/10"
     }
-    
-    const formatNum = (data) =>{
+
+    const formatNum = (data) => {
         return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(data)
     }
 
@@ -116,18 +108,22 @@ export default function Detalles() {
         return document.getElementById(id)
     }
 
-    const handleChange = (id) =>{
-        const modificar = productos.map((prod) =>{
-            if(prod.id == id){
-                return prod
-            }
-        })[0]
-        modificar.cantidad = parseInt(getDoc(`cantidadProd${id}`).value)
-        console.log(modificar)
-        productos.forEach((prod) =>{
-            if(prod.id == id){
-                prod = modificar
-            }
+    const handleChange = (id) => {
+        productos.filter(prod => prod.id == id)[0].cantidad = parseInt(getDoc(`cantidadProd${id}`).value)
+        if (productos.filter(prod => prod.id == id)[0] != getDoc(`producto${id}`).value) {
+            const prodS = listProd.filter(prod => prod.nombre == getDoc(`producto${id}`).value)[0]
+            productos.filter(prod => prod.id == id)[0].nombre = prodS.nombre
+            productos.filter(prod => prod.id == id)[0].precio = prodS.precioIva
+            productos.filter(prod => prod.id == id)[0].prodId = prodS.id
+            productos.filter(prod => prod.id == id)[0].codBarr = prodS.codigoBar
+            productos.filter(prod => prod.id == id)[0].precioTotal = productos.filter(prod => prod.id == id)[0].precio * productos.filter(prod => prod.id == id)[0].cantidad
+        }
+        if (productos.filter(prod => prod.id == id)[0].cantidad > 10) {
+            getDoc(`tr${id}`).className = 'table-danger'
+        }
+        setProductos(productos.map(p => {return p}))
+        setPrecioTotal({
+            precio: productos.map(p => { return p.precioTotal }).reduce((a, b) => a + b, 0)
         })
     }
 
@@ -192,21 +188,22 @@ export default function Detalles() {
                             {//tbody, aca se imprimen los productos que tiene el detalle                        
                             }
                             <tbody>
+
                                 {//en prueba
                                     productos.map(prod => {
                                         return (
-                                            <tr key={prod.id}>
-                                                <td><input type="number" min={1} max={10} defaultValue={prod.cantidad} onBlur={()=>handleChange(prod.id)} id={`cantidadProd${prod.id}`}></input></td>
+                                            <tr key={prod.id} id={`tr${prod.id}`}>
+                                                <td><input type="number" min={1} defaultValue={prod.cantidad} onBlur={() => handleChange(prod.id)} id={`cantidadProd${prod.id}`}></input></td>
                                                 <td>{prod.codBarr}</td>
                                                 <td>
                                                     <input type="text" list='productosSelectData' className='form-control' defaultValue={prod.nombre} id={`producto${prod.id}`} onBlur={() => handleChange(prod.id)}></input>
                                                     <datalist id="productosSelectData">
                                                         {
-                                                            listProd.map((prod)=>{
-                                                                return(
+                                                            listProd.map((prod) => {
+                                                                return (
                                                                     <option key={prod.id} value={prod.nombre}>{formatNum(prod.precio)} - {formatNum(prod.precioIva)}</option>
                                                                 )
-                                                            })   
+                                                            })
                                                         }
                                                     </datalist>
                                                 </td>
@@ -216,13 +213,16 @@ export default function Detalles() {
                                         )
                                     })
                                 }
-                                
 
+                                <tr key="button" >
+                                    <td><button onClick={()=>{crearDetalles()}}>a</button></td>
+
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     <div>
-                        <h6 className='float-end pe-5'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(productos.map(p => datos.costoTotal).reduce((a, b) => a + b, 0))}</h6>
+                        <h6 className='float-end pe-5'>{formatNum(precioTotal.precio)}</h6>
                         <h6 className='float-end pe-2'>Total:</h6>
                         <h6>Descripcion:</h6>
                         <label>{datos.desc}</label>

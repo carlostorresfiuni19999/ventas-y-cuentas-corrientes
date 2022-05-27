@@ -168,3 +168,5 @@ C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuen
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.CantidadCuotas.resources
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.dropCantidadCuotas.resources
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.addCantidadCuotas.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.cajas.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.Pagos.resources

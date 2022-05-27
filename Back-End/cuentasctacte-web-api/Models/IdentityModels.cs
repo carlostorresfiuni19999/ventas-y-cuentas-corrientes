@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using cuentasctacte_web_api.Models.Entities;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.Data.Entity;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -54,5 +56,14 @@ namespace cuentasctacte_web_api.Models
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.NotaDeCredito> NotasDeCreditos { get; set; }
 
         public System.Data.Entity.DbSet<cuentasctacte_web_api.Models.Entities.NotaDetalle> NotaDetalles { get; set; }
+
+        public DbSet<Caja> Cajas { get; set; }
+
+        public DbSet<Pago> Pagos { get; set; }
+
+        public DbSet<PagosDetalle> PagosDetalles { get; set; }
+
+        public DbSet<FormasPagos> FormasPagos { get; set; }
+        public DbSet<MetodosPagos> MetodosPagos { get; set; }
     }
 }

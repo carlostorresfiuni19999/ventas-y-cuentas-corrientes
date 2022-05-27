@@ -165,7 +165,7 @@ namespace cuentasctacte_web_api.Controllers
                 //Guardamos el PedidoDetalle Modificado
 
                 if (PedidoDetalle.CantidadFacturada > PedidoDetalle.CantidadProducto) PedidoDetalle.CantidadProducto = PedidoDetalle.CantidadFacturada;
-              
+
                 db.Entry(PedidoDetalle).State = EntityState.Modified;
 
                 //Calculamos el Monto, Saldo e Iva de todos los Productos Facturados

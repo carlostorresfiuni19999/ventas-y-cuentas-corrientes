@@ -163,7 +163,9 @@ namespace cuentasctacte_web_api.Controllers
                 db.Entry(Stock).State = EntityState.Modified;
 
                 //Guardamos el PedidoDetalle Modificado
-                if (item.CantidadProducto < PedidoDetalle.CantidadFacturada) return BadRequest("Su Pedido de Facturacion sobrepasa a la cantidad de Pedido que tiene inicialmente");
+
+                if (PedidoDetalle.CantidadFacturada > PedidoDetalle.CantidadProducto) PedidoDetalle.CantidadProducto = PedidoDetalle.CantidadFacturada;
+              
                 db.Entry(PedidoDetalle).State = EntityState.Modified;
 
                 //Calculamos el Monto, Saldo e Iva de todos los Productos Facturados

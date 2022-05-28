@@ -193,9 +193,50 @@ namespace cuentasctacte_web_api.Controllers
 
         }
 
+        [AllowAnonymous]
+        [Route("api/Pedidos/Baja")]
+        [HttpPost]
+        public IHttpActionResult VencerPedido(DateTime referencia)
+        {
+            var Pedidos = db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Vendedor)
+                .Where(p => !p.Deleted)
+                .Where(p => p.Estado == "FACTURANDO");
 
+            foreach(var item in Pedidos)
+            {
+                if((referencia - item.FechaPedido).TotalDays > 1)
+                {
+                    item.Estado = "FACTURADO";
 
+                    var Detalles = db.PedidoDetalles
+                        .Include(pd => pd.Pedido)
+                        .Where(pd => !pd.Deleted)
+                        .Where(pd => pd.IdProducto == item.Id);
 
+                    foreach(var detalle in Detalles)
+                    {
+                        detalle.CantidadProducto = detalle.CantidadFacturada;
+                        db.Entry(detalle).State = EntityState.Modified;
+                    }
+
+                    db.Entry(item).State = EntityState.Modified;
+                }
+            }
+
+            try
+            {
+                db.SaveChanges();
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("Error al actualizar el estado por la fecha: " + ex.Message);
+            }
+        }
+
+        
         [Route("api/PedidosSinFactura")]
         [HttpGet]
         public List<PedidoResponseDTO> GetPedidosSinFactura()

@@ -223,6 +223,7 @@
     <Compile Include="Controllers\ModificacionesController.cs" />
     <Compile Include="Controllers\NotasDeCreditosController.cs" />
     <Compile Include="Controllers\NotasDetallesController.cs" />
+    <Compile Include="Controllers\PagosController.cs" />
     <Compile Include="Controllers\PedidosController.cs" />
     <Compile Include="Controllers\PersonasController.cs" />
     <Compile Include="Controllers\ProductosController.cs" />
@@ -373,6 +374,8 @@
     <Compile Include="Models\DTOs\FullCuotaResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullFacturaResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullProductoDTOResponse.cs" />
+    <Compile Include="Models\DTOs\MetodosDePagosRequestDTO.cs" />
+    <Compile Include="Models\DTOs\PagosRequestDTO.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleDTORequest.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleResponseDTO.cs" />
     <Compile Include="Models\DTOs\PedidoDTORequest.cs" />

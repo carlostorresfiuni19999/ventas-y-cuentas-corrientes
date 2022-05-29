@@ -364,6 +364,10 @@
     <Compile Include="Migrations\202205272335343_metodospagos.designer.cs">
       <DependentUpon>202205272335343_metodospagos.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202205290701374_correccionpagos.cs" />
+    <Compile Include="Migrations\202205290701374_correccionpagos.designer.cs">
+      <DependentUpon>202205290701374_correccionpagos.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -595,6 +599,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202205272335343_metodospagos.resx">
       <DependentUpon>202205272335343_metodospagos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205290701374_correccionpagos.resx">
+      <DependentUpon>202205290701374_correccionpagos.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

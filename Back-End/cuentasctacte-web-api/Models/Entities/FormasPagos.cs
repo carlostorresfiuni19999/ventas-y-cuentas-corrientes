@@ -5,11 +5,16 @@ namespace cuentasctacte_web_api.Models.Entities
     public class FormasPagos
     {
         public int Id { get; set; }
-        public Pago Pago { get; set; }
+        public PagosDetalle Pago { get; set; }
+
+        public MetodosPagos MetodosPagos { get; set; }
         public string FormaDePago { get; set; }
         public double Monto { get; set; }
 
         [ForeignKey("Pago")]
-        public int IdPago { get; set; }
+        public int IdPagoDetalle { get; set; }
+
+        [ForeignKey("MetodosPagos")]
+        public int IdMetodosPagos { get; set; }
     }
 }

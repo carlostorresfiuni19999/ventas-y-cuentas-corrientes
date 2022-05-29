@@ -22,28 +22,22 @@ namespace cuentasctacte_web_api.Controllers
         [Route("api/Pagos")]
         public IHttpActionResult PostPago(PagosRequestDTO pago)
         {
-            //Verificamos si existe la cabecera del Pago, si no existe, creamos uno
-            var query = db.Pagos;
-            Pago cabecera;
-            if(query.Count() <= 0 || query.Find(pago.IdPago) == null)
-            {
-                cabecera = new Pago()
-                {
-                    IdCaja = 0,
-                    IdCliente = pago.IdCliente,
-                    MontoTotal = 0.0,
-                    FechaPago = DateTime.Now,
-                };
-                cabecera = db.Pagos.Add(cabecera);
-            }
-            else
-            {
-                cabecera = query
-                    .Include(p => p.Caja)
-                    .Include(p => p.Cliente)
-                    .FirstOrDefault(p => p.Id == pago.IdPago);
-            }
+            //Verificamos si existe una Orden De Pago para la factura
+            var Factura = db.Facturas.Find(pago.IdFactura);
 
+            if (Factura == null) return BadRequest("Factura no encontrada");
+
+            if (Factura.Estado != "PENDIENTE") return BadRequest("Probablemente la factura que hace referencia ya tiene una orden de Pago");
+            var Caja = db.Cajas.Find();
+            var Cabecera = new Pago()
+            {
+                IdCliente = pago.IdCliente,
+                IdCaja = Caja.Id,
+                MontoTotal = 0,
+                FechaPago = DateTime.Now
+            };
+
+            Cabecera = db.Pagos.Add(Cabecera);
 
 
             return BadRequest("NULL");

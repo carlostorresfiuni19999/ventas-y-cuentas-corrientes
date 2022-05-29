@@ -140,14 +140,20 @@ namespace cuentasctacte_web_api.Controllers
                     .FirstOrDefault();
 
                 //Ahora, Seleccionamos el Stock que se va a modificar
-
+                if(PedidoDetalle == null)
+                {
+                    PedidoDetalle = new PedidoDetalle();
+                    PedidoDetalle.CantidadProducto = item.CantidadProducto;
+                    PedidoDetalle.IdProducto = item.ProductoId;
+                    PedidoDetalle.IdPedido = factura.IdPedido;
+                } 
                 var Stock = db.Stocks.Include(s => s.Producto)
                     .Include(s => s.Deposito)
                     .Where(s => !s.Deleted)
                     .FirstOrDefault(s => s.IdDeposito == 3 && s.IdProducto == item.ProductoId);
 
                 //Verificamos si hay Stock suficiente para facturar
-
+                
                 if (item.CantidadProducto >= Stock.Cantidad)
                 {
                     PedidoDetalle.CantidadFacturada = Stock.Cantidad;
@@ -165,7 +171,7 @@ namespace cuentasctacte_web_api.Controllers
                 //Guardamos el PedidoDetalle Modificado
 
                 if (PedidoDetalle.CantidadFacturada > PedidoDetalle.CantidadProducto) PedidoDetalle.CantidadProducto = PedidoDetalle.CantidadFacturada;
-              
+
                 db.Entry(PedidoDetalle).State = EntityState.Modified;
 
                 //Calculamos el Monto, Saldo e Iva de todos los Productos Facturados

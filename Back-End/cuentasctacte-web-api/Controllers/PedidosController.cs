@@ -119,8 +119,6 @@ namespace cuentasctacte_web_api.Controllers
 
                 if (id_producto_DTO == -1) { continue; }
 
-
-
                 /*--------------------*///Me aseguro que no elimino ese producto al comparar con 0.
                 if (cantidad_producto_DTO != pedidoDetalle_DB.CantidadProducto && cantidad_producto_DTO != 0)
                 { //Hubo modificacion.
@@ -129,7 +127,6 @@ namespace cuentasctacte_web_api.Controllers
                     pedidoDetalle_DB.CantidadProducto = cantidad_producto_DTO;//si o si cambia.
 
                 }
-
 
                 //Cuarto si la cantidad de producto actualizado es 0, entonces eliminamos el pedidi
                 //detalles
@@ -141,7 +138,7 @@ namespace cuentasctacte_web_api.Controllers
                 }
 
 
-                /**UPDATE stock and pedidoDetalles**/
+             
                 //Hace el Update de la base de datos 
 
                 db.Entry(pedidoDetalle_DB).State = EntityState.Modified;
@@ -160,6 +157,7 @@ namespace cuentasctacte_web_api.Controllers
                         vandera = 1; //Existe ese producto dentro de los editados.
                         break;
                     }
+
                 }
                 if (vandera == 0)
                 {
@@ -167,10 +165,41 @@ namespace cuentasctacte_web_api.Controllers
                     pedidoDetalle_DB.CantidadProducto = 0;
                     pedidoDetalle_DB.Deleted = true;
                 }
-
-
+                vandera = 0;
             }
 
+
+
+            /*Codigo para agregar nuevos pedidos.*/
+
+            foreach (var producto_temp in pedidoDTO_R.Pedidos)
+            {
+                /*Vemos si el producto esta en algun Producto detalles existente*/
+                foreach (var pedidoDetalle_DB in PedidosDetalles_DB)
+                {
+                    if (pedidoDetalle_DB.IdProducto == producto_temp.ProductoId)
+                    {
+                        vandera = 1; //Existe ese producto dentro de los producto detalles
+                        break;
+                    }
+
+                }
+                if (vandera == 0) //No se encontro, entonces es un nuevo producto a cargar.
+                {
+                    PedidoDetalle Detalle = new PedidoDetalle
+                    {
+                        IdProducto = producto_temp.ProductoId,
+                        IdPedido = id,
+                        CantidadProducto = producto_temp.CantidadProducto,
+                        PrecioUnitario = db.Productos.Find(producto_temp.ProductoId).Precio,
+                        CantidadFacturada = 0
+                    };
+                    db.PedidoDetalles.Add(Detalle);
+                    //actualizamos.
+                    db.Entry(PedidosDetalles_DB).State = EntityState.Modified;
+                }
+                vandera = 0;
+            }
 
             db.Entry(pedido_DB).State = EntityState.Modified;
 
@@ -190,13 +219,12 @@ namespace cuentasctacte_web_api.Controllers
                     throw;
                 }
             }
-
         }
 
 
 
 
-        [Route("api/PedidosSinFactura")]
+            [Route("api/PedidosSinFactura")]
         [HttpGet]
         public List<PedidoResponseDTO> GetPedidosSinFactura()
         {

@@ -117,9 +117,7 @@ namespace cuentasctacte_web_api.Controllers
 
                 }
 
-                if (id_producto_DTO == -1) { continue; }
-
-
+                if (id_producto_DTO == -1) {continue; }
 
                 /*--------------------*///Me aseguro que no elimino ese producto al comparar con 0.
                 if (cantidad_producto_DTO != pedidoDetalle_DB.CantidadProducto && cantidad_producto_DTO != 0)
@@ -129,7 +127,6 @@ namespace cuentasctacte_web_api.Controllers
                     pedidoDetalle_DB.CantidadProducto = cantidad_producto_DTO;//si o si cambia.
 
                 }
-
 
                 //Cuarto si la cantidad de producto actualizado es 0, entonces eliminamos el pedidi
                 //detalles
@@ -160,6 +157,7 @@ namespace cuentasctacte_web_api.Controllers
                         vandera = 1; //Existe ese producto dentro de los editados.
                         break;
                     }
+                
                 }
                 if (vandera == 0)
                 {
@@ -167,12 +165,45 @@ namespace cuentasctacte_web_api.Controllers
                     pedidoDetalle_DB.CantidadProducto = 0;
                     pedidoDetalle_DB.Deleted = true;
                 }
+                vandera = 0;
+            }
 
 
+
+            /*Codigo para agregar nuevos pedidos.*/
+            
+            foreach (var producto_temp in pedidoDTO_R.Pedidos) 
+            {
+                /*Vemos si el producto esta en algun Producto detalles existente*/
+                foreach (var pedidoDetalle_DB in PedidosDetalles_DB)
+                {
+                    if (pedidoDetalle_DB.IdProducto == producto_temp.ProductoId)
+                    {
+                        vandera = 1; //Existe ese producto dentro de los producto detalles
+                        break;
+                    }
+
+                }
+                if (vandera == 0) //No se encontro, entonces es un nuevo producto a cargar.
+                {
+                    PedidoDetalle Detalle = new PedidoDetalle
+                    {
+                        IdProducto = producto_temp.ProductoId,
+                        IdPedido = id,
+                        CantidadProducto = producto_temp.CantidadProducto,
+                        PrecioUnitario = db.Productos.Find(producto_temp.ProductoId).Precio,
+                        CantidadFacturada = 0
+                    };
+                    db.PedidoDetalles.Add(Detalle);
+                    //actualizamos.
+                    db.Entry(PedidosDetalles_DB).State = EntityState.Modified; 
+                }
+                vandera = 0;
             }
 
 
             db.Entry(pedido_DB).State = EntityState.Modified;
+
 
             try
             {
@@ -489,5 +520,57 @@ namespace cuentasctacte_web_api.Controllers
             return result;
         }
 
+        /*
+        1) Implementar try catch para el datetime.ParseExact
+        */
+        private void PedidoReporte(String fechaInicio_Str= "01,01,1800", String fechaFin_Str= "01,01,3000") {
+            /*Variables*/
+            DateTime desde = DateTime.ParseExact(fechaInicio_Str, "dd,mm,yyyy", null);
+            DateTime hasta = DateTime.ParseExact(fechaInicio_Str, "dd,mm,yyyy", null);
+            List<PedidoResponseDTO> pedidosMapper = GetPedidos();
+
+
+
+            /*Filtrar por fecha inicio y fin.*/
+            foreach (var pedidoRequest in pedidosMapper) {
+
+                if (
+                    pedidoRequest.FechePedido.CompareTo(desde) >= 0 //La fechaPedido es mayor a desde o igual
+                    ||
+                    pedidoRequest.FechePedido.CompareTo(hasta) == 0  //La fechaPedido es igual que Hasta
+                    ||
+                    pedidoRequest.FechePedido.CompareTo(hasta) <  1  //La fechaPedido es menor que Hasta o igual                  
+                    ) 
+                {continue;}//Se queda en la lista de pedidosMapper
+                pedidosMapper.Remove(pedidoRequest); //Si no esta en el rango, se elimina de la lista.
+            }
+            /*
+            IEnumerable pedidos = from pedido in pedidosMapper
+                            orderby pedido.FechePedido ascending, pedido.First ascending
+                            select pedido;
+            */
+
+            pedidosMapper = pedidosMapper.OrderBy(F => F.FechePedido).ToList();
+
+            //.OrderBy(p => p.Estado.Equals("PENDIENTE"))
+                            /*Vamor a ordenar de acuerdo a un rango de fechas*/
+                            /*
+                               IEnumerable<Student> sortedStudents =
+                            from student in students
+                            orderby student.Last ascending, student.First ascending
+                            select student;
+                             */
+
+
+
+
+
+                            /*
+                             menor que cero: si la primera fecha es menor que la segunda
+                            cero: si las dos fechas son iguales
+                            mayor que cero: si la primera fecha es mayor que la segunda
+
+                             */
+        }
     }
 }

@@ -361,5 +361,9 @@ namespace cuentasctacte_web_api.Controllers
             };
             return Result;
         }
+
+        private void GetReportFacturaPendiente() { }
+    
+    
     }
 }

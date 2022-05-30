@@ -8,6 +8,7 @@ namespace cuentasctacte_web_api.Models.Entities
     {
         public int Id { get; set; }
         public Persona Cliente { get; set; }
+        public Persona Cajero { get; set; }
         public Caja Caja { get; set; }
         public double MontoTotal { get; set; }
         public DateTime FechaPago { get; set; }
@@ -16,5 +17,7 @@ namespace cuentasctacte_web_api.Models.Entities
         public int IdCliente { get; set; }
         [ForeignKey("Caja")]
         public int IdCaja { get; set; }
+        [ForeignKey("Cajero")]
+        public int IdCajero { get; set; }
     }
 }

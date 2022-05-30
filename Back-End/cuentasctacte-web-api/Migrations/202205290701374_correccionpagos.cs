@@ -1,8 +1,7 @@
 ﻿namespace cuentasctacte_web_api.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class correccionpagos : DbMigration
     {
         public override void Up()
@@ -17,7 +16,7 @@
             AddForeignKey("dbo.FormasPagos", "IdMetodosPagos", "dbo.MetodosPagos", "Id", cascadeDelete: true);
             DropColumn("dbo.MetodosPagos", "IdFormasPagos");
         }
-        
+
         public override void Down()
         {
             AddColumn("dbo.MetodosPagos", "IdFormasPagos", c => c.Int(nullable: false));

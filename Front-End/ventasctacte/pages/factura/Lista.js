@@ -128,7 +128,7 @@ export default function Lista() {
                                     <th scope='col'>Estado</th>
                                     <th scope='col'>Condicion</th>
                                     <th scope='col'> </th>
-                                    <th scope='col'> <button className='btn btn-primary float-right btn-sm' onClick={()=>{router.push('Crear')}}>Crear</button></th>
+                                    <th scope='col'> </th>
                                 </tr>
                             </thead>
                             <tbody>

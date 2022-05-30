@@ -232,6 +232,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\GetRole.cs" />
+    <Compile Include="Helpers\GetUserLogged.cs" />
     <Compile Include="Migrations\202204091510304_init.cs" />
     <Compile Include="Migrations\202204091510304_init.designer.cs">
       <DependentUpon>202204091510304_init.cs</DependentUpon>
@@ -367,6 +369,14 @@
     <Compile Include="Migrations\202205290701374_correccionpagos.cs" />
     <Compile Include="Migrations\202205290701374_correccionpagos.designer.cs">
       <DependentUpon>202205290701374_correccionpagos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205300133303_modificacion-pago.cs" />
+    <Compile Include="Migrations\202205300133303_modificacion-pago.designer.cs">
+      <DependentUpon>202205300133303_modificacion-pago.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205300143526_extendsdata.cs" />
+    <Compile Include="Migrations\202205300143526_extendsdata.designer.cs">
+      <DependentUpon>202205300143526_extendsdata.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
@@ -602,6 +612,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202205290701374_correccionpagos.resx">
       <DependentUpon>202205290701374_correccionpagos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205300133303_modificacion-pago.resx">
+      <DependentUpon>202205300133303_modificacion-pago.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205300143526_extendsdata.resx">
+      <DependentUpon>202205300143526_extendsdata.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

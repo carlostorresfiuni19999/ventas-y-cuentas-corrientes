@@ -2,7 +2,7 @@
 
 namespace cuentasctacte_web_api.Models.Entities
 {
-    public class PagosDetalle
+    public class PagosDetalle : Data
     {
         public int Id { get; set; }
         public Pago Pago { get; set; }

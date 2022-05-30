@@ -3,7 +3,7 @@
 namespace cuentasctacte_web_api.Models.Entities
 {
     [Table("Cajas")]
-    public class Caja
+    public class Caja : Data
     {
 
         public int Id { get; set; }

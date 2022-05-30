@@ -197,13 +197,14 @@ namespace cuentasctacte_web_api.Controllers
                         CantidadFacturada = 0
                     };
                     db.PedidoDetalles.Add(Detalle);
+                    db.Entry(PedidosDetalles_DB).State = EntityState.Added;
                     //actualizamos.
                     db.Entry(PedidosDetalles_DB).State = EntityState.Modified;
                 }
                 vandera = 0;
             }
 
-            db.Entry(pedido_DB).State = EntityState.Modified;
+            //db.Entry(pedido_DB).State = EntityState.Modified;
 
             try
             {

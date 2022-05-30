@@ -168,6 +168,7 @@ C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuen
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.CantidadCuotas.resources
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.dropCantidadCuotas.resources
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.addCantidadCuotas.resources
+<<<<<<< HEAD
 C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.dll.config
 C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.dll
 C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.pdb
@@ -338,3 +339,11 @@ C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-w
 C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte-web-api.csproj.CopyComplete
 C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte-web-api.dll
 C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte-web-api.pdb
+=======
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.cajas.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.Pagos.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.AddCajero.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.PagosDetalles.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.formaspagos.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.metodospagos.resources
+>>>>>>> main

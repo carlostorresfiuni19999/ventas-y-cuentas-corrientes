@@ -223,6 +223,7 @@
     <Compile Include="Controllers\ModificacionesController.cs" />
     <Compile Include="Controllers\NotasDeCreditosController.cs" />
     <Compile Include="Controllers\NotasDetallesController.cs" />
+    <Compile Include="Controllers\PagosController.cs" />
     <Compile Include="Controllers\PedidosController.cs" />
     <Compile Include="Controllers\PersonasController.cs" />
     <Compile Include="Controllers\ProductosController.cs" />
@@ -231,6 +232,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\GetRole.cs" />
+    <Compile Include="Helpers\GetUserLogged.cs" />
     <Compile Include="Migrations\202204091510304_init.cs" />
     <Compile Include="Migrations\202204091510304_init.designer.cs">
       <DependentUpon>202204091510304_init.cs</DependentUpon>
@@ -339,6 +342,42 @@
     <Compile Include="Migrations\202205062201575_addCantidadCuotas.designer.cs">
       <DependentUpon>202205062201575_addCantidadCuotas.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202205272107073_cajas.cs" />
+    <Compile Include="Migrations\202205272107073_cajas.designer.cs">
+      <DependentUpon>202205272107073_cajas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205272115222_Pagos.cs" />
+    <Compile Include="Migrations\202205272115222_Pagos.designer.cs">
+      <DependentUpon>202205272115222_Pagos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205272255303_AddCajero.cs" />
+    <Compile Include="Migrations\202205272255303_AddCajero.designer.cs">
+      <DependentUpon>202205272255303_AddCajero.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205272316572_PagosDetalles.cs" />
+    <Compile Include="Migrations\202205272316572_PagosDetalles.designer.cs">
+      <DependentUpon>202205272316572_PagosDetalles.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205272328475_formaspagos.cs" />
+    <Compile Include="Migrations\202205272328475_formaspagos.designer.cs">
+      <DependentUpon>202205272328475_formaspagos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205272335343_metodospagos.cs" />
+    <Compile Include="Migrations\202205272335343_metodospagos.designer.cs">
+      <DependentUpon>202205272335343_metodospagos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205290701374_correccionpagos.cs" />
+    <Compile Include="Migrations\202205290701374_correccionpagos.designer.cs">
+      <DependentUpon>202205290701374_correccionpagos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205300133303_modificacion-pago.cs" />
+    <Compile Include="Migrations\202205300133303_modificacion-pago.designer.cs">
+      <DependentUpon>202205300133303_modificacion-pago.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205300143526_extendsdata.cs" />
+    <Compile Include="Migrations\202205300143526_extendsdata.designer.cs">
+      <DependentUpon>202205300143526_extendsdata.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -349,17 +388,24 @@
     <Compile Include="Models\DTOs\FullCuotaResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullFacturaResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullProductoDTOResponse.cs" />
+    <Compile Include="Models\DTOs\MetodosDePagosRequestDTO.cs" />
+    <Compile Include="Models\DTOs\PagosRequestDTO.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleDTORequest.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleResponseDTO.cs" />
     <Compile Include="Models\DTOs\PedidoDTORequest.cs" />
     <Compile Include="Models\DTOs\PedidoResponseDTO.cs" />
     <Compile Include="Models\DTOs\PersonaResponseDTO.cs" />
     <Compile Include="Models\DTOs\ProductoResponseDTO.cs" />
+    <Compile Include="Models\Entities\Caja.cs" />
     <Compile Include="Models\Entities\Deposito.cs" />
     <Compile Include="Models\Entities\Factura.cs" />
     <Compile Include="Models\Entities\FacturaDetalle.cs" />
+    <Compile Include="Models\Entities\FormasPagos.cs" />
+    <Compile Include="Models\Entities\MetodosPagos.cs" />
     <Compile Include="Models\Entities\NotaDeCredito.cs" />
     <Compile Include="Models\Entities\NotaDetalle.cs" />
+    <Compile Include="Models\Entities\Pago.cs" />
+    <Compile Include="Models\Entities\PagosDetalle.cs" />
     <Compile Include="Models\Entities\Pedido.cs" />
     <Compile Include="Models\Entities\PedidoDetalle.cs" />
     <Compile Include="Models\Entities\Persona.cs" />
@@ -545,6 +591,33 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202205062201575_addCantidadCuotas.resx">
       <DependentUpon>202205062201575_addCantidadCuotas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205272107073_cajas.resx">
+      <DependentUpon>202205272107073_cajas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205272115222_Pagos.resx">
+      <DependentUpon>202205272115222_Pagos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205272255303_AddCajero.resx">
+      <DependentUpon>202205272255303_AddCajero.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205272316572_PagosDetalles.resx">
+      <DependentUpon>202205272316572_PagosDetalles.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205272328475_formaspagos.resx">
+      <DependentUpon>202205272328475_formaspagos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205272335343_metodospagos.resx">
+      <DependentUpon>202205272335343_metodospagos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205290701374_correccionpagos.resx">
+      <DependentUpon>202205290701374_correccionpagos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205300133303_modificacion-pago.resx">
+      <DependentUpon>202205300133303_modificacion-pago.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205300143526_extendsdata.resx">
+      <DependentUpon>202205300143526_extendsdata.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

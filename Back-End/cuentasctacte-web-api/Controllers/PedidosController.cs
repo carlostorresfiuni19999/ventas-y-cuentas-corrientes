@@ -1,4 +1,5 @@
-﻿using cuentasctacte_web_api.Models;
+﻿using cuentasctacte_web_api.Helpers;
+using cuentasctacte_web_api.Models;
 using cuentasctacte_web_api.Models.DTOs;
 using cuentasctacte_web_api.Models.Entities;
 using Microsoft.AspNet.Identity;
@@ -16,6 +17,7 @@ namespace cuentasctacte_web_api.Controllers
     public class PedidosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private GetUserLogged GetUserLogged = new GetUserLogged();
 
         // GET: api/Pedidos
         public List<PedidoResponseDTO> GetPedidos()
@@ -221,7 +223,48 @@ namespace cuentasctacte_web_api.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [Route("api/Pedidos/Baja")]
+        [HttpPost]
+        public IHttpActionResult VencerPedido(DateTime referencia)
+        {
+            var Pedidos = db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Vendedor)
+                .Where(p => !p.Deleted)
+                .Where(p => p.Estado == "FACTURANDO");
 
+            foreach (var item in Pedidos)
+            {
+                if ((referencia - item.FechaPedido).TotalDays > 1)
+                {
+                    item.Estado = "FACTURADO";
+
+                    var Detalles = db.PedidoDetalles
+                        .Include(pd => pd.Pedido)
+                        .Where(pd => !pd.Deleted)
+                        .Where(pd => pd.IdProducto == item.Id);
+
+                    foreach (var detalle in Detalles)
+                    {
+                        detalle.CantidadProducto = detalle.CantidadFacturada;
+                        db.Entry(detalle).State = EntityState.Modified;
+                    }
+
+                    db.Entry(item).State = EntityState.Modified;
+                }
+            }
+
+            try
+            {
+                db.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al actualizar el estado por la fecha: " + ex.Message);
+            }
+        }
 
 
             [Route("api/PedidosSinFactura")]
@@ -250,13 +293,8 @@ namespace cuentasctacte_web_api.Controllers
             if (!User.Identity.IsAuthenticated) return BadRequest("No autorizado");
             UserIdLogged = User.Identity.GetUserId();
 
-            var user = db.Users
-                .FirstOrDefault(u => u.Id.Equals(UserIdLogged));
 
-            string userName = user.UserName;
-
-            var Vendedor = db.Personas
-                .FirstOrDefault(p => p.UserName.Equals(userName));
+            var Vendedor = GetUserLogged.GetUser(db, UserIdLogged);
 
             int CantPedidos = db.Pedidos.Count();
 

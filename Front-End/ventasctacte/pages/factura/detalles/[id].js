@@ -114,31 +114,34 @@ export default function detalles() {
                     <thead className='thead-dark'>
                         <tr>
                             <th scope='col'>Fecha</th>
-                            <th scope='col'>Producto</th>
-                            <th scope='col'>Cod. Barra</th>
-                            <th scope='col'>Cantidad</th>
-                            <th scope='col'>Precio Pagado</th>
-                            <th scope='col'> </th>
+                            <th scope='col'>metodo de pago</th>
+                            <th scope='col'>Saldo</th>
+                            <th scope='col'>Monto de pago</th>
+                            <th scope='col'>Total Pagado</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <th>DD/MM/YY</th>
-                            <td>Intel -----</td>
-                            <td>123456789</td>
-                            <td>1</td>
-                            <td>500.000</td>
-                            <td></td>
+                            <td>Efectivo</td>
+                            <td>500.000 Gs</td>
+                            <td>500.000 Gs</td>
+                            <td>500.000 Gs</td>
                         </tr>
-
+                        <tr>
+                            <th>DD/MM/YY</th>
+                            <td>Efectivo</td>
+                            <td>200.000 Gs</td>
+                            <td>300.000 Gs</td>
+                            <td>800.000 Gs</td>
+                        </tr>
 
 
                     </tbody>
 
                 </table>
                 <div>
-                    <h6 className='float-end pe-5'>500.000 Gs</h6>
-                    <h6 className='float-end pe-2'>Total Pagado:</h6>
                     <h6>Descripcion:</h6>
                     <label></label>
                 </div>

@@ -347,3 +347,12 @@ C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuen
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.formaspagos.resources
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.metodospagos.resources
 >>>>>>> main
+C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.cajas.resources
+C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.Pagos.resources
+C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.AddCajero.resources
+C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.PagosDetalles.resources
+C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.formaspagos.resources
+C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.metodospagos.resources
+C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.correccionpagos.resources
+C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.modificacionpago.resources
+C:\Users\wwwal\Escritorio\correccion_edit_delet_pedidos\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.extendsdata.resources

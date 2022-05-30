@@ -70,5 +70,7 @@ namespace cuentasctacte_web_api.Controllers
                 return BadRequest(ex.ToString());
             }
         }
+
+        public IHttpActionResult 
     }
 }

@@ -4,6 +4,7 @@ using cuentasctacte_web_api.Models.DTOs;
 using cuentasctacte_web_api.Models.Entities;
 using Microsoft.AspNet.Identity;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Http;
@@ -17,10 +18,13 @@ namespace cuentasctacte_web_api.Controllers
 
         [HttpPost]
         [Route("api/Pagos/OrdenDeCobro")]
-        public IHttpActionResult CargarOrdenDeCobro(PagosRequestDTO pago)
+        public IHttpActionResult CargarOrdenDeCobro(int FacturaId)
         {
             //Verificamos si existe una Orden De Pago para la factura
-            var Factura = db.Facturas.Find(pago.IdFactura);
+            var Factura = db.Facturas
+                .Include(f => f.Cliente)
+                .Where(f => !f.Deleted)
+                .FirstOrDefault(f => f.Id == FacturaId);
 
             if (Factura == null) return BadRequest("Factura no encontrada");
 
@@ -32,10 +36,11 @@ namespace cuentasctacte_web_api.Controllers
                 .FirstOrDefault(c => c.IdCajero == Cajero.Id);
             if (Caja == null) return BadRequest("Caja no valida");
 
-
+            Factura.Estado = "PROCESANDO";
+            db.Entry(Factura).State = EntityState.Modified;
             var Cabecera = new Pago()
             {
-                IdCliente = pago.IdCliente,
+                IdCliente = (int) Factura.ClienteId,
                 IdCaja = Caja.Id,
                 MontoTotal = 0,
                 FechaPago = DateTime.Now,
@@ -48,7 +53,7 @@ namespace cuentasctacte_web_api.Controllers
 
             var cuotas = db.VencimientoFacturas
                 .Where(c => !c.Deleted)
-                .Include(c => c.FacturaId == pago.IdFactura);
+                .Include(c => c.FacturaId == FacturaId);
 
             foreach (var item in cuotas)
             {
@@ -69,6 +74,25 @@ namespace cuentasctacte_web_api.Controllers
             {
                 return BadRequest(ex.ToString());
             }
+        }
+
+        [HttpGet]
+        [Route("Pagos/OrdenDeCobro")]
+        public List<PagoResponseDTO> OrdenesDePagos()
+        {
+            var pagos = db.Pagos
+                .Where(p => !p.Deleted)
+                .ToList()
+                .ConvertAll(p => new PagoResponseDTO()
+                {
+                    FechaCreado = p.FechaPago,
+                    MontoTotal = p.MontoTotal,
+                    Cliente = p.Cliente.Nombre + " "+p.Cliente.Apellido,
+                    CI = p.Cliente.Documento
+
+                }); ;
+                
+            return pagos;
         }
     }
 }

@@ -378,6 +378,10 @@
     <Compile Include="Migrations\202205300143526_extendsdata.designer.cs">
       <DependentUpon>202205300143526_extendsdata.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202205302056200_pagodeleted.cs" />
+    <Compile Include="Migrations\202205302056200_pagodeleted.designer.cs">
+      <DependentUpon>202205302056200_pagodeleted.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -389,7 +393,7 @@
     <Compile Include="Models\DTOs\FullFacturaResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullProductoDTOResponse.cs" />
     <Compile Include="Models\DTOs\MetodosDePagosRequestDTO.cs" />
-    <Compile Include="Models\DTOs\PagosRequestDTO.cs" />
+    <Compile Include="Models\DTOs\PagoResponseDTO.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleDTORequest.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleResponseDTO.cs" />
     <Compile Include="Models\DTOs\PedidoDTORequest.cs" />
@@ -618,6 +622,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202205300143526_extendsdata.resx">
       <DependentUpon>202205300143526_extendsdata.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205302056200_pagodeleted.resx">
+      <DependentUpon>202205302056200_pagodeleted.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

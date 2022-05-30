@@ -1,4 +1,7 @@
-﻿using cuentasctacte_web_api.Models;
+﻿using cuentasctacte_web_api.Helpers;
+using cuentasctacte_web_api.Models;
+using cuentasctacte_web_api.Models.DTOs;
+using cuentasctacte_web_api.Models.Entities;
 using cuentasctacte_web_api.Providers;
 using cuentasctacte_web_api.Results;
 using Microsoft.AspNet.Identity;
@@ -24,7 +27,7 @@ namespace cuentasctacte_web_api.Controllers
     {
         private const string LocalLoginProvider = "Local";
         private ApplicationUserManager _userManager;
-
+        private ApplicationDbContext db = new ApplicationDbContext();
         public AccountController()
         {
         }
@@ -370,6 +373,30 @@ namespace cuentasctacte_web_api.Controllers
                 return GetErrorResult(result);
             }
             return Ok();
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("api/Account/IsLogged")]
+        public PersonaResponseDTO GetLogged(string email)
+        {
+            string Id = User.Identity.GetUserId();
+            Persona P = GetUserLogged.GetUser(db, Id);
+            return new PersonaResponseDTO()
+            {
+                Nombre = P.Nombre,
+                Apellido = P.Apellido,
+                Documento = P.Documento,
+                DocumentoTipo = P.DocumentoTipo
+            };
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("api/Account/HasRole")]
+        public bool HasRole(string email, string role)
+        {
+            return GetRole.HasRole(db,email,role);
         }
 
         protected override void Dispose(bool disposing)

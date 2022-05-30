@@ -1,0 +1,136 @@
+.ndpatop{
+    background-color: white;
+    position: fixed;
+    width: 100%;
+    height: 7.75%;
+    padding: 15px;
+    padding-left: 2.5%;
+    border-bottom-style: solid;
+    padding-right: 7.5%;
+}
+.ndpatop a{
+    font-size: x-large;
+}
+
+.ndpatop label{
+    float: right;
+    margin-left: 10px;
+}
+
+.ndpacenter{
+    background-color: lightgray;
+    position: fixed;
+    width: 100%;
+    margin-top: 4.1%;
+    height: 6.27%;
+    padding-left: 5%;
+    padding-top: 10px;
+    border-bottom-style: solid;
+}
+
+.ndpabottom{
+    background-color: white;
+    position: fixed;
+    width: 100%;
+    height: 85.5%;
+    margin-top: 7.45%;
+    padding-left: 2.5%;
+}
+
+.ndpabody{
+    width: 98.5%;
+    height: 100%;
+    position:fixed;
+    margin-left: 1.5%;
+    transition: 0.5s;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+}
+
+.ndpatablediv{
+    border-radius: 10px;
+    border-style: groove;
+    margin-left: 3%;
+    margin-top: 20px;
+    margin-right: 5%;
+    height:70%;
+    overflow-y: scroll;
+}
+
+.ndpatable{
+    width: 100%;
+}
+
+
+.ndpatable thead{
+    background-color: rgb(241, 241, 241);
+    border: 2px solid gray;
+    border-color: gray;
+    color: gray;
+}
+
+
+
+.bAceptar{
+    color:lightblue;
+    background-color: white;
+    border-radius: 5px;
+    border: 2px solid lightblue;
+    transition-duration: 0.4s;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+}
+
+.bAceptar:hover{
+    color:white;
+    background-color:lightblue;
+}
+
+.bCancelar{
+    color:red;
+    background-color: white;
+    border-radius: 5px;
+    border: 2px solid red;
+    transition-duration: 0.4s;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+    margin-right: 5%;
+    float: right;
+    width: 100px;
+}
+
+.bCancelar:hover{
+    color:white;
+    background-color:red;
+}
+
+.btnDiv{
+    margin-top: 10px;
+}
+
+.bElim{
+    color:red;
+    background-color: white;
+    border-radius: 5px;
+    border: 2px solid red;
+    transition-duration: 0.4s;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+    margin-right: 5%;
+}

@@ -174,3 +174,7 @@ C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuen
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.PagosDetalles.resources
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.formaspagos.resources
 C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.metodospagos.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.correccionpagos.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.modificacionpago.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.extendsdata.resources
+C:\Users\cctc2\OneDrive\Documents\Main\ventas-y-cuentas-corrientes\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.pagodeleted.resources

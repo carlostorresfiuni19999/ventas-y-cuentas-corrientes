@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace cuentasctacte_web_api.Models.Entities
 {
     [Table("Pagos")]
-    public class Pago
+    public class Pago : Data
     {
         public int Id { get; set; }
         public Persona Cliente { get; set; }

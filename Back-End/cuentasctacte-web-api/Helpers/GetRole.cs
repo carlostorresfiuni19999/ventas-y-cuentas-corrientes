@@ -31,7 +31,16 @@ namespace cuentasctacte_web_api.Helpers
 
             return results;
         }
+
+        public static bool HasRole(ApplicationDbContext db, string email, string role)
+        {
+            List<string> Roles = GetRoles(db, email);
+            if (Roles.Count(r => r.Equals(role)) > 0) return true;
+            return false;
+        }
+        
+
     }
-
-
 }
+
+

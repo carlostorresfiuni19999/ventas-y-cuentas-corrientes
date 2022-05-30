@@ -9,6 +9,7 @@ import Link from 'next/link'
 
 //component
 import Navbar from '../../../components/Navbar'
+import MDPControl from '../../../components/MDPControl'
 
 export default function detalles() {
     return (
@@ -51,9 +52,9 @@ export default function detalles() {
                 </nav>
 
             </div>
-            <div className='ms-4'>
-                <h4 className='pt-2 ps-4'>Detalles de Factura</h4>
-                <div className='ps-4 py-2'>
+            <div className='ms-5 container pe-5'>
+                <h4 className='pt-2 ps-5'>Detalles de Factura</h4>
+                <div className='ps-5 py-2'>
                     <div>
                         <label className='ps-2'>Cliente:</label>
                         <label className='px-3'></label>
@@ -68,7 +69,7 @@ export default function detalles() {
                     </div>
                 </div>
             </div>
-            <div className='ps-4 mx-4'>
+            <div className='ps-5 mx-4 pe-5'>
                 <table className='table'>
                     <thead className='thead-dark'>
                         <tr>
@@ -102,52 +103,63 @@ export default function detalles() {
                     <h6 className='float-end pe-2'>Total:</h6>
                     <h6 className='float-end pe-5'>500.000</h6>
                     <h6 className='float-end pe-2'>Saldo:</h6>
-                    
+
                 </div>
             </div>
-            <div className='ms-4'>
-                <h5 className='pt-2 ps-4'>Pagos Realizados</h5>
-                
-            </div>
-            <div className='ps-4 mx-4'>
-                <table className='table'>
-                    <thead className='thead-dark'>
-                        <tr>
-                            <th scope='col'>Fecha</th>
-                            <th scope='col'>metodo de pago</th>
-                            <th scope='col'>Saldo</th>
-                            <th scope='col'>Monto de pago</th>
-                            <th scope='col'>Total Pagado</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th>DD/MM/YY</th>
-                            <td>Efectivo</td>
-                            <td>500.000 Gs</td>
-                            <td>500.000 Gs</td>
-                            <td>500.000 Gs</td>
-                        </tr>
-                        <tr>
-                            <th>DD/MM/YY</th>
-                            <td>Efectivo</td>
-                            <td>200.000 Gs</td>
-                            <td>300.000 Gs</td>
-                            <td>800.000 Gs</td>
-                        </tr>
+
+            <div className='mt-5 pt-5 container'>
+                <div className='row'>
+                    <div className='col-8'>
+                        <h5 className='pt-2'>Pagos Realizados</h5>
+                        <div className='pt-4'>
+                            <table className='table'>
+                                <thead className='thead-dark'>
+                                    <tr>
+                                        <th scope='col'>Fecha</th>
+                                        <th scope='col'>metodo de pago</th>
+                                        <th scope='col'>Saldo</th>
+                                        <th scope='col'>Monto de pago</th>
+                                        <th scope='col'>Total Pagado</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>DD/MM/YY</th>
+                                        <td>Efectivo</td>
+                                        <td>500.000 Gs</td>
+                                        <td>500.000 Gs</td>
+                                        <td>500.000 Gs</td>
+                                    </tr>
+                                    <tr>
+                                        <th>DD/MM/YY</th>
+                                        <td>Efectivo</td>
+                                        <td>200.000 Gs</td>
+                                        <td>300.000 Gs</td>
+                                        <td>800.000 Gs</td>
+                                    </tr>
 
 
-                    </tbody>
+                                </tbody>
 
-                </table>
-                <div>
-                    <h6>Descripcion:</h6>
-                    <label></label>
+                            </table>
+                            <div>
+                                <h6>Descripcion:</h6>
+                                <label></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='col-4'>
+                        <h5>Pagar</h5>
+                        <MDPControl  mdp = 'EFECTIVO'  montoMax={200000} />
+                    </div>
                 </div>
             </div>
+
+
+
         </div>
-    
-        
+
+
     )
 }

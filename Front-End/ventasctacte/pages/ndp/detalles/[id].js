@@ -177,7 +177,7 @@ export default function detalles() {
         }
     }
 
-    const modificarNota = () =>{
+    const modificarNota = () => {
         console.log(productos.map(p => {
             const returnValue = {
                 "ProductoId": p.prodId,
@@ -185,7 +185,7 @@ export default function detalles() {
             }
             return returnValue
         }))
-        if(productos.length > 0){
+        if (productos.length > 0) {
             const raw = JSON.stringify({
                 "ClienteId": router.query.id,
                 "Descripcion": datos.desc,
@@ -199,31 +199,32 @@ export default function detalles() {
             })
             putPedido(JSON.parse(sessionStorage.getItem('token')).access_token, router.query.id, raw)
         }
-        
+
     }
 
     const facturar = () => {
-
-        const raw = JSON.stringify({
-            "IdPedido": selectNota.id,
-            "CantidadCuotas": getCantCuotas(),
-            "Pedidos": productos.map(p => {
-                const returnValue = {
-                    "ProductoId": p.prodId,
-                    "CantidadProducto": p.cantidad
-                }
-                return returnValue
+        if (productos.length > 0) {
+            const raw = JSON.stringify({
+                "IdPedido": selectNota.id,
+                "CantidadCuotas": getCantCuotas(),
+                "Pedidos": productos.map(p => {
+                    const returnValue = {
+                        "ProductoId": p.prodId,
+                        "CantidadProducto": p.cantidad
+                    }
+                    return returnValue
+                })
             })
-        })
-        crearFactura(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-        router.back()
-
+            putPedido(JSON.parse(sessionStorage.getItem('token')).access_token, router.query.id, raw)
+            crearFactura(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
+            router.back()
+        }
     }
 
     const getCantCuotas = () => {
-        if(condPago == "CONTADO"){
+        if (condPago == "CONTADO") {
             return 1
-        }else{
+        } else {
             return document.getElementById("cantCuotasCred").value
         }
     }

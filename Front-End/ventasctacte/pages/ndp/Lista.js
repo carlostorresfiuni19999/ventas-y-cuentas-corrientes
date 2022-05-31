@@ -87,7 +87,6 @@ export default function Lista() {
             </div>
             <div className='ms-4'>
                 <div>
-                    {/*La parte de arriba de la lista */}
                     <nav className="navbar navbar-expand-lg navbar-light bg-light">
                         <div className='ms-4'>
                             <Link href='/' >
@@ -121,17 +120,6 @@ export default function Lista() {
 
                         </div>
 
-                        {/* 
-                            <label>Buscador: </label>
-                            <input type="text" />
-                            <label>Filtros:</label>
-                            <input type="checkbox" />
-                            <label>Completados</label>
-                            <input type="checkbox" />
-                            <label>Pendientes</label>
-                        */}
-
-                        {/*<button className='btn btn-primary float-right' onClick={() => { router.push('Agregar') }}>Agregar</button> */}
 
                         <div className='' >
                             <div>

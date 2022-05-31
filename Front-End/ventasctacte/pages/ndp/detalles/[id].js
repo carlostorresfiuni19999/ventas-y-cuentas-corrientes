@@ -12,6 +12,7 @@ import FDPControl from '../../../components/fdpControl'
 import getPedido from '../../../API/getPedido'
 import getProductos from '../../../API/getProductos'
 import putPedido from '../../../API/putPedido'
+import crearFactura from '../../../API/crearFactura'
 
 export default function detalles() {
     const [datos, setDatos] = useState({})
@@ -30,6 +31,7 @@ export default function detalles() {
                     const res = JSON.parse(result)
                     console.log(res)
                     setDatos({
+                        idClient: res.Cliente.Id,
                         nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
                         cin: res.Cliente.Documento,
                         desc: res.PedidoDescripcion,
@@ -187,7 +189,7 @@ export default function detalles() {
         }))
         if (productos.length > 0) {
             const raw = JSON.stringify({
-                "ClienteId": router.query.id,
+                "ClienteId": datos.idClient,
                 "Descripcion": datos.desc,
                 "Pedidos": productos.map(p => {
                     const returnValue = {
@@ -205,17 +207,37 @@ export default function detalles() {
     const facturar = () => {
         if (productos.length > 0) {
             const raw = JSON.stringify({
-                "IdPedido": selectNota.id,
+                "IdPedido": router.query.id,
                 "CantidadCuotas": getCantCuotas(),
-                "Pedidos": productos.map(p => {
-                    const returnValue = {
-                        "ProductoId": p.prodId,
-                        "CantidadProducto": p.cantidad
-                    }
-                    return returnValue
-                })
+                "Pedido": {
+                    "ClienteId": datos.idClient,
+                    "Descripcion": datos.desc,
+                    "Pedidos": productos.map(p => {
+                        const returnValue = {
+                            "ProductoId": p.prodId,
+                            "CantidadProducto": p.cantidad
+                        }
+                        return returnValue
+                    })
+                }
+                
             })
-            putPedido(JSON.parse(sessionStorage.getItem('token')).access_token, router.query.id, raw)
+            console.log({
+                "IdPedido": router.query.id,
+                "CantidadCuotas": getCantCuotas(),
+                "Pedido": {
+                    "ClienteId": datos.idClient,
+                    "Descripcion": datos.desc,
+                    "Pedidos": productos.map(p => {
+                        const returnValue = {
+                            "ProductoId": p.prodId,
+                            "CantidadProducto": p.cantidad
+                        }
+                        return returnValue
+                    })
+                }
+                
+            })
             crearFactura(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
             router.back()
         }
@@ -225,7 +247,7 @@ export default function detalles() {
         if (condPago == "CONTADO") {
             return 1
         } else {
-            return document.getElementById("cantCuotasCred").value
+            return parseInt(document.getElementById("cantCuotasCred").value)
         }
     }
 

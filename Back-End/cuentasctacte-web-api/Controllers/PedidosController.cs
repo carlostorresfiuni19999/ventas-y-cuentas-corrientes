@@ -83,7 +83,7 @@ namespace cuentasctacte_web_api.Controllers
             //Primero Buscar un pedido dentro de base de datos con argumento 'id'
             //Luego si su estado no es pendiente, retorna null porque no podemos editar pedidos facturados.
             Pedido pedido_DB = db.Pedidos.Include(p => p.Cliente).FirstOrDefault(p => p.Id == id);
-            
+
             if (pedido_DB.Estado != "PENDIENTE")
             {
                 return BadRequest("Solo se pueden editar pedidos pendientes");
@@ -140,25 +140,25 @@ namespace cuentasctacte_web_api.Controllers
             }
 
 
-              
 
-                try
+
+            try
+            {
+                db.SaveChanges();
+                return Ok(); //Todo salio bien.
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PedidoExists(id))
                 {
-                    db.SaveChanges();
-                    return Ok(); //Todo salio bien.
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!PedidoExists(id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
-            
+            }
+
         }
 
         [AllowAnonymous]

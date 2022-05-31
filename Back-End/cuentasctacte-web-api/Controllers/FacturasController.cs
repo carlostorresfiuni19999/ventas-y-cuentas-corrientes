@@ -196,8 +196,8 @@ namespace cuentasctacte_web_api.Controllers
 
             saldo = monto;
             //Verificamos si la factura es Contado o Credito
-            FacturaDb.Monto = monto;
-            FacturaDb.Saldo = saldo;
+            FacturaDb.Monto = monto + iva;
+            FacturaDb.Saldo = saldo + iva;
             FacturaDb.Iva = iva;
 
             //Si es Credito Verificamos si hay Saldo Disponible
@@ -258,7 +258,7 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // DELETE: api/Facturas/5
-        [ResponseType(typeof(Factura))]
+        [ResponseType(typeof(string))]
         public IHttpActionResult DeleteFactura(int id)
         {
             Factura factura = db.Facturas
@@ -350,6 +350,7 @@ namespace cuentasctacte_web_api.Controllers
                 .ToList()
                 .ConvertAll(fd => new FacturaDetalleResponseDTO
                 {
+                    Id = fd.Id,
                     Producto = fd.Producto.MarcaProducto + " " + fd.Producto.NombreProducto,
                     Cantidad = fd.Cantidad,
                     Iva = fd.Iva,
@@ -361,6 +362,7 @@ namespace cuentasctacte_web_api.Controllers
                     .ToList()
                     .ConvertAll(c => new FullCuotaResponseDTO()
                     {
+                        Id = c.Id,
                         Monto = c.Monto,
                         Saldo = c.Saldo,
                         FechaVencimiento = c.FechaVencimiento

@@ -38,7 +38,7 @@ namespace cuentasctacte_web_api.Helpers
             if (Roles.Count(r => r.Equals(role)) > 0) return true;
             return false;
         }
-        
+
 
     }
 }

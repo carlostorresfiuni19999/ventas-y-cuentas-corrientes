@@ -2,6 +2,7 @@
 {
     public class FacturaDetalleResponseDTO
     {
+        public int Id { get; set; }
         public string Producto { get; set; }
         public int Cantidad { get; set; }
 

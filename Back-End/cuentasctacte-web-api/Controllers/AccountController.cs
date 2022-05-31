@@ -377,7 +377,7 @@ namespace cuentasctacte_web_api.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("api/Account/IsLogged")]
+        [Route("IsLogged")]
         public PersonaResponseDTO GetLogged(string email)
         {
             string Id = User.Identity.GetUserId();
@@ -393,10 +393,10 @@ namespace cuentasctacte_web_api.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("api/Account/HasRole")]
+        [Route("HasRole")]
         public bool HasRole(string email, string role)
         {
-            return GetRole.HasRole(db,email,role);
+            return GetRole.HasRole(db, email, role);
         }
 
         protected override void Dispose(bool disposing)

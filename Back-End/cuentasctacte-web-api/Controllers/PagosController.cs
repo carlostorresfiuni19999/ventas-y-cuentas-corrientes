@@ -11,17 +11,18 @@ using System.Web.Http;
 
 namespace cuentasctacte_web_api.Controllers
 {
-    [Authorize(Roles = "cajero")]
+    [Authorize(Roles = "Cajero")]
     public class PagosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        [HttpPost]
+        [HttpGet]
         [Route("api/Pagos/OrdenDeCobro")]
         public IHttpActionResult CargarOrdenDeCobro(int FacturaId)
         {
             //Verificamos si existe una Orden De Pago para la factura
             var Factura = db.Facturas
+                .Include(f => f.Pedido)
                 .Include(f => f.Cliente)
                 .Where(f => !f.Deleted)
                 .FirstOrDefault(f => f.Id == FacturaId);
@@ -40,7 +41,7 @@ namespace cuentasctacte_web_api.Controllers
             db.Entry(Factura).State = EntityState.Modified;
             var Cabecera = new Pago()
             {
-                IdCliente = (int) Factura.ClienteId,
+                IdCliente = (int)Factura.ClienteId,
                 IdCaja = Caja.Id,
                 MontoTotal = 0,
                 FechaPago = DateTime.Now,
@@ -52,8 +53,8 @@ namespace cuentasctacte_web_api.Controllers
             //Cargando Los detalles de la Orden De Pagos
 
             var cuotas = db.VencimientoFacturas
-                .Where(c => !c.Deleted)
-                .Include(c => c.FacturaId == FacturaId);
+                .Include(c => c.Factura)
+                .Where(c => !c.Deleted);
 
             foreach (var item in cuotas)
             {
@@ -87,11 +88,11 @@ namespace cuentasctacte_web_api.Controllers
                 {
                     FechaCreado = p.FechaPago,
                     MontoTotal = p.MontoTotal,
-                    Cliente = p.Cliente.Nombre + " "+p.Cliente.Apellido,
+                    Cliente = p.Cliente.Nombre + " " + p.Cliente.Apellido,
                     CI = p.Cliente.Documento
 
                 }); ;
-                
+
             return pagos;
         }
     }

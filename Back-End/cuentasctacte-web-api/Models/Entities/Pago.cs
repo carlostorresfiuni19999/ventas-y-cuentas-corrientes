@@ -12,7 +12,10 @@ namespace cuentasctacte_web_api.Models.Entities
         public Caja Caja { get; set; }
         public double MontoTotal { get; set; }
         public DateTime FechaPago { get; set; }
+        public VencimientoFactura VencimientoFactura { get; set; }
 
+        [ForeignKey("VencimientoFactura")]
+        public int IdVencimientoFactura { get; set; }
         [ForeignKey("Cliente")]
         public int IdCliente { get; set; }
         [ForeignKey("Caja")]

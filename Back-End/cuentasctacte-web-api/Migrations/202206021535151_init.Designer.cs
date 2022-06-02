@@ -7,13 +7,13 @@ namespace cuentasctacte_web_api.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.4.4")]
-    public sealed partial class formaspagos : IMigrationMetadata
+    public sealed partial class init : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(formaspagos));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(init));
         
         string IMigrationMetadata.Id
         {
-            get { return "202205272328475_formaspagos"; }
+            get { return "202206021535151_init"; }
         }
         
         string IMigrationMetadata.Source

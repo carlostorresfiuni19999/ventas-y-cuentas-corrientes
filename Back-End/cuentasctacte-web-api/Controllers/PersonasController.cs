@@ -121,7 +121,7 @@ namespace cuentasctacte_web_api.Controllers
             return Ok(persona);
         }
 
-       
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

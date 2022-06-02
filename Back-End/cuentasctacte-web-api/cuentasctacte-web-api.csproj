@@ -234,153 +234,9 @@
     </Compile>
     <Compile Include="Helpers\GetRole.cs" />
     <Compile Include="Helpers\GetUserLogged.cs" />
-    <Compile Include="Migrations\202204091510304_init.cs" />
-    <Compile Include="Migrations\202204091510304_init.designer.cs">
-      <DependentUpon>202204091510304_init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204091517068_TipoPersona.cs" />
-    <Compile Include="Migrations\202204091517068_TipoPersona.designer.cs">
-      <DependentUpon>202204091517068_TipoPersona.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204091523390_init-products.cs" />
-    <Compile Include="Migrations\202204091523390_init-products.designer.cs">
-      <DependentUpon>202204091523390_init-products.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204091811366_corregir.cs" />
-    <Compile Include="Migrations\202204091811366_corregir.designer.cs">
-      <DependentUpon>202204091811366_corregir.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204091819016_tipo-persona-updated.cs" />
-    <Compile Include="Migrations\202204091819016_tipo-persona-updated.designer.cs">
-      <DependentUpon>202204091819016_tipo-persona-updated.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204091832251_personas.cs" />
-    <Compile Include="Migrations\202204091832251_personas.designer.cs">
-      <DependentUpon>202204091832251_personas.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204091844007_personas-tipos-personas.cs" />
-    <Compile Include="Migrations\202204091844007_personas-tipos-personas.designer.cs">
-      <DependentUpon>202204091844007_personas-tipos-personas.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204091900443_depositos.cs" />
-    <Compile Include="Migrations\202204091900443_depositos.designer.cs">
-      <DependentUpon>202204091900443_depositos.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204091917549_Stocks.cs" />
-    <Compile Include="Migrations\202204091917549_Stocks.designer.cs">
-      <DependentUpon>202204091917549_Stocks.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204091954011_Stocks1.cs" />
-    <Compile Include="Migrations\202204091954011_Stocks1.designer.cs">
-      <DependentUpon>202204091954011_Stocks1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204101339073_Productos.cs" />
-    <Compile Include="Migrations\202204101339073_Productos.designer.cs">
-      <DependentUpon>202204101339073_Productos.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204101345449_Eliminable.cs" />
-    <Compile Include="Migrations\202204101345449_Eliminable.designer.cs">
-      <DependentUpon>202204101345449_Eliminable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204102128372_RegistroDeModificaciones.cs" />
-    <Compile Include="Migrations\202204102128372_RegistroDeModificaciones.designer.cs">
-      <DependentUpon>202204102128372_RegistroDeModificaciones.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204111926190_PedidosDetalles.cs" />
-    <Compile Include="Migrations\202204111926190_PedidosDetalles.designer.cs">
-      <DependentUpon>202204111926190_PedidosDetalles.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204111958383_Facturas.cs" />
-    <Compile Include="Migrations\202204111958383_Facturas.designer.cs">
-      <DependentUpon>202204111958383_Facturas.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204120031186_FacturaDetalles.cs" />
-    <Compile Include="Migrations\202204120031186_FacturaDetalles.designer.cs">
-      <DependentUpon>202204120031186_FacturaDetalles.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204120046177_VencimientoFactura.cs" />
-    <Compile Include="Migrations\202204120046177_VencimientoFactura.designer.cs">
-      <DependentUpon>202204120046177_VencimientoFactura.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204120102541_NotasDeCreditos.cs" />
-    <Compile Include="Migrations\202204120102541_NotasDeCreditos.designer.cs">
-      <DependentUpon>202204120102541_NotasDeCreditos.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204121324074_NotasDetalles.cs" />
-    <Compile Include="Migrations\202204121324074_NotasDetalles.designer.cs">
-      <DependentUpon>202204121324074_NotasDetalles.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204121334245_PersonaUserName.cs" />
-    <Compile Include="Migrations\202204121334245_PersonaUserName.designer.cs">
-      <DependentUpon>202204121334245_PersonaUserName.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204121449548_CantidadFaturada.cs" />
-    <Compile Include="Migrations\202204121449548_CantidadFaturada.designer.cs">
-      <DependentUpon>202204121449548_CantidadFaturada.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204141956521_PrecioUnitarioDouble.cs" />
-    <Compile Include="Migrations\202204141956521_PrecioUnitarioDouble.designer.cs">
-      <DependentUpon>202204141956521_PrecioUnitarioDouble.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204211431230_changeName.cs" />
-    <Compile Include="Migrations\202204211431230_changeName.designer.cs">
-      <DependentUpon>202204211431230_changeName.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202204211444458_changeNameDeposito.cs" />
-    <Compile Include="Migrations\202204211444458_changeNameDeposito.designer.cs">
-      <DependentUpon>202204211444458_changeNameDeposito.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205051443173_CantidadCuotas.cs" />
-    <Compile Include="Migrations\202205051443173_CantidadCuotas.designer.cs">
-      <DependentUpon>202205051443173_CantidadCuotas.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205062144020_dropCantidadCuotas.cs" />
-    <Compile Include="Migrations\202205062144020_dropCantidadCuotas.designer.cs">
-      <DependentUpon>202205062144020_dropCantidadCuotas.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205062201575_addCantidadCuotas.cs" />
-    <Compile Include="Migrations\202205062201575_addCantidadCuotas.designer.cs">
-      <DependentUpon>202205062201575_addCantidadCuotas.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205272107073_cajas.cs" />
-    <Compile Include="Migrations\202205272107073_cajas.designer.cs">
-      <DependentUpon>202205272107073_cajas.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205272115222_Pagos.cs" />
-    <Compile Include="Migrations\202205272115222_Pagos.designer.cs">
-      <DependentUpon>202205272115222_Pagos.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205272255303_AddCajero.cs" />
-    <Compile Include="Migrations\202205272255303_AddCajero.designer.cs">
-      <DependentUpon>202205272255303_AddCajero.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205272316572_PagosDetalles.cs" />
-    <Compile Include="Migrations\202205272316572_PagosDetalles.designer.cs">
-      <DependentUpon>202205272316572_PagosDetalles.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205272328475_formaspagos.cs" />
-    <Compile Include="Migrations\202205272328475_formaspagos.designer.cs">
-      <DependentUpon>202205272328475_formaspagos.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205272335343_metodospagos.cs" />
-    <Compile Include="Migrations\202205272335343_metodospagos.designer.cs">
-      <DependentUpon>202205272335343_metodospagos.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205290701374_correccionpagos.cs" />
-    <Compile Include="Migrations\202205290701374_correccionpagos.designer.cs">
-      <DependentUpon>202205290701374_correccionpagos.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205300133303_modificacion-pago.cs" />
-    <Compile Include="Migrations\202205300133303_modificacion-pago.designer.cs">
-      <DependentUpon>202205300133303_modificacion-pago.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205300143526_extendsdata.cs" />
-    <Compile Include="Migrations\202205300143526_extendsdata.designer.cs">
-      <DependentUpon>202205300143526_extendsdata.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202205302056200_pagodeleted.cs" />
-    <Compile Include="Migrations\202205302056200_pagodeleted.designer.cs">
-      <DependentUpon>202205302056200_pagodeleted.cs</DependentUpon>
+    <Compile Include="Migrations\202206021535151_init.cs" />
+    <Compile Include="Migrations\202206021535151_init.designer.cs">
+      <DependentUpon>202206021535151_init.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
@@ -405,11 +261,9 @@
     <Compile Include="Models\Entities\Factura.cs" />
     <Compile Include="Models\Entities\FacturaDetalle.cs" />
     <Compile Include="Models\Entities\FormasPagos.cs" />
-    <Compile Include="Models\Entities\MetodosPagos.cs" />
     <Compile Include="Models\Entities\NotaDeCredito.cs" />
     <Compile Include="Models\Entities\NotaDetalle.cs" />
     <Compile Include="Models\Entities\Pago.cs" />
-    <Compile Include="Models\Entities\PagosDetalle.cs" />
     <Compile Include="Models\Entities\Pedido.cs" />
     <Compile Include="Models\Entities\PedidoDetalle.cs" />
     <Compile Include="Models\Entities\Persona.cs" />
@@ -515,116 +369,8 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202204091510304_init.resx">
-      <DependentUpon>202204091510304_init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204091517068_TipoPersona.resx">
-      <DependentUpon>202204091517068_TipoPersona.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204091523390_init-products.resx">
-      <DependentUpon>202204091523390_init-products.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204091811366_corregir.resx">
-      <DependentUpon>202204091811366_corregir.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204091819016_tipo-persona-updated.resx">
-      <DependentUpon>202204091819016_tipo-persona-updated.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204091832251_personas.resx">
-      <DependentUpon>202204091832251_personas.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204091844007_personas-tipos-personas.resx">
-      <DependentUpon>202204091844007_personas-tipos-personas.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204091900443_depositos.resx">
-      <DependentUpon>202204091900443_depositos.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204091917549_Stocks.resx">
-      <DependentUpon>202204091917549_Stocks.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204091954011_Stocks1.resx">
-      <DependentUpon>202204091954011_Stocks1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204101339073_Productos.resx">
-      <DependentUpon>202204101339073_Productos.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204101345449_Eliminable.resx">
-      <DependentUpon>202204101345449_Eliminable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204102128372_RegistroDeModificaciones.resx">
-      <DependentUpon>202204102128372_RegistroDeModificaciones.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204111926190_PedidosDetalles.resx">
-      <DependentUpon>202204111926190_PedidosDetalles.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204111958383_Facturas.resx">
-      <DependentUpon>202204111958383_Facturas.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204120031186_FacturaDetalles.resx">
-      <DependentUpon>202204120031186_FacturaDetalles.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204120046177_VencimientoFactura.resx">
-      <DependentUpon>202204120046177_VencimientoFactura.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204120102541_NotasDeCreditos.resx">
-      <DependentUpon>202204120102541_NotasDeCreditos.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204121324074_NotasDetalles.resx">
-      <DependentUpon>202204121324074_NotasDetalles.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204121334245_PersonaUserName.resx">
-      <DependentUpon>202204121334245_PersonaUserName.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204121449548_CantidadFaturada.resx">
-      <DependentUpon>202204121449548_CantidadFaturada.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204141956521_PrecioUnitarioDouble.resx">
-      <DependentUpon>202204141956521_PrecioUnitarioDouble.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204211431230_changeName.resx">
-      <DependentUpon>202204211431230_changeName.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202204211444458_changeNameDeposito.resx">
-      <DependentUpon>202204211444458_changeNameDeposito.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205051443173_CantidadCuotas.resx">
-      <DependentUpon>202205051443173_CantidadCuotas.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205062144020_dropCantidadCuotas.resx">
-      <DependentUpon>202205062144020_dropCantidadCuotas.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205062201575_addCantidadCuotas.resx">
-      <DependentUpon>202205062201575_addCantidadCuotas.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205272107073_cajas.resx">
-      <DependentUpon>202205272107073_cajas.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205272115222_Pagos.resx">
-      <DependentUpon>202205272115222_Pagos.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205272255303_AddCajero.resx">
-      <DependentUpon>202205272255303_AddCajero.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205272316572_PagosDetalles.resx">
-      <DependentUpon>202205272316572_PagosDetalles.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205272328475_formaspagos.resx">
-      <DependentUpon>202205272328475_formaspagos.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205272335343_metodospagos.resx">
-      <DependentUpon>202205272335343_metodospagos.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205290701374_correccionpagos.resx">
-      <DependentUpon>202205290701374_correccionpagos.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205300133303_modificacion-pago.resx">
-      <DependentUpon>202205300133303_modificacion-pago.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205300143526_extendsdata.resx">
-      <DependentUpon>202205300143526_extendsdata.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202205302056200_pagodeleted.resx">
-      <DependentUpon>202205302056200_pagodeleted.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202206021535151_init.resx">
+      <DependentUpon>202206021535151_init.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

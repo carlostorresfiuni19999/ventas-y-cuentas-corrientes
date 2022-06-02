@@ -78,10 +78,12 @@ namespace cuentasctacte_web_api.Controllers
             /*VARIABLES*/
             int cantidad_producto_DTO = 0;
             int id_producto_DTO = -1;
+            int vandera = 0;
             /****/
             //Primero Buscar un pedido dentro de base de datos con argumento 'id'
             //Luego si su estado no es pendiente, retorna null porque no podemos editar pedidos facturados.
             Pedido pedido_DB = db.Pedidos.Include(p => p.Cliente).FirstOrDefault(p => p.Id == id);
+
             if (pedido_DB.Estado != "PENDIENTE")
             {
                 return BadRequest("Solo se pueden editar pedidos pendientes");
@@ -95,86 +97,50 @@ namespace cuentasctacte_web_api.Controllers
             //Tambien traer los detalles.
             var PedidosDetalles_DB = db.PedidoDetalles
                .Include(pd => pd.Producto)
-               .Where(pd => pd.IdPedido == id);
+               .Where(pd => pd.IdPedido == id)
+               .Where(pd => !pd.Deleted);
 
-            /*****/
-            //Segundo Rescatar de la data base, los pedidos detalles.
-            //--- Tambien ir iterando para sacar cada pedido detalle individual
-
-            foreach (var pedidoDetalle_DB in PedidosDetalles_DB)
+            /*eLIMINAMOS TODO*/
+            foreach (var Detalles in PedidosDetalles_DB)
             {
-
-                //Buscar en el stock el producto con mismo ID.
-
-
-                foreach (var producto in pedidoDTO_R.Pedidos)
-                {
-                    if (producto.ProductoId == pedidoDetalle_DB.IdProducto)
-                    {
-                        cantidad_producto_DTO = producto.CantidadProducto;
-                        id_producto_DTO = producto.ProductoId;
-                        break; //Rompemos el algoritmo para 
-                               //porque extrajemos la cantidad en la database
-                    }
-
-                }
-
-                if (id_producto_DTO == -1) { continue; }
-
-
-
-                /*--------------------*///Me aseguro que no elimino ese producto al comparar con 0.
-                if (cantidad_producto_DTO != pedidoDetalle_DB.CantidadProducto && cantidad_producto_DTO != 0)
-                { //Hubo modificacion.
-
-                    int temp = cantidad_producto_DTO - pedidoDetalle_DB.CantidadFacturada;
-                    pedidoDetalle_DB.CantidadProducto = cantidad_producto_DTO;//si o si cambia.
-
-                }
-
-
-                //Cuarto si la cantidad de producto actualizado es 0, entonces eliminamos el pedidi
-                //detalles
-                if (cantidad_producto_DTO == 0)
-                {
-                    //Seteamos a 0 la cantidad en Pdetalles
-                    pedidoDetalle_DB.CantidadProducto = 0;
-                    pedidoDetalle_DB.Deleted = true;
-                }
-
-
-                /**UPDATE stock and pedidoDetalles**/
-                //Hace el Update de la base de datos 
-
-                db.Entry(pedidoDetalle_DB).State = EntityState.Modified;
-            }
-
-            /******/
-            /*ELIMINAMOS TODOS LOS 'PEDIDOS DETALLES' QUE NO APAREZCA EN EL DTO*/
-            int vandera = 0;
-            foreach (var pedidoDetalle_DB in PedidosDetalles_DB)
-            {
-
-                foreach (var producto_temp in pedidoDTO_R.Pedidos)
-                {
-                    if (pedidoDetalle_DB.IdProducto == producto_temp.ProductoId)
-                    {
-                        vandera = 1; //Existe ese producto dentro de los editados.
-                        break;
-                    }
-                }
-                if (vandera == 0)
-                {
-                    //Seteamos a 0 la cantidad en Pdetalles
-                    pedidoDetalle_DB.CantidadProducto = 0;
-                    pedidoDetalle_DB.Deleted = true;
-                }
-
+                db.PedidoDetalles.Remove(Detalles);
 
             }
 
 
-            db.Entry(pedido_DB).State = EntityState.Modified;
+            List<PedidoDetalle> existentes = new List<PedidoDetalle>();
+
+            //Unificar los pedidos
+            foreach (var item in pedidoDTO_R.Pedidos)
+            {
+                var Detalle = new PedidoDetalle()
+                {
+                    IdPedido = id,
+                    IdProducto = item.ProductoId,
+                    CantidadProducto = item.CantidadProducto,
+                    CantidadFacturada = 0,
+                    Deleted = false
+                };
+
+                if (existentes.Count(pd => pd.IdPedido == Detalle.IdPedido && pd.IdProducto == Detalle.IdProducto) > 0)
+                {
+                    var temp = existentes.FirstOrDefault(e => e.Id == id);
+                    existentes.Remove(temp);
+                    temp.CantidadProducto += Detalle.CantidadProducto;
+                    existentes.Add(temp);
+                }
+                else
+                {
+                    existentes.Add(Detalle);
+                }
+
+
+                existentes.ForEach(pd => db.PedidoDetalles.Add(pd));
+
+            }
+
+
+
 
             try
             {

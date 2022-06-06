@@ -238,17 +238,25 @@
     <Compile Include="Migrations\202206021535151_init.designer.cs">
       <DependentUpon>202206021535151_init.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202206031536358_saldocaja.cs" />
+    <Compile Include="Migrations\202206031536358_saldocaja.designer.cs">
+      <DependentUpon>202206031536358_saldocaja.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Data.cs" />
+    <Compile Include="Models\DTOs\CuotaRequestDTO.cs" />
     <Compile Include="Models\DTOs\FacturaDetalleResponseDTO.cs" />
     <Compile Include="Models\DTOs\FacturaRequestDTO.cs" />
     <Compile Include="Models\DTOs\FacturaResponseDTO.cs" />
+    <Compile Include="Models\DTOs\FormasPagosResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullCuotaResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullFacturaResponseDTO.cs" />
+    <Compile Include="Models\DTOs\FullPagoResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullProductoDTOResponse.cs" />
     <Compile Include="Models\DTOs\MetodosDePagosRequestDTO.cs" />
+    <Compile Include="Models\DTOs\PagoRequestDTO.cs" />
     <Compile Include="Models\DTOs\PagoResponseDTO.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleDTORequest.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleResponseDTO.cs" />
@@ -371,6 +379,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202206021535151_init.resx">
       <DependentUpon>202206021535151_init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206031536358_saldocaja.resx">
+      <DependentUpon>202206031536358_saldocaja.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

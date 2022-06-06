@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -116,6 +117,7 @@ namespace cuentasctacte_web_api.Controllers
             return result;
 
         }
+        [ResponseType(typeof(FullPagoResponseDTO))]
         [HttpGet]
         [Route("api/Pagos")]
         public IHttpActionResult GetPago(int Id)

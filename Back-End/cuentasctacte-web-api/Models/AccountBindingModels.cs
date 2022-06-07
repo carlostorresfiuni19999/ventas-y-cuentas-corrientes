@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace cuentasctacte_web_api.Models
@@ -42,6 +43,9 @@ namespace cuentasctacte_web_api.Models
         [DataType(DataType.Password)]
         [Display(Name = "Contraseña")]
         public string Password { get; set; }
+        [Required]
+        public List<string> Roles { get; set; }
+
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirmar contraseña")]

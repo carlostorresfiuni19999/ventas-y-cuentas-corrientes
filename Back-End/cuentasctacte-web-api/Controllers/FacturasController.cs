@@ -49,7 +49,7 @@ namespace cuentasctacte_web_api.Controllers
                 .Include(f => f.Pedido)
                 .Include(f => f.Cliente)
                 .FirstOrDefault(f => f.Id == id);
-            if (factura == null)
+            if (factura == null || factura.Deleted)
             {
                 return NotFound();
             }
@@ -224,6 +224,7 @@ namespace cuentasctacte_web_api.Controllers
                     FechaVencimiento = Vencimiento.AddMonths(i + 1),
                     Monto = (FacturaDb.Monto + FacturaDb.Iva) / factura.CantidadCuotas,
                     Saldo = (FacturaDb.Monto + FacturaDb.Iva) / factura.CantidadCuotas,
+                    Deleted = false
                 };
 
                 db.VencimientoFacturas.Add(cuota);
@@ -358,6 +359,7 @@ namespace cuentasctacte_web_api.Controllers
                 }),
                 Cuotas = db.VencimientoFacturas
                     .Include(c => c.Factura)
+                    .Where(c => !c.Deleted)
                     .Where(c => c.FacturaId == factura.Id)
                     .ToList()
                     .ConvertAll(c => new FullCuotaResponseDTO()

@@ -7,6 +7,7 @@ using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
 
+
 namespace cuentasctacte_web_api.Controllers
 {
     public class FacturaDetallesController : ApiController
@@ -24,7 +25,7 @@ namespace cuentasctacte_web_api.Controllers
         public IHttpActionResult GetFacturaDetalle(int id)
         {
             FacturaDetalle facturaDetalle = db.FacturaDetalles.Find(id);
-            if (facturaDetalle == null)
+            if (facturaDetalle == null || facturaDetalle.Deleted)
             {
                 return NotFound();
             }

@@ -120,14 +120,16 @@ namespace cuentasctacte_web_api.Controllers
         [ResponseType(typeof(FullPagoResponseDTO))]
         [HttpGet]
         [Route("api/Pagos")]
+      
         public IHttpActionResult GetPago(int Id)
         {
             var Pago = db
                 .Pagos
                 .Include(p => p.Cliente)
                 .Include(p => p.Cajero)
+                .Include(p =>p.VencimientoFactura)
                 .Where(p => !p.Deleted)
-                .FirstOrDefault(p => p.Id == Id);
+                .FirstOrDefault(p => p.Id == p.IdVencimientoFactura);
 
             if (Pago == null) return NotFound();
             var FormasPagos = db.FormasPagos

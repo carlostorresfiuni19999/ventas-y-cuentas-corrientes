@@ -13,6 +13,7 @@ import Navbar from '../../components/Navbar'
 import getFacturas from '../../API/getFacturas'
 import deleteFactura from '../../API/deleteFactura'
 import postOrden from '../../API/postOrden'
+import NavMain from '../../components/NavMain'
 
 export default function Lista() {
 
@@ -95,45 +96,20 @@ export default function Lista() {
                 return (<button className='btn btn-success btn-sm disabled'>{estado}</button>)
         }
     }
-
-    const crearOrden = (id) =>{
-        postOrden(JSON.parse(sessionStorage.getItem('token')).access_token, id)
-    }
+    
 
     return (
         <div>
             <Head>
-                <title>Crear Nueva Factura</title>
+                <title>Listar Facturas</title>
             </Head>
+
             <div className=''>
                 <Navbar rango='fac' page='facLista' />
             </div>
+
             <div className='ms-4'>
-                {/*La parte de arriba*/}
-                <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                    <div className='ms-4'>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16" onClick={() => { router.back() }}>
-                                <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
-                            </svg>
-                    </div>
-
-
-                    <div className="ms-5 collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className=" navbar-nav mr-auto">
-                            <li className="nav-item active">
-                                <h6 className='pt-3 nav-link'>Factura</h6>
-                            </li>
-                            <li>
-                                <h6 className='pt-3 nav-link'> - </h6>
-                            </li>
-                            <li className="nav-item">
-                                <h6 className='pt-3 nav-link'>Lista</h6>
-                            </li>
-
-                        </ul>
-                    </div>
-
-                </nav>
+                <NavMain person= "Cajero" pag="Listar"/>
                 <div className='pt-4 ps-4'>
                     <h5>Lista de Facturas</h5>
                     
@@ -150,7 +126,6 @@ export default function Lista() {
                                     <th scope='col'>Fecha</th>
                                     <th scope='col'>Estado</th>
                                     <th scope='col'>Condicion</th>
-                                    <th scope='col'> </th>
                                     <th scope='col'> </th>
                                 </tr>
                             </thead>
@@ -177,8 +152,6 @@ export default function Lista() {
                                                         <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
                                                     </svg>
                                                 </button></td>
-
-                                                <td><button className='btn btn-primary btn-sm float-end me-5' onClick={()=>{crearOrden(factura.id)}}> Crear Orden de Cobro</button></td>
                                             </tr>
 
                                         )

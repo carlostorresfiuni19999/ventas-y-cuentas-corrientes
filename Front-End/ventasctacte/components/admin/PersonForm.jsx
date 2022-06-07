@@ -38,64 +38,92 @@ const PersonForm = ({ onSave }) => {
                     <div className="col-sm-2">
                         <label htmlFor="Nombre" className="form-label">Nombre</label>
                     </div>
-                    <div className="col-sm-2">
+                    <div className="col-sm-4">
                         <input type="text" className="form-control" id="Nombre"></input>
                     </div>
                     <div className="col-sm-2">
                         <label htmlFor="Apellido" className="form-label">Apellido</label>
                     </div>
-                    <div className="col-sm-2">
+                    <div className="col-sm-4">
                         <input type="text" className="form-control" id="Apellido"></input>
                     </div>
-                    <div className="col-sm-2">
+                </div>
+                <div className="row">
+                    <div className="col-sm-3">
                         <label htmlFor="UserName" className="form-label">Username</label>
                     </div>
-                    <div className="col-sm-2">
+                    <div className="col-sm-9">
                         <input type="text" className="form-control" id="UserName"></input>
                     </div>
-                </div>
 
+                </div>
                 <div className="row">
                     <div className="col-sm-3">
                         <label htmlFor="Password" className="form-label">Password</label>
                     </div>
-                    <div className="col-sm-3">
+                    <div className="col-sm-9">
                         <input type="password" className="form-control" id="Password"></input>
                     </div>
-
-                    <div className="col-sm-3">
+                </div>
+                <div className="row">
+                    <div className="col-sm-4">
                         <label htmlFor="ConfirmPassword" className="form-label">ConfirmPassword</label>
                     </div>
-                    <div className="col-sm-3">
+                    <div className="col-sm-8">
                         <input type="password" className="form-control" id="ConfirmPassword"></input>
                     </div>
                 </div>
 
                 <div className="row">
-                    <div className="col-sm-3">
+                    <div className="col-sm-6">
                         <label htmlFor="" className="form-label">Linea de Credito</label>
                     </div>
-                    <div className="col-sm-3">
+                    <div className="col-sm-6">
                         <input type="number" min={0} className="form-control" id="Linea de Credito"></input>
                     </div>
-                    <div className="col-sm-6">
-                    <div role="group" aria-labelledby="checkbox-group">
-                        <label>
-                            <input type="checkbox"  value="Cliente" />
-                            Cliente
-                        </label>
-                        <label>
-                            <input type="checkbox"  value="Vendedor" />
-                            Vendedor
-                        </label>
-                        <label>
-                            <input type="checkbox" value="Cajero" />
-                            Cajero
-                        </label>
+                </div>
+                <div className="row">
+                    <div className="col-sm-4" style={{ marginLeft: "40%", marginRight: "40%" }}>
+                        <label><strong>Roles</strong></label>
                     </div>
+                </div>
+                <div className="row" role="group" aria-labelledby="checkbox-group">
+                    <div className="col-sm-2">
+                        <label>Cliente</label>
+                    </div>
+                    <div className="col-sm-2">
+                        <input type="checkbox" value="Cliente" checked="true" />
+                    </div>
+                    <div className="col-sm-2">
+                        <label>Vendedor</label>
+                    </div>
+                    <div className="col-sm-2">
+                        <input type="checkbox" value="Vendedor" />
+                    </div>
+                    <div className="col-sm-2">
+                        <label>Cajero</label>
+                    </div>
+                    <div className="col-sm-2">
+                        <input type="checkbox" value="Cajero" />
                     </div>
 
+
                 </div>
+                <div className="row">
+                    <div className="col-sm-3">
+
+                    </div>
+                    <div className="col-sm-3">
+
+                    </div>
+                    <div className="col-sm-3">
+
+                    </div>
+                    <div className="col-sm-3">
+                        <button type="submit" className="btn-primary"> Guardar</button>
+                    </div>
+                </div>
+
             </form>
         </Fragment>
     )

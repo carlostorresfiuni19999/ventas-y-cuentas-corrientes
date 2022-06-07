@@ -20,6 +20,7 @@ namespace cuentasctacte_web_api.Controllers
         [Route("api/Pagos")]
         public IHttpActionResult PostPagos(PagoRequestDTO Cuota)
         {
+            if (!ModelState.IsValid) return BadRequest("Formato no valido");
             var Cajero = GetUserLogged.GetUser(db, User.Identity.GetUserId());
             var VencimientoFactura = db.VencimientoFacturas
                 .Include(f => f.Factura)

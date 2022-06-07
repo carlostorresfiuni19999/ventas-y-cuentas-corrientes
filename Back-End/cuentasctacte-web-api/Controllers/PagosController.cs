@@ -26,11 +26,15 @@ namespace cuentasctacte_web_api.Controllers
                 .Where(f => f.Id == Cuota.IdCuota)
                 .FirstOrDefault();
 
+            if (VencimientoFactura.Deleted) return NotFound();
+
             var Factura = db.VencimientoFacturas
                 .Include(f => f.Factura)
                 .Where(f => f.Id == Cuota.IdCuota)
                 .Select(f => f.Factura)
                 .FirstOrDefault();
+
+            if (Factura.Deleted) return NotFound();
 
             if (Factura == null) return BadRequest("Cuota No valida");
             var Caja = db.Cajas.Include(c => c.Cajero)
@@ -55,7 +59,7 @@ namespace cuentasctacte_web_api.Controllers
                 {
                     IdPago = Cabecera.Id,
                     Monto = item.Monto,
-                    FormaDePago = item.MetodoPago,
+                    MetodoPago = item.MetodoPago,
                 };
                 db.FormasPagos.Add(Detalle);
 
@@ -84,21 +88,39 @@ namespace cuentasctacte_web_api.Controllers
             db.Entry(VencimientoFactura).State = EntityState.Modified;
             db.Entry(Cabecera).State = EntityState.Added;
 
-            try
-            {
+            //try
+            //{
                 db.SaveChanges();
                 return Ok("Cobrado Con exito");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    return BadRequest(ex.Message);
+            //}
 
 
         }
         [HttpGet]
         [Route("api/Pagos")]
-        public List<PagoResponseDTO> getPagos()
+        [ResponseType(typeof(FullPagoResponseDTO))]
+        public IHttpActionResult ViewRecibo(int Id)
+        {
+            var query = db.Pagos;
+            if (query.Find(Id) == null) return NotFound();
+
+            return Ok(query
+                .Include(p => p.Caja)
+                .Include(p => p.Cajero)
+                .Include(p => p.Cliente)
+                .Include(p => p.VencimientoFactura)
+                .Where(p => !p.Deleted)
+                .ToList()
+                .ConvertAll(p => MapToFullPagos(p)));
+        }
+
+        [HttpGet]
+        [Route("api/Pagos")]
+        public List<PagoResponseDTO> GetPagos()
         {
             List<PagoResponseDTO> result = db.Pagos
                 .Include(p => p.VencimientoFactura)
@@ -110,63 +132,30 @@ namespace cuentasctacte_web_api.Controllers
                     Id = p.Id,
                     CI = p.Cliente.Documento,
                     FechaCreado = p.FechaPago,
-                    MontoTotal = p.MontoTotal
-
+                    MontoTotal = p.MontoTotal,
+                    Cliente = p.Cliente.Nombre + " "+p.Cliente.Apellido
                 });
 
             return result;
 
         }
-        [ResponseType(typeof(FullPagoResponseDTO))]
+        [ResponseType(typeof(List<FullPagoResponseDTO>))]
         [HttpGet]
         [Route("api/Pagos")]
-      
-        public IHttpActionResult GetPago(int Id)
+        public IHttpActionResult GetPagosByCuota(int IdCuota)
         {
-            var Pago = db
-                .Pagos
+            DbSet<Pago> pagos = db.Pagos;
+            var Pago = pagos
                 .Include(p => p.Cliente)
                 .Include(p => p.Cajero)
-                .Include(p =>p.VencimientoFactura)
+                .Include(p => p.VencimientoFactura)
                 .Where(p => !p.Deleted)
-                .FirstOrDefault(p => p.Id == p.IdVencimientoFactura);
+                .Where(p => p.IdVencimientoFactura == IdCuota);
 
-            if (Pago == null) return NotFound();
-            var FormasPagos = db.FormasPagos
-                .Include(fp => fp.Pago)
-                .Where(fp => !fp.Deleted)
-                .Where(fp => fp.IdPago == Id);
-
-            var result = new FullPagoResponseDTO()
-            {
-                FechaPago = Pago.FechaPago,
-                Cliente = new PersonaResponseDTO()
-                {
-                    Id = Pago.IdCliente,
-                    Nombre = Pago.Cliente.Nombre,
-                    Apellido = Pago.Cliente.Apellido,
-                    DocumentoTipo = Pago.Cliente.DocumentoTipo,
-                    Documento = Pago.Cliente.Documento
-                },
-                Cajero = new PersonaResponseDTO()
-                {
-                    Id = Pago.IdCajero,
-                    Nombre = Pago.Cajero.Nombre,
-                    Apellido = Pago.Cajero.Apellido,
-                    DocumentoTipo = Pago.Cajero.DocumentoTipo,
-                    Documento = Pago.Cajero.Documento
-                },
-                MontoTotal = Pago.MontoTotal,
-                FormasPagos = FormasPagos.ToList()
-                .ConvertAll(fp => new FormasPagosResponseDTO()
-                {
-                    Monto = fp.Monto,
-                    FormaPago = fp.FormaDePago
-                })
-
-
-            };
-            return Ok(result);
+            
+            return Ok( Pago
+                .ToList()
+                .ConvertAll(p => MapToFullPagos(p)));  
         }
         [HttpDelete]
         [Route("api/Pagos")]
@@ -322,6 +311,48 @@ namespace cuentasctacte_web_api.Controllers
            
         }
         */
+
+        private FullPagoResponseDTO MapToFullPagos(Pago Pago)
+        {
+            if (Pago == null) return null;
+            var FormasPagos = db.FormasPagos
+                .Where(fp => !fp.Deleted)
+                .Where(fp => fp.IdPago == Pago.Id)
+                .ToList();
+
+            var result = new FullPagoResponseDTO()
+            {
+                FechaPago = Pago.FechaPago,
+                Cliente = new PersonaResponseDTO()
+                {
+                    Id = Pago.IdCliente,
+                    Nombre = Pago.Cliente.Nombre,
+                    Apellido = Pago.Cliente.Apellido,
+                    DocumentoTipo = Pago.Cliente.DocumentoTipo,
+                    Documento = Pago.Cliente.Documento
+                },
+                Cajero = new PersonaResponseDTO()
+                {
+                    Id = Pago.IdCajero,
+                    Nombre = Pago.Cajero.Nombre,
+                    Apellido = Pago.Cajero.Apellido,
+                    DocumentoTipo = Pago.Cajero.DocumentoTipo,
+                    Documento = Pago.Cajero.Documento
+                },
+                MontoTotal = Pago.MontoTotal,
+                FormasPagos = FormasPagos
+                .ConvertAll(fp => new FormasPagosResponseDTO()
+                {
+                    Monto = fp.Monto,
+                    FormaPago = fp.MetodoPago
+                })
+            };
+            return result;
+
+
+
+        }
+
 
     }
 }

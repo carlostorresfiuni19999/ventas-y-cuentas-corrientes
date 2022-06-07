@@ -20,11 +20,12 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // GET: api/VencimientoFacturas/5
+        [Authorize]
         [ResponseType(typeof(VencimientoFactura))]
         public IHttpActionResult GetVencimientoFactura(int id)
         {
             VencimientoFactura vencimientoFactura = db.VencimientoFacturas.Find(id);
-            if (vencimientoFactura == null)
+            if (vencimientoFactura == null || vencimientoFactura.Deleted)
             {
                 return NotFound();
             }

@@ -7,5 +7,6 @@
         public string Apellido { get; set; }
         public string Documento { get; set; }
         public string DocumentoTipo { get; set; }
+        public string UserName { get; set; }
     }
 }

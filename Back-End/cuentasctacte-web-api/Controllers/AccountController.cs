@@ -333,12 +333,15 @@ namespace cuentasctacte_web_api.Controllers
             var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
 
             IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-
+            foreach(var rol in model.Roles)
+            {
+                UserManager.AddToRole(user.Id, rol);
+            }
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
             }
-
+           
             return Ok();
         }
 
@@ -398,6 +401,8 @@ namespace cuentasctacte_web_api.Controllers
         {
             return GetRole.HasRole(db, email, role);
         }
+
+       
 
         protected override void Dispose(bool disposing)
         {

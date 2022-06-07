@@ -10,7 +10,7 @@ namespace cuentasctacte_web_api.Models.Entities
         public Persona Cliente { get; set; }
         public Persona Cajero { get; set; }
         public Caja Caja { get; set; }
-        public double MontoTotal { get; set; }
+        public double MontoTotal{ get; set; }
         public DateTime FechaPago { get; set; }
         public VencimientoFactura VencimientoFactura { get; set; }
 

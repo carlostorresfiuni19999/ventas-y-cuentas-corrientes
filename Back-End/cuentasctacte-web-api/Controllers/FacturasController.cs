@@ -237,7 +237,8 @@ namespace cuentasctacte_web_api.Controllers
 
             var PedidosDetalles = db.PedidoDetalles
                 .Include(p => p.Pedido)
-                .Include(p => p.Producto);
+                .Include(p => p.Producto)
+                .Where(p => p.IdPedido == FacturaSaved.PedidoId);
 
             Pedido.Estado = PedidosDetalles
                 .Where(p => p.CantidadFacturada == p.CantidadProducto)
@@ -247,6 +248,33 @@ namespace cuentasctacte_web_api.Controllers
             //Guardamos El nuevo estado del Pedido
             db.Entry(Pedido).State = EntityState.Modified;
 
+            //Unificando los PedidosDetalles
+            List<PedidoDetalle> Existentes =new List<PedidoDetalle>();
+            foreach (var pedidoDetalle in PedidosDetalles )
+            {
+                var dets = db.PedidoDetalles
+                .Include(p => p.Pedido)
+                .Include(p => p.Producto)
+                .Where(p => p.IdProducto == pedidoDetalle.IdProducto
+                && p.IdPedido == pedidoDetalle.IdPedido);
+
+                if(dets.Count() > 1)
+                {
+                    var newDetalle = pedidoDetalle;
+                    newDetalle.CantidadProducto = dets.Sum(p => p.CantidadProducto);
+                    newDetalle.CantidadFacturada = dets.Sum(p => p.CantidadFacturada);
+                    
+                    Existentes.Add(newDetalle);
+
+                    dets.ForEachAsync(p => db.PedidoDetalles.Remove(p));
+                }
+                else
+                {
+                    Existentes.Add(dets.FirstOrDefault());
+                }
+            }
+
+            Existentes.ForEach(p => db.PedidoDetalles.Add(p));
             try
             {
                 db.SaveChanges();

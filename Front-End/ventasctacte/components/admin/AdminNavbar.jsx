@@ -11,7 +11,7 @@ const AdminNavbar = () => {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
-                            <Nav.Link href="/admin/users/create">Usuarios</Nav.Link>
+                            <Nav.Link href="/admin/users/list">Usuarios</Nav.Link>
                             <Nav.Link href="#link">Cajas</Nav.Link>
                             
                         </Nav>

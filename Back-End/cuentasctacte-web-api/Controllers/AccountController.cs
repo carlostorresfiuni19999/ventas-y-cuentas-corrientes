@@ -18,7 +18,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-
+using System.Linq;
 namespace cuentasctacte_web_api.Controllers
 {
     [Authorize]
@@ -321,27 +321,56 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // POST api/Account/Register
-        [AllowAnonymous]
+        [Authorize(Roles ="Administrador")]
         [Route("Register")]
-        public async Task<IHttpActionResult> Register(RegisterBindingModel model)
+        public async Task<IHttpActionResult> Register(PersonaRequestDTO model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            
 
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            var user = new ApplicationUser() { UserName = model.UserName, Email = model.UserName };
 
             IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-            foreach(var rol in model.Roles)
-            {
-                UserManager.AddToRole(user.Id, rol);
-            }
+       
+            
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
             }
-           
+            foreach (var rol in model.Roles)
+            {
+                UserManager.AddToRole(user.Id, rol);
+            }
+            // AddPersonas
+            var Persona = new Persona()
+            {
+                Nombre = model.Nombre,
+                Apellido = model.Apellido,
+                Documento = model.Doc,
+                LineaDeCredito = model.LineaDeCredito,
+                Saldo = 0,
+                DocumentoTipo = model.DocumentoTipo,
+                Deleted = false,
+                Telefono = model.Telefono,
+                UserName = model.UserName
+            };
+            var PersonaSaved = db.Personas.Add(Persona);
+
+            foreach (var rol in model.Roles)
+            {
+                var Role = db.TipoPersonas
+                    .FirstOrDefault(r => r.Tipo.Equals(rol));
+
+                if (Role == null) return BadRequest("Rol no valido");
+                var PersonaTipoPersona = new Personas_Tipos_Personas()
+                {
+                    IdPersona = PersonaSaved.Id,
+                    IdTipoPersona = Role.Id,
+                    Deleted = false,
+                };
+
+                db.Personas_Tipos_Personas.Add(PersonaTipoPersona);
+            }
+            db.SaveChanges();
             return Ok();
         }
 

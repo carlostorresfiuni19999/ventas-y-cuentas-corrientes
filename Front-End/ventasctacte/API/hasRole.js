@@ -1,4 +1,4 @@
-const hasRole = (token, email, role) =>{
+const hasRole =  (token, email, role) =>{
     const myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${token}` );
 
@@ -11,9 +11,6 @@ const hasRole = (token, email, role) =>{
         
     };
 
-    return fetch(link, requestOptions)
-        .then(result=>result.text())
-        .then(result=>alert(JSON.parse(result)))
-        .catch(error => console.log('error', error));
+    return fetch(link, requestOptions).then(r => r.text());
 }
 export default hasRole

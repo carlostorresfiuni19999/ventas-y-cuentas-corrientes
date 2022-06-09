@@ -13,12 +13,13 @@ using System.Web.Http.Description;
 
 namespace cuentasctacte_web_api.Controllers
 {
-    [Authorize]
+    
     public class PersonasController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Personas
+        [Authorize]
         public List<PersonaResponseDTO> GetPersonas()
         {
             return db.Personas
@@ -34,6 +35,7 @@ namespace cuentasctacte_web_api.Controllers
                     UserName = p.UserName
                 });
         }
+        [Authorize]
 
         // GET: api/Personas/8848584
         [ResponseType(typeof(PersonaResponseDTO))]
@@ -59,6 +61,7 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // PUT: api/Personas/5
+        [Authorize(Roles ="Administrador")]
         [ResponseType(typeof(void))]
         public IHttpActionResult PutPersona(int id, Persona persona)
         {
@@ -94,6 +97,7 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // POST: api/Personas
+        [Authorize(Roles= "Administrador")]
         [ResponseType(typeof(string))]
         public IHttpActionResult PostPersona(PersonaRequestDTO persona)
         {
@@ -106,7 +110,7 @@ namespace cuentasctacte_web_api.Controllers
                 Nombre = persona.Nombre,
                 Apellido = persona.Apellido,
                 Documento = persona.Doc,
-                LineaDeCredito = persona.LineaDeCreadito,
+                LineaDeCredito = persona.LineaDeCredito,
                 Saldo = 0,
                 DocumentoTipo = persona.DocumentoTipo,
                 Deleted = false,
@@ -141,6 +145,7 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // DELETE: api/Personas/5
+        [Authorize(Roles = "Administrador")]
         [ResponseType(typeof(Persona))]
         public IHttpActionResult DeletePersona(int id)
         {

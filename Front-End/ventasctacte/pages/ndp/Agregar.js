@@ -6,11 +6,12 @@ import Navbar from '../../components/Navbar'
 import getPersonas from '../../API/getPersonas'
 import getProductos from '../../API/getProductos'
 import agregarPedido from '../../API/agregarPedido'
+import NavMain from '../../components/NavMain'
 //import selectize from 'selectize'
 
 export default function Agregar() {
 
-    const router = useRouter()
+    const Router = useRouter()
 
     const [personas, setPersonas] = useState([])
     const [productos, setProductos] = useState([])
@@ -18,6 +19,16 @@ export default function Agregar() {
 
 
     useEffect(() => {
+        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+            Router.push('/Login')
+        }
+        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
+            if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
+                Router.push('/Factura/Lista')
+            }else{
+                Router.push('/Login')
+            }
+        }
         getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
             .then(response => response.text())
             .then(result => {
@@ -55,7 +66,7 @@ export default function Agregar() {
             .catch(error => alert(error));
 
 
-    }, [])
+    }, [Router])
 
     //console.log(productos)
     const [cliente, setCliente] = useState({ id: '', cin: 0 })
@@ -127,7 +138,7 @@ export default function Agregar() {
                 })
             });
             agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-            router.push('/ndp/Lista')
+            Router.push('/NdP/Lista')
         }else{
             alert("No se puede crear la peticion porque no contiene datos suficientes")
         }
@@ -144,31 +155,7 @@ export default function Agregar() {
             <Navbar rango='ndp' page='ndpAgregar' />
             <div className=''>
                 {/*La parte de arriba de la agregar */}
-                <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                    <div className='ms-5'>
-                        <Link href='/' >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16">
-                                <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
-                            </svg>
-                        </Link>
-                    </div>
-
-
-                    {/*<div className="ms-5 collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className=" navbar-nav mr-auto">
-                            <li className="nav-item active">
-                                <h6 className='pt-3 nav-link'>Notas de Pago</h6>
-                            </li>
-                            <li>
-                                <h6 className='pt-3 nav-link'> - </h6>
-                            </li>
-                            <li className="nav-item">
-                                <h6 className='pt-3 nav-link'>Agregar</h6>
-                            </li>
-
-                        </ul>
-                    </div>*/}
-                </nav>
+                <NavMain person = "vendedor" pag="Agregar Nota de Pago" />
 
                 {/*La parte de abajo de la agregar */}
                 <div className='ms-5 mt-3'>
@@ -291,7 +278,7 @@ export default function Agregar() {
                     </div>
                     <div className='float-end pe-2 pt-2 pb-5'>
                         <button className='btn btn-success me-2' onClick={() => { generarPeticion() }}>Crear</button>
-                        <button className='btn btn-danger ' onClick={() => { router.back() }}>Cancelar</button>
+                        <button className='btn btn-danger ' onClick={() => { Router.back() }}>Cancelar</button>
                     </div>
                 </div>
             </div>

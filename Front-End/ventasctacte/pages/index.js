@@ -1,25 +1,13 @@
 import Link from 'next/link'
 import styles from '../styles/Home.module.css'
+import {useRouter} from 'next/router'
 
 export default function Home() {
+  const Router = useRouter()
   return (
-    <ul>
-      <li>
-        <Link href="/">
-          <a>Home</a>
-        </Link>
-      </li>
-      <li>
-        <Link href="/LogIn">
-          <a>Login</a>
-        </Link>
-      </li>
-      <li>
-        <Link href="/ndp/lista">
-          <a>Notas de Pago</a>
-        </Link>
-      </li>
-      
-    </ul>
+    <Link href='/Login' passHref>
+      <button>Login</button>
+    </Link>
+    
   )
 }

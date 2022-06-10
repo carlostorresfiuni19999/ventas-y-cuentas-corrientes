@@ -28,10 +28,22 @@ function LoginForm() {
                     if(res.error_description){
                         alert("Error, Credenciales no validas");
                     }else{
-                        hasRole(res.access_token, res.userName, "Cajero");
-                        sessionStorage.setItem("token", JSON.stringify(res));
-                        alert("Logeado con exito");
-                        router.push("ndp/Lista")
+                        if(hasRole(res.access_token, res.userName, "Vendedor")){
+                            sessionStorage.setItem("token", JSON.stringify(res));
+                            alert("Logeado con exito");
+                            router.push("NdP/Lista")
+                        }
+                        if(hasRole(res.access_token, res.userName, "Cajero")){
+                            sessionStorage.setItem("token", JSON.stringify(res));
+                            alert("Logeado con exito");
+                            router.push("Factura/Lista")
+                        }
+                        if(hasRole(res.access_token, res.userName, "Administrador")){
+                            sessionStorage.setItem("token", JSON.stringify(res));
+                            alert("Logeado con exito");
+                            router.push("ndp/Lista")
+                        }
+                        
                     }
                     
                     

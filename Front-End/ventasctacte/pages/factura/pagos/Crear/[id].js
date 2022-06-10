@@ -16,15 +16,25 @@ import postPago from '../../../../API/postPago'
 
 export default function Crear() {
 
-    const [pagos, setPagos] = useState([])
-    const [precioMax, setPrecioMax] = useState(0)
-    const [key, setKey] = useState(0)
-    const router = useRouter()
-    const [saldo, setSaldo] = useState(0)
+    const [Pagos, setPagos] = useState([])
+    const [PrecioMax, setPrecioMax] = useState(0)
+    const [Key, setKey] = useState(0)
+    const Router = useRouter()
+    const [Saldo, setSaldo] = useState(0)
 
     useEffect(() => {
-        if (typeof router.query.id !== "undefined") {
-            getCuota(JSON.parse(sessionStorage.getItem('token')).access_token, router.query.id)
+        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+            Router.push('/Login')
+        }
+        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
+            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
+                Router.push('/NdP/Lista')
+            }else{
+                Router.push('/Login')
+            }
+        } 
+        if (typeof Router.query.id !== "undefined") {
+            getCuota(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
                 .then(res => res.text())
                 .then(res => {
                     const r = JSON.parse(res)
@@ -32,20 +42,19 @@ export default function Crear() {
                 })
         }
 
-    }, [router.isReady])
+    }, [Router])
 
     const getMax = () => {
-        if ((saldo - precioMax) < 0) {
+        if ((Saldo - PrecioMax) < 0) {
             alert("Esta pagando mas que la cuota")
             return 0
         }
-        return saldo - precioMax
-
+        return Saldo - PrecioMax
     }
 
     const getKey = () => {
-        const newKey = key
-        setKey(key + 1)
+        const newKey = Key
+        setKey(Key + 1)
         return newKey
     }
 
@@ -54,7 +63,7 @@ export default function Crear() {
     }
 
     const getSaldo = () => {
-        return saldo - precioMax
+        return Saldo - PrecioMax
     }
 
     const agregarPagos = () => {
@@ -69,9 +78,9 @@ export default function Crear() {
                 metodo: docGet('addPagoMetodo').value,
                 monto: parseInt(docGet('addPagoMonto').value)
             }
-            setPagos([...pagos, newPago])
-            setPrecioMax([...pagos, newPago].map(p => { return p.monto }).reduce((a, b) => a + b, 0))
-            console.log([...pagos, newPago])
+            setPagos([...Pagos, newPago])
+            setPrecioMax([...Pagos, newPago].map(p => { return p.monto }).reduce((a, b) => a + b, 0))
+            console.log([...Pagos, newPago])
             docGet('addPagoMetodo').value = ""
             docGet('addPagoMonto').value = 0
         }
@@ -85,17 +94,17 @@ export default function Crear() {
     }
 
     const handleBorrar = (key) => {
-        setPagos(pagos.filter(p => { return p.key != key }))
-        setPrecioMax(pagos.filter(p => { return p.key != key }).map(p => { return p.monto }).reduce((a, b) => a + b, 0))
+        setPagos(Pagos.filter(p => { return p.key != key }))
+        setPrecioMax(Pagos.filter(p => { return p.key != key }).map(p => { return p.monto }).reduce((a, b) => a + b, 0))
     }
 
     const handleSubmit=()=>{
-        if (precioMax == 0) {
+        if (PrecioMax == 0) {
             alert("faltan datos")
         } else {
             const raw = JSON.stringify({
-                "IdCuota": router.query.id,
-                "CantidadCuotas": pagos.map(p=>{
+                "IdCuota": Router.query.id,
+                "CantidadCuotas": Pagos.map(p=>{
                     const returnValue = {
                         "MetodoPago": p.metodo,
                         "Monto": p.monto
@@ -104,8 +113,8 @@ export default function Crear() {
                 })
             })
             console.log({
-                "IdCuota": parseInt(router.query.id),
-                "MetodosPagos": pagos.map(p=>{
+                "IdCuota": parseInt(Router.query.id),
+                "MetodosPagos": Pagos.map(p=>{
                     const returnValue = {
                         "MetodoPago": p.metodo,
                         "Monto": p.monto
@@ -114,7 +123,7 @@ export default function Crear() {
                 })
             })
             postPago(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-            router.back()
+            Router.back()
         }
     }
     return (
@@ -145,9 +154,9 @@ export default function Crear() {
                     </thead>
                     <tbody>
                         {
-                            pagos.map(p => {
+                            Pagos.map(p => {
                                 return (
-                                    <tr>
+                                    <tr key={p.key}>
                                         <th>{p.metodo}</th>
                                         <td>{p.monto}</td>
                                         <td>
@@ -182,12 +191,12 @@ export default function Crear() {
                 </table>
                 <div>
                     <button className='btn btn-sm btn-success float-end mx-3' onClick={()=>{handleSubmit()}}>Confirmar</button>
-                    <button className='btn btn-sm btn-danger float-end mx-3' onClick={()=>{router.back()}}>Cancelar</button>
+                    <button className='btn btn-sm btn-danger float-end mx-3' onClick={()=>{Router.back()}}>Cancelar</button>
                 </div>
                 <div>
                     <label className='float-end'>{getSaldo()}</label>
                     <label className='float-end px-3'> Saldo:</label>
-                    <label className='float-end'>{precioMax}</label>
+                    <label className='float-end'>{PrecioMax}</label>
                     <label className='float-end px-3'> Precio Total:</label>
                 </div>
                 

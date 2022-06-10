@@ -13,11 +13,12 @@ import FDPControl from '../../components/fdpControl'
 //api
 import getPedidosSF from '../../API/getPedidosSF'
 import crearFactura from '../../API/crearFactura'
+import NavMain from '../../components/NavMain'
 
 export default function Crear() {
 
     //router
-    const router = useRouter()
+    const Router = useRouter()
 
     //estados
     const [notas, setNotas] = useState([])
@@ -35,6 +36,16 @@ export default function Crear() {
 
     //recive las notas
     useEffect(() => {
+        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+            Router.push('/Login')
+        }
+        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
+            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
+                Router.push('/NdP/Lista')
+            }else{
+                Router.push('/Login')
+            }
+        }
         getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
             .then(res => res.text()).
             then(result => {
@@ -66,9 +77,19 @@ export default function Crear() {
             })
             .catch(error => console.log(error))
 
-    }, [notas])
+    }, [notas, Router])
 
     useEffect(() => {
+        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+            Router.push('/Login')
+        }
+        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
+            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
+                Router.push('/NdP/Lista')
+            }else{
+                Router.push('/Login')
+            }
+        }
         getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
             .then(res => res.text()).
             then(result => {
@@ -102,7 +123,7 @@ export default function Crear() {
         return () => {
             setNotas([[]])
         }
-    }, [])
+    }, [Router])
 
     //funciones
     const formatfecha = (dateStr) => {
@@ -137,7 +158,7 @@ export default function Crear() {
                 "CantidadCuotas": getCantCuotas()
             })
             crearFactura(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-            router.back()
+            Router.back()
         }
     }
 
@@ -153,35 +174,7 @@ export default function Crear() {
             </div>
             <div className='ms-4'>
                 {/*La parte de arriba*/}
-                <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                    <div className='ms-4'>
-                        <Link href='/' >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16">
-                                <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
-                            </svg>
-                        </Link>
-                    </div>
-
-
-                    <div className="ms-5 collapse navbar-collapse" id="navbarSupportedContent">
-
-                        <ul className=" navbar-nav mr-auto">
-
-                            <li className="nav-item active">
-                                <h6 className='pt-3 nav-link'>Factura</h6>
-                            </li>
-                            <li>
-                                <h6 className='pt-3 nav-link'> - </h6>
-                            </li>
-                            <li className="nav-item">
-                                <h6 className='pt-3 nav-link'>Crear</h6>
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-                </nav>
+                <NavMain person="Vendedor" pag="Crear Factura"/>
 
                 <div className='pt-4 container'>
                     <div className='row'>
@@ -280,7 +273,7 @@ export default function Crear() {
 
                             <div className='float-end pe-2 pt-2 pb-5'>
                                 <button className='btn btn-success me-2' onClick={() => { crearPeticionFactura() }}>Crear</button>
-                                <button className='btn btn-danger ' onClick={() => { router.back() }}>Cancelar</button>
+                                <button className='btn btn-danger ' onClick={() => { Router.back() }}>Cancelar</button>
                             </div>
                         </div>
                     </div>

@@ -13,20 +13,31 @@ import Navbar from '../../../../components/Navbar'
 import NavMain from '../../../../components/NavMain'
 import getPagos from '../../../../API/GetPagos'
 
-export default function detalle() {
-    const router = useRouter()
+export default function Detalle() {
+    const Router = useRouter()
 
-    const [pagos, setpagos] = useState([])
-    const [selec, setSelect] = useState([])
+    const [Pagos, setPagos] = useState([])
+    const [Selec, setSelect] = useState([])
+    const [Key, SetKey] = useState(0)
 
     useEffect(() => {
-        if (typeof router.query.id !== "undefined") {
-            getPagos(JSON.parse(sessionStorage.getItem('token')).access_token, router.query.id)
+        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+            Router.push('/Login')
+        }
+        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
+            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
+                Router.push('/NdP/Lista')
+            }else{
+                Router.push('/Login')
+            }
+        }
+        if (typeof Router.query.id !== "undefined") {
+            getPagos(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
                 .then(res => res.text())
                 .then(res => {
                     const r = JSON.parse(res)
                     console.log(r)
-                    setpagos(r.map(p=>{
+                    setPagos(r.map(p=>{
                         const returnValue ={
                             fecha: p.FechaPago.split('T')[0],
                             cliente: p.Cliente.Nombre + " " + p.Cliente.Apellido,
@@ -45,16 +56,26 @@ export default function detalle() {
                 })
         }
 
-    }, [router.isReady])
+    }, [Router])
 
     useEffect(() => {
-        if (typeof router.query.id !== "undefined") {
-            getPagos(JSON.parse(sessionStorage.getItem('token')).access_token, router.query.id)
+        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+            Router.push('/Login')
+        }
+        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
+            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
+                Router.push('/NdP/Lista')
+            }else{
+                Router.push('/Login')
+            }
+        }
+        if (typeof Router.query.id !== "undefined") {
+            getPagos(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
                 .then(res => res.text())
                 .then(res => {
                     const r = JSON.parse(res)
                     console.log(r)
-                    setpagos(r.map(p=>{
+                    setPagos(r.map(p=>{
                         const returnValue ={
                             fecha: p.FechaPago.split('T')[0],
                             cliente: p.Cliente.Nombre + " " + p.Cliente.Apellido,
@@ -73,12 +94,17 @@ export default function detalle() {
                 })
         }
 
-    }, [pagos])
+    }, [Pagos, Router])
 
     const formatNum = (data) => {
         return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(data)
     }
 
+    const getKey  = () =>{
+        const returnValue = Key;
+        SetKey(Key + 1)
+        return returnValue
+    }
 
     return (
         <div>
@@ -105,12 +131,12 @@ export default function detalle() {
                             <th scope='col'>Cliente</th>
                             <th scope='col'>Cajero</th>
                             <th scope='col'>Monto</th>
-                            <th scope='col'> <button className='btn btn-sm btn-primary' onClick={() => { router.push(`/factura/pagos/Crear/${router.query.id}`)}}> Nuevo Pago </button> </th>
+                            <th scope='col'> <button className='btn btn-sm btn-primary' onClick={() => { Router.push(`/factura/pagos/Crear/${Router.query.id}`)}}> Nuevo Pago </button> </th>
                         </tr>
                     </thead>
                     <tbody>
                         {
-                            pagos.map(p=>{
+                            Pagos.map(p=>{
                                 return(
                                     <tr key={p.fecha} onClick={()=>{setSelect(p.detallePago)}}>
                                         <th>{p.fecha}</th>
@@ -144,9 +170,9 @@ export default function detalle() {
                     </thead>
                     <tbody>
                         {
-                            selec.map(dp=>{
+                            Selec.map(dp=>{
                                 return(
-                                    <tr>
+                                    <tr key={getKey().toString()}>
                                         <th>{dp.metodo }</th>
                                         <td>{formatNum(dp.monto)} Gs.</td>
                                     </tr>

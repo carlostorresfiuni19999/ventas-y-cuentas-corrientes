@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react'
 //next
 import { useRouter } from 'next/router'
 import Head from 'next/head'
-import Link from 'next/link'
 
 //component
 import Navbar from '../../../components/Navbar'
@@ -15,7 +14,7 @@ import MDPControl from '../../../components/MDPControl'
 import getFactura from '../../../API/getFactura'
 import NavMain from '../../../components/NavMain'
 
-export default function detalles() {
+export default function Detalles() {
 
     const [factura, setFactura] = useState({
         cliente: "",
@@ -24,13 +23,21 @@ export default function detalles() {
         detalles: [],
         cuotas: []
     })
-    const [keyCounter, setKeyCounter] = useState(0)
-    const [keyCuota, setKeyCuota] = useState(0)
-    const router = useRouter()
+    const Router = useRouter()
 
     useEffect(() => {
-        if (router.isReady) {
-            getFactura(JSON.parse(sessionStorage.getItem('token')).access_token, router.query.id)
+        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+            Router.push('/Login')
+        }
+        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
+            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
+                Router.push('/NdP/Lista')
+            }else{
+                Router.push('/Login')
+            }
+        }  
+        if (Router.isReady) {
+            getFactura(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
                 .then(response => response.text())
                 .then(result => {
                     const res = JSON.parse(result)
@@ -68,7 +75,7 @@ export default function detalles() {
 
         }
 
-    }, [router.isReady])
+    }, [Router])
 
     console.log(factura)
 
@@ -87,11 +94,11 @@ export default function detalles() {
     const getButton = (key, saldo) => {
         if (saldo == 0) {
             return (
-                <button className='btn btn-primary btn-sm' onClick={() => { router.push(`/factura/pagos/Crear/${key}`) }} disabled> Pagar</button>
+                <button className='btn btn-primary btn-sm' onClick={() => { Router.push(`/factura/pagos/Crear/${key}`) }} disabled> Pagar</button>
             )
         } else {
             return (
-                <button className='btn btn-primary btn-sm' onClick={() => { router.push(`/factura/pagos/Crear/${key}`) }}> Pagar</button>
+                <button className='btn btn-primary btn-sm' onClick={() => { Router.push(`/factura/pagos/Crear/${key}`) }}> Pagar</button>
             )
         }
     }
@@ -182,7 +189,7 @@ export default function detalles() {
                                                 <td>{formatNum(cuota.monto)}</td>
                                                 <td>{formatNum(cuota.saldo)}</td>
                                                 <td>
-                                                    <button className='btn btn-sm btn-secondary' onClick={() => { router.push(`/factura/pagos/detalle/${cuota.key}`) }}>
+                                                    <button className='btn btn-sm btn-secondary' onClick={() => { Router.push(`/factura/pagos/detalle/${cuota.key}`) }}>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16" >
                                                             <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
                                                             <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />

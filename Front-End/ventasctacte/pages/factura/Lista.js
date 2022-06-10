@@ -22,13 +22,13 @@ export default function Lista() {
     const [facturas, setFacturas] = useState([])
 
     useEffect(() => {
-        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+        if (sessionStorage.getItem('token') == null) {
             Router.push('/Login')
-        }
-        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
-            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
+        }else{
+        if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
+            if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
                 Router.push('/NdP/Lista')
-            }else{
+            } else {
                 Router.push('/Login')
             }
         }
@@ -51,43 +51,44 @@ export default function Lista() {
 
             })
             .catch(error => console.log(error))
-
+        }
     }, [facturas, Router])
 
     useEffect(() => {
-        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+        if (sessionStorage.getItem('token') == null) {
             Router.push('/Login')
-        }
-        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
-            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
-                Router.push('/NdP/Lista')
-            }else{
-                Router.push('/Login')
+        } else {
+            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
+                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
+                    Router.push('/NdP/Lista')
+                } else {
+                    Router.push('/Login')
+                }
             }
-        }
-    
-        getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(res => res.text()).
-            then(result => {
-                const f = JSON.parse(result)
-                setFacturas(f.map(factura => {
-                    const facturaNew = {
-                        id: fac.Id,
-                        cliente: fac.Cliente,
-                        fecha: fac.FechaFacturada.split('T')[0],
-                        monto: fac.MontoTotal,
-                        saldo: fac.SaldoTotal,
-                        condicion: fac.CondicionVenta,
-                        estado: fac.Estado
-                    }
-                    return facturaNew
-                }))
 
-            })
-            .catch(error => console.log(error))
+            getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(res => res.text()).
+                then(result => {
+                    const f = JSON.parse(result)
+                    setFacturas(f.map(factura => {
+                        const facturaNew = {
+                            id: fac.Id,
+                            cliente: fac.Cliente,
+                            fecha: fac.FechaFacturada.split('T')[0],
+                            monto: fac.MontoTotal,
+                            saldo: fac.SaldoTotal,
+                            condicion: fac.CondicionVenta,
+                            estado: fac.Estado
+                        }
+                        return facturaNew
+                    }))
 
-        return () => {
-            setFacturas([[]])
+                })
+                .catch(error => console.log(error))
+
+            return () => {
+                setFacturas([[]])
+            }
         }
     }, [Router])
 
@@ -99,7 +100,7 @@ export default function Lista() {
         return dArr[2] + "/" + dArr[1] + "/" + dArr[0].substring(2); //ex out: "18/01/10"
     }
 
-    const borrar = (id) =>{
+    const borrar = (id) => {
         if (confirm('Esta seguro que desea eliminar esta nota?')) {
             if (confirm("Este acto sera irreversible, esta seguro?")) {
                 deleteFactura(JSON.parse(sessionStorage.getItem('token')).access_token, id)
@@ -107,8 +108,8 @@ export default function Lista() {
         }
     }
 
-    const tagEstado = (estado) =>{
-        switch(estado){
+    const tagEstado = (estado) => {
+        switch (estado) {
             case "PENDIENTE":
                 return (<button className='btn btn-secondary btn-sm disabled'>{estado}</button>)
             case "PROCESANDO":
@@ -117,7 +118,7 @@ export default function Lista() {
                 return (<button className='btn btn-success btn-sm disabled'>{estado}</button>)
         }
     }
-    
+
 
     return (
         <div>
@@ -130,10 +131,10 @@ export default function Lista() {
             </div>
 
             <div className='ms-4'>
-                <NavMain person= "Cajero" pag="Listar"/>
+                <NavMain person="Cajero" pag="Listar" />
                 <div className='pt-4 ps-4'>
                     <h5>Lista de Facturas</h5>
-                    
+
                 </div>
 
                 <div className='ps-4 pt-3' >

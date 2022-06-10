@@ -27,55 +27,55 @@ export default function Detalles() {
     const Router = useRouter()
 
     useEffect(() => {
-        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+        if (sessionStorage.getItem('token') == null) {
             Router.push('/Login')
-        }
-        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
-            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
-                Router.push('/NdP/Lista')
-            }else{
-                Router.push('/Login')
+        } else {
+            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
+                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
+                    Router.push('/NdP/Lista')
+                } else {
+                    Router.push('/Login')
+                }
             }
-        }  
-        if (Router.isReady) {
-            getFactura(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
-                .then(response => response.text())
-                .then(result => {
-                    const res = JSON.parse(result)
-                    console.log(res)
-                    setFactura({
-                        cliente: res.Cliente,
-                        cin: parseInt(res.DocCliente),
-                        fechaFact: res.FechaFacturacion.split('T')[0],
-                        precioTotal: res.PrecioTotal + res.IvaTotal,
-                        saldoTotal: res.SaldoTotal,
-                        cuotas: res.Cuotas.map(cuota => {
-                            const returnValue = {
-                                fechaVenc: cuota.FechaVencimiento.split('T')[0],
-                                monto: cuota.Monto,
-                                saldo: cuota.Saldo,
-                                key: cuota.Id
-                            }
-                            return returnValue
-                        }),
-                        detalles: res.Detalles.map(detalle => {
-                            const returnValue = {
-                                cantidad: detalle.Cantidad,
-                                nombreProd: detalle.Producto,
-                                precioUnit: detalle.PrecioUnitario + detalle.Iva,
-                                precioTotal: (detalle.PrecioUnitario + detalle.Iva) * detalle.Cantidad,
-                                key: detalle.Id
-                            }
-                            return returnValue
+            if (Router.isReady) {
+                getFactura(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
+                    .then(response => response.text())
+                    .then(result => {
+                        const res = JSON.parse(result)
+                        console.log(res)
+                        setFactura({
+                            cliente: res.Cliente,
+                            cin: parseInt(res.DocCliente),
+                            fechaFact: res.FechaFacturacion.split('T')[0],
+                            precioTotal: res.PrecioTotal + res.IvaTotal,
+                            saldoTotal: res.SaldoTotal,
+                            cuotas: res.Cuotas.map(cuota => {
+                                const returnValue = {
+                                    fechaVenc: cuota.FechaVencimiento.split('T')[0],
+                                    monto: cuota.Monto,
+                                    saldo: cuota.Saldo,
+                                    key: cuota.Id
+                                }
+                                return returnValue
+                            }),
+                            detalles: res.Detalles.map(detalle => {
+                                const returnValue = {
+                                    cantidad: detalle.Cantidad,
+                                    nombreProd: detalle.Producto,
+                                    precioUnit: detalle.PrecioUnitario + detalle.Iva,
+                                    precioTotal: (detalle.PrecioUnitario + detalle.Iva) * detalle.Cantidad,
+                                    key: detalle.Id
+                                }
+                                return returnValue
+                            })
                         })
-                    })
 
 
-                }).catch(err => console.log(err))
+                    }).catch(err => console.log(err))
 
 
+            }
         }
-
     }, [Router])
 
     console.log(factura)

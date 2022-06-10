@@ -37,92 +37,93 @@ export default function Crear() {
 
     //recive las notas
     useEffect(() => {
-        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+        if (sessionStorage.getItem('token') == null) {
             Router.push('/Login')
-        }
-        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
-            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
-                Router.push('/NdP/Lista')
-            }else{
-                Router.push('/Login')
+        } else {
+            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
+                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
+                    Router.push('/NdP/Lista')
+                } else {
+                    Router.push('/Login')
+                }
             }
+            getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(res => res.text()).
+                then(result => {
+                    const n = JSON.parse(result)
+                    setNotas(n.map(nota => {
+                        const notaNew = {
+                            id: nota.Id,
+                            cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
+                            cin: nota.Cliente.Documento,
+                            vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
+                            fecha: nota.FechePedido.split('T')[0],
+                            precioTotal: nota.CostoTotal,
+                            pedidoDesc: nota.PedidoDescripcion,
+                            productos: nota.PedidosDetalles.map((detalle) => {
+                                const newProdRow = {
+                                    id: detalle.Id,
+                                    cantidad: detalle.CantidadProductos,
+                                    nombre: detalle.Producto.MarcaProducto + ' ' + detalle.Producto.NombreProducto,
+                                    precio: detalle.Producto.Precio + detalle.Producto.Iva,
+                                    codBarra: detalle.Producto.CodigoDeBarra,
+                                    precioTotal: (detalle.Producto.Precio + detalle.Producto.Iva) * detalle.CantidadProductos
+                                }
+                                return newProdRow
+                            })
+                        }
+                        return notaNew
+                    }))
+
+                })
+                .catch(error => console.log(error))
         }
-        getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(res => res.text()).
-            then(result => {
-                const n = JSON.parse(result)
-                setNotas(n.map(nota => {
-                    const notaNew = {
-                        id: nota.Id,
-                        cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
-                        cin: nota.Cliente.Documento,
-                        vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
-                        fecha: nota.FechePedido.split('T')[0],
-                        precioTotal: nota.CostoTotal,
-                        pedidoDesc: nota.PedidoDescripcion,
-                        productos: nota.PedidosDetalles.map((detalle) => {
-                            const newProdRow = {
-                                id: detalle.Id,
-                                cantidad: detalle.CantidadProductos,
-                                nombre: detalle.Producto.MarcaProducto + ' ' + detalle.Producto.NombreProducto,
-                                precio: detalle.Producto.Precio + detalle.Producto.Iva,
-                                codBarra: detalle.Producto.CodigoDeBarra,
-                                precioTotal: (detalle.Producto.Precio + detalle.Producto.Iva) * detalle.CantidadProductos
-                            }
-                            return newProdRow
-                        })
-                    }
-                    return notaNew
-                }))
-
-            })
-            .catch(error => console.log(error))
-
     }, [notas, Router])
 
     useEffect(() => {
-        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+        if (sessionStorage.getItem('token') == null) {
             Router.push('/Login')
-        }
-        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
-            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
-                Router.push('/NdP/Lista')
-            }else{
-                Router.push('/Login')
+        } else {
+            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
+                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
+                    Router.push('/NdP/Lista')
+                } else {
+                    Router.push('/Login')
+                }
             }
-        }
-        getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(res => res.text()).
-            then(result => {
-                const n = JSON.parse(result)
-                setNotas(n.map(nota => {
-                    const notaNew = {
-                        id: nota.Id,
-                        cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
-                        cin: nota.Cliente.Documento,
-                        vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
-                        fecha: nota.FechePedido.split('T')[0],
-                        precioTotal: nota.CostoTotal,
-                        pedidoDesc: nota.PedidoDescripcion,
-                        productos: nota.PedidosDetalles.map((detalle) => {
-                            const newProdRow = {
-                                id: detalle.Id,
-                                cantidad: detalle.CantidadProductos,
-                                nombre: detalle.Producto.MarcaProducto + ' ' + detalle.Producto.NombreProducto,
-                                precio: detalle.Producto.Precio + detalle.Producto.Iva,
-                                codBarra: detalle.Producto.CodigoDeBarra,
-                                precioTotal: (detalle.Producto.Precio + detalle.Producto.Iva) * detalle.CantidadProductos
-                            }
-                            return newProdRow
-                        })
-                    }
-                    return notaNew
-                }))
+            getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(res => res.text()).
+                then(result => {
+                    const n = JSON.parse(result)
+                    setNotas(n.map(nota => {
+                        const notaNew = {
+                            id: nota.Id,
+                            cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
+                            cin: nota.Cliente.Documento,
+                            vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
+                            fecha: nota.FechePedido.split('T')[0],
+                            precioTotal: nota.CostoTotal,
+                            pedidoDesc: nota.PedidoDescripcion,
+                            productos: nota.PedidosDetalles.map((detalle) => {
+                                const newProdRow = {
+                                    id: detalle.Id,
+                                    cantidad: detalle.CantidadProductos,
+                                    nombre: detalle.Producto.MarcaProducto + ' ' + detalle.Producto.NombreProducto,
+                                    precio: detalle.Producto.Precio + detalle.Producto.Iva,
+                                    codBarra: detalle.Producto.CodigoDeBarra,
+                                    precioTotal: (detalle.Producto.Precio + detalle.Producto.Iva) * detalle.CantidadProductos
+                                }
+                                return newProdRow
+                            })
+                        }
+                        return notaNew
+                    }))
 
-            })
-            .catch(error => console.log(error))
-        return () => {
-            setNotas([[]])
+                })
+                .catch(error => console.log(error))
+            return () => {
+                setNotas([[]])
+            }
         }
     }, [Router])
 
@@ -143,14 +144,14 @@ export default function Crear() {
     }
 
     const getCantCuotas = () => {
-        if(condPago == "CONTADO"){
+        if (condPago == "CONTADO") {
             return 1
-        }else{
+        } else {
             return document.getElementById("cantCuotasCred").value
         }
     }
 
-    const  crearPeticionFactura = () => {
+    const crearPeticionFactura = () => {
         if (selectNota.id == 0) {
             alert("faltan datos, seleccione una nota de pedido")
         } else {
@@ -175,7 +176,7 @@ export default function Crear() {
             </div>
             <div className='ms-4'>
                 {/*La parte de arriba*/}
-                <NavMain person="Vendedor" pag="Crear Factura"/>
+                <NavMain person="Vendedor" pag="Crear Factura" />
 
                 <div className='pt-4 container'>
                     <div className='row'>

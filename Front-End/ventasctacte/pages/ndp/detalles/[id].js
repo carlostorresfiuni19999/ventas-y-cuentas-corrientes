@@ -25,54 +25,54 @@ export default function Detalles() {
     const Router = useRouter()
 
     useEffect(() => {
-        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+        if (sessionStorage.getItem('token') == null) {
             Router.push('/Login')
-        }
-        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
-            if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
-                Router.push('/Factura/Lista')
-            }else{
-                Router.push('/Login')
+        } else {
+            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
+                if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
+                    Router.push('/Factura/Lista')
+                } else {
+                    Router.push('/Login')
+                }
+            }
+            if (Router.isReady) {
+                getPedido(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
+                    .then(response => response.text())
+                    .then(result => {
+                        const res = JSON.parse(result)
+                        console.log(res)
+                        setDatos({
+                            idClient: res.Cliente.Id,
+                            nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
+                            cin: res.Cliente.Documento,
+                            desc: res.PedidoDescripcion,
+                            fecha: res.FechePedido.split('T')[0],
+                            estado: res.Estado,
+                            costoTotal: res.CostoTotal,
+                            pedidosDetalles: res.PedidosDetalles
+                        })
+
+
+                    }).catch(err => console.log(err))
+
+                getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
+                    .then(response => response.text())
+                    .then(result => {
+                        const res = JSON.parse(result)
+                        setListProd(res.map(producto => {
+                            const newProducto = {
+                                id: producto.Id,
+                                nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
+                                codigoBar: producto.CodigoDeBarra,
+                                precio: producto.Precio,
+                                precioIva: producto.Precio + producto.Iva
+                            }
+                            return newProducto
+                        }))
+                    }).catch(err => console.log(err))
+
             }
         }
-        if (Router.isReady) {
-            getPedido(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
-                .then(response => response.text())
-                .then(result => {
-                    const res = JSON.parse(result)
-                    console.log(res)
-                    setDatos({
-                        idClient: res.Cliente.Id,
-                        nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
-                        cin: res.Cliente.Documento,
-                        desc: res.PedidoDescripcion,
-                        fecha: res.FechePedido.split('T')[0],
-                        estado: res.Estado,
-                        costoTotal: res.CostoTotal,
-                        pedidosDetalles: res.PedidosDetalles
-                    })
-
-
-                }).catch(err => console.log(err))
-
-            getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
-                .then(response => response.text())
-                .then(result => {
-                    const res = JSON.parse(result)
-                    setListProd(res.map(producto => {
-                        const newProducto = {
-                            id: producto.Id,
-                            nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
-                            codigoBar: producto.CodigoDeBarra,
-                            precio: producto.Precio,
-                            precioIva: producto.Precio + producto.Iva
-                        }
-                        return newProducto
-                    }))
-                }).catch(err => console.log(err))
-
-        }
-
     }, [Router])
 
 
@@ -83,7 +83,7 @@ export default function Detalles() {
     const crearDetalles = () => {
         if (typeof datos.pedidosDetalles !== 'undefined') {
             console.log(datos.pedidosDetalles)
-            setProductos(datos.pedidosDetalles.filter((p)=> p.CantidadProductos > 0).map((p) => {
+            setProductos(datos.pedidosDetalles.filter((p) => p.CantidadProductos > 0).map((p) => {
                 const newProd = {
                     id: p.Id,
                     prodId: p.Producto.Id,
@@ -96,7 +96,7 @@ export default function Detalles() {
                 return newProd
             }))
             setPrecioTotal({
-                precio: datos.pedidosDetalles.filter((p)=> p.CantidadProductos > 0).map((p) => {
+                precio: datos.pedidosDetalles.filter((p) => p.CantidadProductos > 0).map((p) => {
                     const newProd = {
                         id: p.Id,
                         prodId: p.Producto.Id,
@@ -444,73 +444,73 @@ export default function Detalles() {
 
                     <div className='ms-5 mt-3'>
                         <div className='pt-4 '>
+                            <div className=''>
+                                <h5>Detalles / Facturacion</h5>
+
                                 <div className=''>
-                                    <h5>Detalles / Facturacion</h5>
-                                    
-                                    <div className=''>
-                                        <label>Cliente:</label>
-                                        <label className='px-3'>{datos.nombre}</label>
-                                        <label className=''>CIN:</label>
-                                        <label className='px-3 pe-5'>{formatNum(datos.cin)}</label>
-                                        <label className='ps-5'>Fecha:</label>
-                                        <label className='px-3'>{formatFecha(datos.fecha)}</label>
-                                    </div>
-
-                                    <div className='pe-3'>
-                                        <table className='table'>
-                                            {//thead
-                                            }
-                                            <thead>
-                                                <tr>
-                                                    <th>Cantidad</th>
-                                                    <th>Codigo de Barra</th>
-                                                    <th>Producto</th>
-                                                    <th>Precio Unit.</th>
-                                                    <th>Precio Total</th>
-                                                </tr>
-                                            </thead>
-                                            {//tbody, aca se imprimen los productos que tiene el detalle                        
-                                            }
-                                            <tbody>
-
-                                                {//en prueba
-                                                    productos.map(prod => {
-                                                        return (
-                                                            <tr key={prod.id} id={`tr${prod.id}`}>
-                                                                <td><label>{prod.cantidad}</label></td>
-                                                                <td>{prod.codBarr}</td>
-                                                                <td>
-                                                                    <label>{prod.nombre}</label>
-                                                                </td>
-                                                                <td className='text-center'>{formatNum(prod.precio)}</td>
-                                                                <td className='text-center'>{formatNum(prod.precioTotal)}</td>
-                                                                
-                                                            </tr>
-                                                        )
-                                                    })
-                                                }
-
-                                                <tr key="button" >
-                                                    <td><button className="btn btn-secondary btn-sm" onClick={() => { crearDetalles() }}>Cargar</button></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div>
-                                        <h6 className='float-end pe-5'>{formatNum(precioTotal.precio)}</h6>
-                                        <h6 className='float-end pe-2'>Total:</h6>
-                                        <h6>Descripcion:</h6>
-                                        <label>{datos.desc}</label>
-                                    </div>
-
+                                    <label>Cliente:</label>
+                                    <label className='px-3'>{datos.nombre}</label>
+                                    <label className=''>CIN:</label>
+                                    <label className='px-3 pe-5'>{formatNum(datos.cin)}</label>
+                                    <label className='ps-5'>Fecha:</label>
+                                    <label className='px-3'>{formatFecha(datos.fecha)}</label>
                                 </div>
-                                
-                            
+
+                                <div className='pe-3'>
+                                    <table className='table'>
+                                        {//thead
+                                        }
+                                        <thead>
+                                            <tr>
+                                                <th>Cantidad</th>
+                                                <th>Codigo de Barra</th>
+                                                <th>Producto</th>
+                                                <th>Precio Unit.</th>
+                                                <th>Precio Total</th>
+                                            </tr>
+                                        </thead>
+                                        {//tbody, aca se imprimen los productos que tiene el detalle                        
+                                        }
+                                        <tbody>
+
+                                            {//en prueba
+                                                productos.map(prod => {
+                                                    return (
+                                                        <tr key={prod.id} id={`tr${prod.id}`}>
+                                                            <td><label>{prod.cantidad}</label></td>
+                                                            <td>{prod.codBarr}</td>
+                                                            <td>
+                                                                <label>{prod.nombre}</label>
+                                                            </td>
+                                                            <td className='text-center'>{formatNum(prod.precio)}</td>
+                                                            <td className='text-center'>{formatNum(prod.precioTotal)}</td>
+
+                                                        </tr>
+                                                    )
+                                                })
+                                            }
+
+                                            <tr key="button" >
+                                                <td><button className="btn btn-secondary btn-sm" onClick={() => { crearDetalles() }}>Cargar</button></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div>
+                                    <h6 className='float-end pe-5'>{formatNum(precioTotal.precio)}</h6>
+                                    <h6 className='float-end pe-2'>Total:</h6>
+                                    <h6>Descripcion:</h6>
+                                    <label>{datos.desc}</label>
+                                </div>
+
+                            </div>
+
+
                         </div>
                     </div>
                 </div>

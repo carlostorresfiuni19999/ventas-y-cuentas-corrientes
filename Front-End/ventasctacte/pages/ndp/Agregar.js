@@ -19,52 +19,52 @@ export default function Agregar() {
 
 
     useEffect(() => {
-        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+        if (sessionStorage.getItem('token') == null) {
             Router.push('/Login')
-        }
-        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
-            if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
-                Router.push('/Factura/Lista')
-            }else{
-                Router.push('/Login')
+        } else {
+            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
+                if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
+                    Router.push('/Factura/Lista')
+                } else {
+                    Router.push('/Login')
+                }
             }
+            getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(response => response.text())
+                .then(result => {
+                    const res = JSON.parse(result)
+                    //console.log(result)
+                    setPersonas(res.map(persona => {
+                        const newpersona = {
+                            id: persona.Id,
+                            nombre: persona.Nombre + ' ' + persona.Apellido,
+                            cin: persona.Documento
+                        }
+                        return newpersona
+                    }))
+                })
+                .catch(error => alert(error));
+
+
+            getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(res => res.text())
+                .then(response => {
+                    const res = JSON.parse(response)
+                    //console.log(res)
+                    setProductos(res.map(producto => {
+                        const newProducto = {
+                            id: producto.Id,
+                            nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
+                            codigoBar: producto.CodigoDeBarra,
+                            precio: producto.Precio,
+                            precioIva: producto.Precio + producto.Iva
+                        }
+                        return newProducto
+                    }))
+
+                })
+                .catch(error => alert(error));
         }
-        getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(response => response.text())
-            .then(result => {
-                const res = JSON.parse(result)
-                //console.log(result)
-                setPersonas(res.map(persona => {
-                    const newpersona = {
-                        id: persona.Id,
-                        nombre: persona.Nombre + ' ' + persona.Apellido,
-                        cin: persona.Documento
-                    }
-                    return newpersona
-                }))
-            })
-            .catch(error => alert(error));
-
-
-        getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(res => res.text())
-            .then(response => {
-                const res = JSON.parse(response)
-                //console.log(res)
-                setProductos(res.map(producto => {
-                    const newProducto = {
-                        id: producto.Id,
-                        nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
-                        codigoBar: producto.CodigoDeBarra,
-                        precio: producto.Precio,
-                        precioIva: producto.Precio + producto.Iva
-                    }
-                    return newProducto
-                }))
-
-            })
-            .catch(error => alert(error));
-
 
     }, [Router])
 
@@ -75,7 +75,7 @@ export default function Agregar() {
     const [precioTotalPedido, setPrecioTotalPedido] = useState({ precio: 0 })
 
     const generarPedido = () => {
-        if(document.getElementById('cantidadInput').value != 0 && selectProd.id != ''){
+        if (document.getElementById('cantidadInput').value != 0 && selectProd.id != '') {
             setListaProductos([...listaProductos, {
                 id: idListaProd,
                 idProd: selectProd.id,
@@ -85,7 +85,7 @@ export default function Agregar() {
                 precio: selectProd.precio,
                 precioTotal: selectProd.precio * document.getElementById('cantidadInput').value
             }])
-    
+
             setPrecioTotalPedido({
                 precio: [...listaProductos, {
                     id: idListaProd,
@@ -97,13 +97,13 @@ export default function Agregar() {
                     precioTotal: selectProd.precio * document.getElementById('cantidadInput').value
                 }].map(p => { return p.precioTotal }).reduce((a, b) => a + b, 0)
             })
-    
+
             setIdListaProd(idListaProd + 1)
             document.getElementById('cantidadInput').value = 0
-        }else{
+        } else {
             alert('no se puede agregar el nuevo producto, revise su producto a agregar.')
         }
-        
+
 
     }
 
@@ -125,7 +125,7 @@ export default function Agregar() {
     }
 
     const generarPeticion = () => {
-        if( cliente.cin != 0 && listaProductos.length != 0){
+        if (cliente.cin != 0 && listaProductos.length != 0) {
             const raw = JSON.stringify({
                 "ClienteId": cliente.id,
                 "Descripcion": document.getElementById('textAreaDescripcion').value,
@@ -139,10 +139,10 @@ export default function Agregar() {
             });
             agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
             Router.push('/NdP/Lista')
-        }else{
+        } else {
             alert("No se puede crear la peticion porque no contiene datos suficientes")
         }
-        
+
     }
 
 
@@ -155,7 +155,7 @@ export default function Agregar() {
             <Navbar rango='ndp' page='ndpAgregar' />
             <div className=''>
                 {/*La parte de arriba de la agregar */}
-                <NavMain person = "vendedor" pag="Agregar Nota de Pago" />
+                <NavMain person="vendedor" pag="Agregar Nota de Pago" />
 
                 {/*La parte de abajo de la agregar */}
                 <div className='ms-5 mt-3'>

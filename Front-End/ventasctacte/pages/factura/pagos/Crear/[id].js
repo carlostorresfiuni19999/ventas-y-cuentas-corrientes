@@ -24,25 +24,25 @@ export default function Crear() {
     const [Saldo, setSaldo] = useState(0)
 
     useEffect(() => {
-        if(typeof JSON.parse(sessionStorage.getItem('token')).access_token == "undefined"){
+        if (sessionStorage.getItem('token') == null) {
             Router.push('/Login')
-        }
-        if(!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")){
-            if(hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")){
-                Router.push('/NdP/Lista')
-            }else{
-                Router.push('/Login')
+        } else {
+            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
+                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
+                    Router.push('/NdP/Lista')
+                } else {
+                    Router.push('/Login')
+                }
             }
-        } 
-        if (typeof Router.query.id !== "undefined") {
-            getCuota(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
-                .then(res => res.text())
-                .then(res => {
-                    const r = JSON.parse(res)
-                    setSaldo(r.Saldo)
-                })
+            if (typeof Router.query.id !== "undefined") {
+                getCuota(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
+                    .then(res => res.text())
+                    .then(res => {
+                        const r = JSON.parse(res)
+                        setSaldo(r.Saldo)
+                    })
+            }
         }
-
     }, [Router])
 
     const getMax = () => {
@@ -99,13 +99,13 @@ export default function Crear() {
         setPrecioMax(Pagos.filter(p => { return p.key != key }).map(p => { return p.monto }).reduce((a, b) => a + b, 0))
     }
 
-    const handleSubmit=()=>{
+    const handleSubmit = () => {
         if (PrecioMax == 0) {
             alert("faltan datos")
         } else {
             const raw = JSON.stringify({
                 "IdCuota": Router.query.id,
-                "CantidadCuotas": Pagos.map(p=>{
+                "CantidadCuotas": Pagos.map(p => {
                     const returnValue = {
                         "MetodoPago": p.metodo,
                         "Monto": p.monto
@@ -115,7 +115,7 @@ export default function Crear() {
             })
             console.log({
                 "IdCuota": parseInt(Router.query.id),
-                "MetodosPagos": Pagos.map(p=>{
+                "MetodosPagos": Pagos.map(p => {
                     const returnValue = {
                         "MetodoPago": p.metodo,
                         "Monto": p.monto
@@ -191,8 +191,8 @@ export default function Crear() {
 
                 </table>
                 <div>
-                    <button className='btn btn-sm btn-success float-end mx-3' onClick={()=>{handleSubmit()}}>Confirmar</button>
-                    <button className='btn btn-sm btn-danger float-end mx-3' onClick={()=>{Router.back()}}>Cancelar</button>
+                    <button className='btn btn-sm btn-success float-end mx-3' onClick={() => { handleSubmit() }}>Confirmar</button>
+                    <button className='btn btn-sm btn-danger float-end mx-3' onClick={() => { Router.back() }}>Cancelar</button>
                 </div>
                 <div>
                     <label className='float-end'>{getSaldo()}</label>
@@ -200,7 +200,7 @@ export default function Crear() {
                     <label className='float-end'>{PrecioMax}</label>
                     <label className='float-end px-3'> Precio Total:</label>
                 </div>
-                
+
             </div>
 
         </div>

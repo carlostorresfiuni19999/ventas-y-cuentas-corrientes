@@ -12,6 +12,7 @@ import Navbar from '../../../../components/Navbar'
 //API
 import NavMain from '../../../../components/NavMain'
 import getPagos from '../../../../API/GetPagos'
+import hasRole from '../../../../API/hasRole'
 
 export default function Detalle() {
     const Router = useRouter()

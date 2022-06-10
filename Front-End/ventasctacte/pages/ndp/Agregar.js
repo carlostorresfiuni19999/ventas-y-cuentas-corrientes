@@ -7,7 +7,7 @@ import getPersonas from '../../API/getPersonas'
 import getProductos from '../../API/getProductos'
 import agregarPedido from '../../API/agregarPedido'
 import NavMain from '../../components/NavMain'
-//import selectize from 'selectize'
+import hasRole from '../../API/hasRole'
 
 export default function Agregar() {
 

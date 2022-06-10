@@ -14,6 +14,7 @@ import FDPControl from '../../components/fdpControl'
 import getPedidosSF from '../../API/getPedidosSF'
 import crearFactura from '../../API/crearFactura'
 import NavMain from '../../components/NavMain'
+import hasRole from '../../API/hasRole'
 
 export default function Crear() {
 

@@ -13,6 +13,7 @@ import MDPControl from '../../../components/MDPControl'
 //API
 import getFactura from '../../../API/getFactura'
 import NavMain from '../../../components/NavMain'
+import hasRole from '../../../API/hasRole'
 
 export default function Detalles() {
 

@@ -11,6 +11,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import getCuota from '../../../../API/getCuota'
 import postPago from '../../../../API/postPago'
+import hasRole from '../../../../API/hasRole'
 
 
 

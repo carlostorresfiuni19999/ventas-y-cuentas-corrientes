@@ -13,6 +13,7 @@ import getPedido from '../../../API/getPedido'
 import getProductos from '../../../API/getProductos'
 import putPedido from '../../../API/putPedido'
 import crearFactura from '../../../API/crearFactura'
+import hasRole from '../../../API/hasRole'
 
 export default function Detalles() {
     const [datos, setDatos] = useState({})

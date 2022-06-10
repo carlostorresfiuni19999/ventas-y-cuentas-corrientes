@@ -13,6 +13,7 @@ import Navbar from '../../components/Navbar'
 import getFacturas from '../../API/getFacturas'
 import deleteFactura from '../../API/deleteFactura'
 import NavMain from '../../components/NavMain'
+import hasRole from '../../API/hasRole'
 
 export default function Lista() {
 

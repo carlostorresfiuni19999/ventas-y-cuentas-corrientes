@@ -1,6 +1,3 @@
-C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\Microsoft.DiaSymReader.Native.amd64.dll
-C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\Microsoft.DiaSymReader.Native.x86.dll
-C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\System.Text.Encoding.CodePages.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.dll.config
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\cuentasctacte-web-api.pdb
@@ -17,6 +14,8 @@ C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\r
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\Microsoft.CodeAnalysis.Scripting.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\Microsoft.CodeAnalysis.VisualBasic.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\Microsoft.CSharp.Core.targets
+C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\Microsoft.DiaSymReader.Native.amd64.dll
+C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\Microsoft.DiaSymReader.Native.x86.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\Microsoft.Managed.Core.targets
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\Microsoft.VisualBasic.Core.targets
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\Microsoft.Win32.Primitives.dll
@@ -39,6 +38,7 @@ C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\r
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\System.Security.Cryptography.Encoding.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\System.Security.Cryptography.Primitives.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\System.Security.Cryptography.X509Certificates.dll
+C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\System.Text.Encoding.CodePages.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\System.Threading.Tasks.Extensions.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\System.ValueTuple.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\roslyn\System.Xml.ReaderWriter.dll
@@ -137,11 +137,11 @@ C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\e
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\bin\es\System.Web.Http.Owin.resources.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte-web-api.csproj.AssemblyReference.cache
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.init.resources
+C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.saldocaja.resources
+C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.deletedpago.resources
+C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.deletedmetodospagos.resources
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte-web-api.csproj.GenerateResource.cache
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte-web-api.csproj.CoreCompileInputs.cache
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte-web-api.csproj.CopyComplete
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte-web-api.dll
 C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte-web-api.pdb
-C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.saldocaja.resources
-C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.deletedpago.resources
-C:\Users\wwwal\Escritorio\editar_pedidos_v2\Back-End\cuentasctacte-web-api\obj\Release\cuentasctacte_web_api.Migrations.deletedmetodospagos.resources

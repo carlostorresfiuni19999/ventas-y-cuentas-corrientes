@@ -334,7 +334,7 @@ namespace cuentasctacte_web_api.Controllers
             return db.Facturas.Count(e => e.Id == id) > 0;
         }
 
-        private FullFacturaResponseDTO MapToFullFactura(Factura factura)
+        public FullFacturaResponseDTO MapToFullFactura(Factura factura)
         {
             var Result = new FullFacturaResponseDTO()
             {

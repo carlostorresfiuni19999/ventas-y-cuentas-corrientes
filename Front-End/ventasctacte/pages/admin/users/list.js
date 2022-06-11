@@ -1,27 +1,21 @@
-import React, { Fragment, useEffect, useState} from "react"
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { Fragment, useEffect, useState } from "react"
 import PersonList from "../../../components/admin/PersonList";
 import AdminNavbar from "../../../components/admin/AdminNavbar";
-import getPersonas from "../../../API/getPersonas";
 import ValidateLogin from "../../../API/validateLogin";
-import { Button } from "react-bootstrap";
+import getAllPeople from "../../../API/getAllPeople";
+import { Button, Tab, Tabs } from "react-bootstrap";
 import { useRouter } from "next/router";
 const List = () => {
- 
+
     const [band, setBand] = useState(true);
     const [personas, setPersonas] = useState([]);
+    const [cajeros, setCajeros] = useState([]);
+    const [vendedores, setVendedores] = useState([]);
+    const [key, setKey] = useState("Clientes");
     const router = useRouter();
-    
-    const loadPeople = () => {
-        const token = JSON.parse(sessionStorage.getItem("token"));
-        getPersonas(token.access_token)
-            .then(r => r.text())
-            .then(r => JSON.parse(r))
-            .then(r => {
-                band && setPersonas(r)
-            })
-            .catch(e => console.log(e));
-    }
+
+
+
 
     const redirect = _ => {
         router.push("create");
@@ -31,33 +25,92 @@ const List = () => {
     const buttonStyle = {
         marginTop: "4%",
         marginLeft: "5%",
-        marginBottom:"2%"
+        marginBottom: "2%"
     }
     useEffect(() => {
-        const notValid = () => router.push("../../LogIn");
+        const token = JSON.parse(sessionStorage.getItem("token"));
+        getAllPeople(token.access_token)
+            .then(r => r.text())
+            .then(r => JSON.parse(r))
+            .then(r => {
+                if (band) {
+                    console.log(r);
+                    setPersonas(r.filter(p => {
+                        for (let rol of p.Roles) {
+                            if (rol === "Cliente") return true;
+                        }
+                        return false;
+                    }));
+                
+
+                    setVendedores(r.filter(p => {
+                        for (let rol of p.Roles) {
+                            if (rol === "Vendedor") return true;
+                        }
+                        return false;
+                    }));
+                    
+                    setCajeros(r.filter(p => {
+                        for (let rol of p.Roles) {
+                            if (rol === "Cajero") return true;
+                        }
+                        return false;
+                    }));
+
+                    
+                    setBand(false);
+
+                }
+            })
+            .catch(e => console.log(e));
+
+
         
-        ValidateLogin(
-             
-            JSON.parse(sessionStorage.getItem("token")),
-            "Administrador",
-            loadPeople,
-            notValid
-        ) 
+
         return () => setBand(false);
-    });
-    
+    }, [band, cajeros, personas, vendedores]);
+
     return (
         <Fragment>
             <AdminNavbar />
-           
-                    <div style={buttonStyle}>
-                    <Button variant="primary" onClick={redirect}>
-                        Agregar
-                    </Button>
-                    </div>
-                    
-            
-             <PersonList style ={{marginLeft:"30px", marginRight:"30px"}} personas={personas} />
+
+            <div style={buttonStyle}>
+                <Button variant="primary" onClick={redirect}>
+                    Agregar
+                </Button>
+            </div>
+
+            <Tabs
+                id="controlled-tab-example"
+                activeKey={key}
+                onSelect={(k) => setKey(k)}
+                className="mb-3"
+            >
+                <Tab eventKey="Clientes" title="Clientes">
+                    <PersonList
+                        style={{ marginLeft: "30px", marginRight: "30px" }}
+                        personas={personas}
+                    />
+                </Tab>
+                <Tab
+                    eventKey="Vendedores"
+                    title="Vendedores">
+                    <PersonList
+                        style={{ marginLeft: "30px", marginRight: "30px" }}
+                        personas={vendedores}
+                    />
+                </Tab>
+                <Tab eventKey="Cajeros"
+                    title="Cajeros"
+                >
+                    <PersonList
+                        style={{ marginLeft: "30px", marginRight: "30px" }}
+                        personas={cajeros}
+                    />
+
+                </Tab>
+
+            </Tabs>
 
         </Fragment>
     )

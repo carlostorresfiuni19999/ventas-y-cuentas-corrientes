@@ -31,20 +31,20 @@ function LoginForm() {
                          sessionStorage.setItem("token", JSON.stringify(res));
                          hasRole(res.access_token, res.userName, "Administrador")
                             .then(r => {
-                                if (r) {
-                                    console.log(r);
+                                if (r == 'true') {
                                     
                                     router.push("admin/users/list");
                                 } else {
+                                    
                                     hasRole(res.access_token, res.userName, "Cajero")
                                         .then(r => {
-                                            if (r) {
+                                            if (r == 'true') {
                                                 
                                                 router.push("factura/Lista");
                                             } else {
                                                 hasRole(res.access_token, res.userName, "Vendedor")
                                                     .then(r => {
-                                                        if (r) {
+                                                        if (r == true) {
                                                             
                                                             router.push("ndp/Lista");
                                                         }

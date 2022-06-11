@@ -11,6 +11,6 @@ const hasRole =  (token, email, role) =>{
         
     };
 
-    return fetch(link, requestOptions).then(r => r.text());
+    return fetch(link, requestOptions).then(r =>  r.text());
 }
 export default hasRole

@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 
 //'next'
 import Head from 'next/head'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 //'component/*'
@@ -23,74 +22,37 @@ export default function Lista() {
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
-        }else{
-        if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-            if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                Router.push('/NdP/Lista')
-            } else {
-                Router.push('/Login')
-            }
-        }
-        getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(res => res.text()).
-            then(result => {
-                const f = JSON.parse(result)
-                setFacturas(f.map(fac => {
-                    const facturaNew = {
-                        id: fac.Id,
-                        cliente: fac.Cliente,
-                        fecha: fac.FechaFacturada.split('T')[0],
-                        monto: fac.MontoTotal,
-                        saldo: fac.SaldoTotal,
-                        condicion: fac.CondicionVenta,
-                        estado: fac.Estado
-                    }
-                    return facturaNew
-                }))
-
-            })
-            .catch(error => console.log(error))
-        }
-    }, [facturas, Router])
-
-    useEffect(() => {
-        if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
+            Router.push('/LogIn')
         } else {
-            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                    Router.push('/NdP/Lista')
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            if (!(hasRole(token.access_token, token.userName, "Cajero"))) {
+                if (hasRole(token.access_token, token.userName, "Vendedor")) {
+                    Router.push('/ndp/Lista')
                 } else {
-                    Router.push('/Login')
+                    Router.push('/LogIn')
                 }
             }
-
             getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
-                .then(res => res.text()).
-                then(result => {
-                    const f = JSON.parse(result)
-                    setFacturas(f.map(factura => {
-                        const facturaNew = {
-                            id: fac.Id,
-                            cliente: fac.Cliente,
-                            fecha: fac.FechaFacturada.split('T')[0],
-                            monto: fac.MontoTotal,
-                            saldo: fac.SaldoTotal,
-                            condicion: fac.CondicionVenta,
-                            estado: fac.Estado
-                        }
-                        return facturaNew
-                    }))
+                    .then(res => res.text()).
+                    then(result => {
+                        const f = JSON.parse(result)
+                        setFacturas(f.map(fac => {
+                            const facturaNew = {
+                                id: fac.Id,
+                                cliente: fac.Cliente,
+                                fecha: fac.FechaFacturada.split('T')[0],
+                                monto: fac.MontoTotal,
+                                saldo: fac.SaldoTotal,
+                                condicion: fac.CondicionVenta,
+                                estado: fac.Estado
+                            }
+                            return facturaNew
+                        }))
 
-                })
-                .catch(error => console.log(error))
-
-            return () => {
-                setFacturas([[]])
-            }
+                    })
+                    .catch(error => console.log(error))
         }
-    }, [Router])
+    }, [facturas, Router])
 
     const formatfecha = (dateStr) => {
         if (dateStr == null) {

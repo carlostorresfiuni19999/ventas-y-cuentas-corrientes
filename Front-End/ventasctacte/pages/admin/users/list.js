@@ -35,7 +35,7 @@ const List = () => {
 
             hasRole(token.access_token, token.userName, "Administrador")
                 .then(r => {
-                    if (r) {
+                    if (r == 'true') {
                         getAllPeople(token.access_token)
                             .then(r => r.text())
                             .then(r => JSON.parse(r))

@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react"
 import PersonList from "../../../components/admin/PersonList";
 import AdminNavbar from "../../../components/admin/AdminNavbar";
-import ValidateLogin from "../../../API/validateLogin";
+import hasRole from "../../../API/hasRole";
 import getAllPeople from "../../../API/getAllPeople";
 import { Button, Tab, Tabs } from "react-bootstrap";
 import { useRouter } from "next/router";
@@ -11,6 +11,7 @@ const List = () => {
     const [personas, setPersonas] = useState([]);
     const [cajeros, setCajeros] = useState([]);
     const [vendedores, setVendedores] = useState([]);
+    const [logged, setLogged] = useState(false);
     const [key, setKey] = useState("Clientes");
     const router = useRouter();
 
@@ -28,49 +29,73 @@ const List = () => {
         marginBottom: "2%"
     }
     useEffect(() => {
-        const token = JSON.parse(sessionStorage.getItem("token"));
-        getAllPeople(token.access_token)
-            .then(r => r.text())
-            .then(r => JSON.parse(r))
-            .then(r => {
-                if (band) {
-                    console.log(r);
-                    setPersonas(r.filter(p => {
-                        for (let rol of p.Roles) {
-                            if (rol === "Cliente") return true;
-                        }
-                        return false;
-                    }));
-                
+        if (sessionStorage.getItem("token")) {
+            setLogged(true);
+            const token = JSON.parse(sessionStorage.getItem("token"));
 
-                    setVendedores(r.filter(p => {
-                        for (let rol of p.Roles) {
-                            if (rol === "Vendedor") return true;
-                        }
-                        return false;
-                    }));
-                    
-                    setCajeros(r.filter(p => {
-                        for (let rol of p.Roles) {
-                            if (rol === "Cajero") return true;
-                        }
-                        return false;
-                    }));
-
-                    
-                    setBand(false);
-
-                }
-            })
-            .catch(e => console.log(e));
+            hasRole(token.access_token, token.userName, "Administrador")
+                .then(r => {
+                    if (r) {
+                        getAllPeople(token.access_token)
+                            .then(r => r.text())
+                            .then(r => JSON.parse(r))
+                            .then(r => {
+                                if (band) {
+                                    console.log(r);
+                                    setPersonas(r.filter(p => {
+                                        for (let rol of p.Roles) {
+                                            if (rol === "Cliente") return true;
+                                        }
+                                        return false;
+                                    }));
 
 
-        
+                                    setVendedores(r.filter(p => {
+                                        for (let rol of p.Roles) {
+                                            if (rol === "Vendedor") return true;
+                                        }
+                                        return false;
+                                    }));
+
+                                    setCajeros(r.filter(p => {
+                                        for (let rol of p.Roles) {
+                                            if (rol === "Cajero") return true;
+                                        }
+                                        return false;
+                                    }));
+
+
+                                    setBand(false);
+
+                                }
+                            })
+                            .catch(e => console.log(e));
+
+                    } else {
+                        sessionStorage.clear();
+                        alert(`Role no valido ${r}`)
+                        router.push("../../LogIn");
+                    }
+                })
+                .catch(e =>{
+                    alert(`Error ${e}`);
+                    sessionStorage.clear();
+                    router.push("../../LogIn");
+
+                })
+        } else{
+            alert("Primero Inicie Sesion");
+            router.push("../../LogIn");
+        }
+
+
+
 
         return () => setBand(false);
-    }, [band, cajeros, personas, vendedores]);
+    }, [band, cajeros, personas, router, vendedores]);
 
-    return (
+    const rendered = () => {
+        const element =
         <Fragment>
             <AdminNavbar />
 
@@ -113,6 +138,9 @@ const List = () => {
             </Tabs>
 
         </Fragment>
-    )
+        return element;
+    }
+
+    return logged ? rendered() : <h1>Cargando ...</h1>
 }
 export default List;

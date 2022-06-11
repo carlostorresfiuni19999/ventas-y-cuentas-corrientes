@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import styles from '../styles/LogIn.module.css'
 import login from "../API/login"
 import { useRouter } from 'next/router';
-import ValidateLogin from '../API/validateLogin';
+import hasRole from '../API/hasRole';
 
 function LoginForm() {
     const router = useRouter()
@@ -16,39 +16,47 @@ function LoginForm() {
         onSubmit: (values) => {
             console.log("Hola mundo")
             login(values.user, values.pass)
-            .catch(error => {
-                console.log('error', error);
-                alert("Error al intentar ingresar. Verifica las credenciales");
-            })
+                .catch(error => {
+                    console.log('error', error);
+                    alert("Error al intentar ingresar. Verifica las credenciales");
+                })
                 .then(response => response.text())
                 .then(result => {
                     console.log(result);
                     const res = JSON.parse(result)
 
-                    if(res.error_description){
+                    if (res.error_description) {
                         alert("Error, Credenciales no validas");
-                    }else{
+                    } else {
+                         sessionStorage.setItem("token", JSON.stringify(res));
+                         hasRole(res.access_token, res.userName, "Administrador")
+                            .then(r => {
+                                if (r) {
+                                    console.log(r);
+                                    
+                                    router.push("admin/users/list");
+                                } else {
+                                    hasRole(res.access_token, res.userName, "Cajero")
+                                        .then(r => {
+                                            if (r) {
+                                                
+                                                router.push("factura/Lista");
+                                            } else {
+                                                hasRole(res.access_token, res.userName, "Vendedor")
+                                                    .then(r => {
+                                                        if (r) {
+                                                            
+                                                            router.push("ndp/Lista");
+                                                        }
+                                                    });
+                                            }
+                                        });
 
-                        if(hasRole(res.access_token, res.userName, "Vendedor")){
-                            sessionStorage.setItem("token", JSON.stringify(res));
-                            alert("Logeado con exito");
-                            router.push("NdP/Lista")
-                        }
-                        if(hasRole(res.access_token, res.userName, "Cajero")){
-                            sessionStorage.setItem("token", JSON.stringify(res));
-                            alert("Logeado con exito");
-                            router.push("Factura/Lista")
-                        }
-                        if(hasRole(res.access_token, res.userName, "Administrador")){
-                            sessionStorage.setItem("token", JSON.stringify(res));
-                            alert("Logeado con exito");
-                            router.push("/users/list")
-                        }
-                        
-
+                                }
+                            });
                     }
-                    
-                    
+
+
                 }
                 )
 
@@ -96,29 +104,29 @@ function LoginForm() {
             <h1 className={styles.letraGrande}>Login</h1>
             <form onSubmit={formik.handleSubmit}>
                 <div>
-                <label htmlFor='user'>
-                    Email
-                </label>
-                <input
-                    id="user"
-                    name="user"
-                    type="email"
-                    onChange={formik.handleChange}
-                    value={formik.values.user}
-                />
+                    <label htmlFor='user'>
+                        Email
+                    </label>
+                    <input
+                        id="user"
+                        name="user"
+                        type="email"
+                        onChange={formik.handleChange}
+                        value={formik.values.user}
+                    />
                 </div>
                 <div>
-                <label htmlFor='password'>
-                    Password
-                </label>
+                    <label htmlFor='password'>
+                        Password
+                    </label>
 
-                <input
-                    id="pass"
-                    name="pass"
-                    type="password"
-                    onChange={formik.handleChange}
-                    value={formik.values.pass}
-                />
+                    <input
+                        id="pass"
+                        name="pass"
+                        type="password"
+                        onChange={formik.handleChange}
+                        value={formik.values.pass}
+                    />
                 </div>
                 <button type="submit" className={styles.boton} disabled={!formik.isValid}> Login </button>
             </form>

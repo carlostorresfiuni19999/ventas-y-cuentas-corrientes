@@ -449,7 +449,7 @@ namespace cuentasctacte_web_api.Controllers
 
                     }
                     break;
-                case "FACTURADO":
+                case "PAGADO":
                     foreach (var factura in F)
                     {
                         if (factura.Estado == "PAGADO")

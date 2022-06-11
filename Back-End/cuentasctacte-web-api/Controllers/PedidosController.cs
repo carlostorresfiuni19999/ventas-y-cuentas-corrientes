@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
-using System.Net;
-using System.Web.Http;
-using System.Web.Http.Description;
+﻿using cuentasctacte_web_api.Helpers;
 using cuentasctacte_web_api.Models;
 using cuentasctacte_web_api.Models.DTOs;
 using cuentasctacte_web_api.Models.Entities;
 using Microsoft.AspNet.Identity;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Linq;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -17,6 +17,7 @@ namespace cuentasctacte_web_api.Controllers
     public class PedidosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private GetUserLogged GetUserLogged = new GetUserLogged();
 
         // GET: api/Pedidos
         public List<PedidoResponseDTO> GetPedidos()
@@ -24,7 +25,10 @@ namespace cuentasctacte_web_api.Controllers
             var Pedidos = db.Pedidos
                 .Where(p => !p.Deleted)
                 .Include(p => p.Cliente)
-                .Include(p => p.Vendedor).ToList();
+                .Include(p => p.Vendedor)
+                .OrderBy(p => p.Estado.Equals("PENDIENTE"))
+                .OrderBy(p => p.FechaPedido)
+                .ToList();
             return PedidosMapper(Pedidos);
 
         }
@@ -36,29 +40,17 @@ namespace cuentasctacte_web_api.Controllers
             var Pedido = db.Pedidos
                 .Include(p => p.Vendedor)
                 .Include(p => p.Cliente)
-                .FirstOrDefault(p => p.Id == id );
-            if(null == Pedido)
+                .FirstOrDefault(p => p.Id == id);
+            if (null == Pedido)
             {
                 return NotFound();
             }
 
-            
+
 
 
             return Ok(PedidoMapper(Pedido));
         }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -69,20 +61,91 @@ namespace cuentasctacte_web_api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest();
             }
             /*
                 *Ver si existe el pedido.
             */
-            if ( db.Pedidos.Include(p => p.Cliente).Where(p => p.Id == id) == null)
+
+            if (db.Pedidos.Include(p => p.Cliente).ToList().Exists(p => p.Id == id) == false)
+
             {
                 return BadRequest();
             }
-            db.Entry(pedidoDTO_R).State = EntityState.Modified;
+            //db.Entry(pedidoDTO_R).State = EntityState.Modified;
+
+
+            /*VARIABLES*/
+            int cantidad_producto_DTO = 0;
+            int id_producto_DTO = -1;
+            int vandera = 0;
+            /****/
+            //Primero Buscar un pedido dentro de base de datos con argumento 'id'
+            //Luego si su estado no es pendiente, retorna null porque no podemos editar pedidos facturados.
+            Pedido pedido_DB = db.Pedidos.Include(p => p.Cliente).FirstOrDefault(p => p.Id == id);
+
+            if (pedido_DB.Estado != "PENDIENTE")
+            {
+                return BadRequest("Solo se pueden editar pedidos pendientes");
+
+            }
+
+            //Actualizamos descripcion
+            pedido_DB.PedidoDescripcion = pedidoDTO_R.Descripcion;
+
+
+            //Tambien traer los detalles.
+            var PedidosDetalles_DB = db.PedidoDetalles
+               .Include(pd => pd.Producto)
+               .Where(pd => pd.IdPedido == id)
+               .Where(pd => !pd.Deleted);
+
+            /*eLIMINAMOS TODO*/
+            foreach (var Detalles in PedidosDetalles_DB)
+            {
+                db.PedidoDetalles.Remove(Detalles);
+
+            }
+
+
+            List<PedidoDetalle> existentes = new List<PedidoDetalle>();
+
+            //Unificar los pedidos
+            foreach (var item in pedidoDTO_R.Pedidos)
+            {
+                var Detalle = new PedidoDetalle()
+                {
+                    IdPedido = id,
+                    IdProducto = item.ProductoId,
+                    CantidadProducto = item.CantidadProducto,
+                    CantidadFacturada = 0,
+                    Deleted = false
+                };
+
+                if (existentes.Count(pd => pd.IdPedido == Detalle.IdPedido && pd.IdProducto == Detalle.IdProducto) > 0)
+                {
+                    var temp = existentes.FirstOrDefault(e => e.Id == id);
+                    existentes.Remove(temp);
+                    temp.CantidadProducto += Detalle.CantidadProducto;
+                    existentes.Add(temp);
+                }
+                else
+                {
+                    existentes.Add(Detalle);
+                }
+
+
+                existentes.ForEach(pd => db.PedidoDetalles.Add(pd));
+
+            }
+
+
+
 
             try
             {
                 db.SaveChanges();
+                return Ok(); //Todo salio bien.
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -96,138 +159,63 @@ namespace cuentasctacte_web_api.Controllers
                 }
             }
 
-            /*VARIABLES*/
-            int cantidad_producto_DTO = 0;
-            int id_producto_DTO = 0;
-            int sumatoria = 0;
-            /****/
-            //Primero Buscar un pedido dentro de base de datos con argumento 'id'
-            Pedido pedido_DB = db.Pedidos.Include(p => p.Cliente).FirstOrDefault(p => p.Id == id);
-            //Actualizamos descripcion
-            pedido_DB.PedidoDescripcion = pedidoDTO_R.Descripcion;
+        }
 
+        [AllowAnonymous]
+        [Route("api/Pedidos/Baja")]
+        [HttpPost]
+        public IHttpActionResult VencerPedido(DateTime referencia)
+        {
+            var Pedidos = db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Vendedor)
+                .Where(p => !p.Deleted)
+                .Where(p => p.Estado == "FACTURANDO");
 
-            //Tambien traer los detalles.
-            var PedidosDetalles_DB = db.PedidoDetalles
-               .Include(pd => pd.Producto)
-               .Where(pd => pd.IdPedido == id);
-
-            /*****/
-            //Segundo Rescatar de la data base, los pedidos detalles.
-            //--- Tambien ir iterando para sacar cada pedido detalle individual
-
-            foreach (var pedidoDetalle_DB in PedidosDetalles_DB)
+            foreach (var item in Pedidos)
             {
-
-                //Buscar en el stock el producto con mismo ID.
-
-                
-                foreach (var producto in pedidoDTO_R.Pedidos)
+                if ((referencia - item.FechaPedido).TotalDays > 1)
                 {
-                    if (producto.ProductoId == pedidoDetalle_DB.IdProducto)
+                    item.Estado = "FACTURADO";
+
+                    var Detalles = db.PedidoDetalles
+                        .Include(pd => pd.Pedido)
+                        .Where(pd => !pd.Deleted)
+                        .Where(pd => pd.IdProducto == item.Id);
+
+                    foreach (var detalle in Detalles)
                     {
-                        cantidad_producto_DTO = producto.CantidadProducto;
-                        id_producto_DTO = producto.ProductoId;
-                        break; //Rompemos el algoritmo para 
-                               //porque extrajemos la cantidad en la database
+                        detalle.CantidadProducto = detalle.CantidadFacturada;
+                        db.Entry(detalle).State = EntityState.Modified;
                     }
 
+                    db.Entry(item).State = EntityState.Modified;
                 }
-                var Stock_DB = db.Stocks //Saco del stock el produco correcto. de mi lista de productos modificados.
-                        .Include(s => s.Producto)
-                        .Include(s => s.Deposito)
-                        .Where(s => s.Producto.Id == id_producto_DTO && s.IdDeposito == 3)
-                        .First();
-
-                /*--------------------*///Me aseguro que no elimino ese producto al comparar con 0.
-                if (cantidad_producto_DTO != pedidoDetalle_DB.CantidadProducto && cantidad_producto_DTO != 0) { //Hubo modificacion.
-                    
-                    int temp = cantidad_producto_DTO - pedidoDetalle_DB.CantidadFacturada;
-                    pedidoDetalle_DB.CantidadProducto = cantidad_producto_DTO;//si o si cambia.
-                   
-                    /**************/
-                    /*Si aumenta el pedido, pero no hay stock, entonces nada se toca, 
-                     Pues ya se aumento la cantidad de productos, sotck, saldo y facturado no 
-                    tiene motivo apra cambiar*/
-                    if (temp > 0 && temp < Stock_DB.Cantidad)
-                    {//hay que aumentar saldo cliente. restar stock y actualizar cantidad facturada.                                                
-                       pedidoDetalle_DB.CantidadFacturada = cantidad_producto_DTO;
-                       Stock_DB.Cantidad -= temp;
-                       sumatoria += temp* (int)pedidoDetalle_DB.PrecioUnitario; //temp positivo, aumentamos saldo                       
-                    }
-                    if (temp < 0) //se resto la cantidad del pedido.
-                    {
-                        pedidoDetalle_DB.CantidadFacturada = cantidad_producto_DTO;
-                        Stock_DB.Cantidad += temp*(-1); //casteo a positivo.
-                        sumatoria += temp * (int)pedidoDetalle_DB.PrecioUnitario; //temp -, desminuye saldo
-                    }
-                }
-             
-                //Cuarto si la cantidad de producto actualizado es 0, entonces eliminamos el pedidi
-                //detalles
-                if (cantidad_producto_DTO == 0)
-                {   //Devolvemos todo del Pd al estock.
-                    //Seteamos a 0 la cantidad en Pdetalles
-                    sumatoria -= pedidoDetalle_DB.CantidadFacturada * (int)pedidoDetalle_DB.PrecioUnitario;
-                    Stock_DB.Cantidad += pedidoDetalle_DB.CantidadFacturada;
-                    pedidoDetalle_DB.CantidadProducto = 0;
-                    pedidoDetalle_DB.CantidadFacturada = 0;
-                    pedidoDetalle_DB.Deleted = true;
-                }
-
-                /**UPDATE stock and pedidoDetalles**/
-                //Hace el Update de la base de datos 
-                db.Entry(Stock_DB).State = EntityState.Modified;    
-                db.Entry(pedidoDetalle_DB).State = EntityState.Modified;
             }
-            
 
-         
-            
-            
-            
-            /**UPDATE Clientes Y el Pedido*/
-            //Le aumentamos, restamos o dejamos intacto el saldo del cliente.
-            //Sumatoria seria un valor, positivo o negativo de acuerdo a si 
-            //el cliente a comprado mas productos o restado.
-            var Cliente = db.Personas.FirstOrDefault(c => c.Id == pedidoDTO_R.ClienteId);
-            Cliente.Saldo = Cliente.Saldo + sumatoria;
-            db.Entry(Cliente).State = EntityState.Modified;
-            db.Entry(pedido_DB).State = EntityState.Modified;
-
-
-            return StatusCode(HttpStatusCode.NoContent);
+            try
+            {
+                db.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al actualizar el estado por la fecha: " + ex.Message);
+            }
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        [Route("api/PedidosSinFactura")]
+        [HttpGet]
+        public List<PedidoResponseDTO> GetPedidosSinFactura()
+        {
+            return db.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Vendedor)
+                .Where(p => p.Estado != "FACTURADO")
+                .ToList()
+                .ConvertAll(p => PedidoMapper(p));
+        }
 
 
         // POST: api/Pedidos
@@ -243,13 +231,8 @@ namespace cuentasctacte_web_api.Controllers
             if (!User.Identity.IsAuthenticated) return BadRequest("No autorizado");
             UserIdLogged = User.Identity.GetUserId();
 
-            var user = db.Users
-                .FirstOrDefault(u => u.Id.Equals(UserIdLogged));
 
-            string userName = user.UserName;
-
-            var Vendedor = db.Personas
-                .FirstOrDefault(p => p.UserName.Equals(userName));
+            var Vendedor = GetUserLogged.GetUser(db, UserIdLogged);
 
             int CantPedidos = db.Pedidos.Count();
 
@@ -263,72 +246,84 @@ namespace cuentasctacte_web_api.Controllers
                 Estado = "PENDIENTE",
                 FechaPedido = DateTime.Now
             };
-            db.Pedidos.Add(PedidoDb);
+            PedidoDb = db.Pedidos.Add(PedidoDb);
             var Cliente = db.Personas
                 .FirstOrDefault(c => c.Id == Pedido.ClienteId);
-            double MontoTotal = 0.0;
 
+
+            List<PedidoDetalle> PedidosExistentes = new List<PedidoDetalle>();
             if (Pedido.Pedidos == null) return BadRequest("Los Detalles del pedido es requerido");
             //Verificamos si hay stocks disponibles para cada producto Pedido
             foreach (var PedidoDetalle in Pedido.Pedidos)
             {
 
-                var Stock = db.Stocks
-                    .Include(s => s.Producto)
-                    .Include(s => s.Deposito)
-                    .FirstOrDefault(s => s.IdProducto == PedidoDetalle.ProductoId && s.IdDeposito == 3);
 
-                var StockDisponible = Stock.Cantidad;
-                var Detalle = new PedidoDetalle
-                {
-                    IdProducto = PedidoDetalle.ProductoId,
-                    Producto = db.Productos.Find(PedidoDetalle.ProductoId),
-                    Pedido = PedidoDb,
-                    IdPedido = PedidoDb.Id,
-                    CantidadProducto = PedidoDetalle.CantidadProducto,
-                    PrecioUnitario = Stock.Producto.Precio
-                };
 
-                if (StockDisponible < PedidoDetalle.CantidadProducto)
+
+                PedidoDetalle Detalle;
+
+                bool DetalleExist = 0 < PedidosExistentes
+                    .Count(pd =>
+                    pd.IdPedido == PedidoDb.Id
+                    && pd.IdProducto == PedidoDetalle.ProductoId);
+
+
+
+                if (DetalleExist)
                 {
-                    Detalle.CantidadFacturada = StockDisponible;
-                    Stock.Cantidad = 0;
-                } else
-                {
-                    Detalle.CantidadFacturada = PedidoDetalle.CantidadProducto;
-                    Stock.Cantidad -= PedidoDetalle.CantidadProducto;
+                    Detalle = PedidosExistentes
+
+                    .Where(p => !p.Deleted)
+                    .FirstOrDefault(p =>
+                    p.IdProducto == PedidoDetalle.ProductoId
+                    && p.IdPedido == PedidoDb.Id
+                    );
+                    PedidosExistentes.Remove(Detalle);
+
+                    Detalle.CantidadProducto += Detalle.CantidadProducto;
+
+                    PedidosExistentes.Add(Detalle);
+
                 }
-
-                db.Entry(Stock).State = EntityState.Modified;
-                db.PedidoDetalles.Add(Detalle);
-                MontoTotal += Stock.Producto.Precio * Detalle.CantidadFacturada;
-
+                else
+                {
+                    Detalle = new PedidoDetalle
+                    {
+                        IdProducto = PedidoDetalle.ProductoId,
+                        IdPedido = PedidoDb.Id,
+                        CantidadProducto = PedidoDetalle.CantidadProducto,
+                        PrecioUnitario = db.Productos.Find(PedidoDetalle.ProductoId).Precio,
+                        CantidadFacturada = 0
+                    };
+                    PedidosExistentes.Add(Detalle);
+                }
 
             }
 
-            if (MontoTotal > Cliente.LineaDeCredito || MontoTotal + Cliente.Saldo > Cliente.LineaDeCredito)
+            //Guardamos todos los PedidosDetalles
+            PedidosExistentes.ForEach(p => db.PedidoDetalles.Add(p));
+            try
             {
-                return BadRequest("Linea de Credito Insuficiente");
-            } else
+                db.SaveChanges();
+                return Ok("Guardado con exito Detalle");
+
+            }
+            catch (Exception ex)
             {
-                Cliente.Saldo += MontoTotal;
-                db.Entry(Cliente).State = EntityState.Modified;
-
-                
-                try
-                {
-                    db.SaveChanges();
-                    return Ok("Guardado con exito");
-
-                } catch (Exception ex)
-                {
-                    return BadRequest("Error al ejecutar la transaccion " + ex.Message);
-                }
-                
+                return BadRequest("Error al ejecutar la transaccion " + ex.Message);
             }
 
 
 
+
+
+        }
+        [ResponseType(typeof(PedidoDetalleResponseDTO))]
+        [Route("api/Pedidos/PedidoParaFacturar")]
+        [HttpGet]
+        public PedidoDTORequest GetPedidoFacturar(int id)
+        {
+            return ToDTORequest(id);
         }
 
         // DELETE: api/Pedidos/5
@@ -340,40 +335,29 @@ namespace cuentasctacte_web_api.Controllers
             {
                 return NotFound();
             }
+
+            if (pedido.Estado != "PENDIENTE")
+            {
+                return BadRequest("Solo se pueden eliminar pedidos pendientes");
+            }
+
             pedido.Deleted = true;
             var PedidosDetalles = db.PedidoDetalles
                 .Include(pd => pd.Producto)
                 .Where(pd => pd.IdPedido == id);
 
-            double sumatoria = 0;
             foreach (var pedidodetalle in PedidosDetalles)
             {
                 pedidodetalle.Deleted = true;
                 var CantidadProducto = pedidodetalle.CantidadProducto;
                 var Producto = db.Productos.Find(pedidodetalle.IdProducto);
 
-                var Stock = db.Stocks
-                    .Include(s => s.Producto)
-                    .Include(s => s.Deposito)
-                    .Where(s => s.Producto.Id == pedidodetalle.Producto.Id && s.IdDeposito == 3)
-                    .First();
-
-                Stock.Cantidad = Stock.Cantidad + pedidodetalle.CantidadFacturada;
-
-                //Vamos sumando cuanta plata devolver al cliente.
-                sumatoria += pedidodetalle.CantidadFacturada * pedidodetalle.PrecioUnitario;
-
-                //Hace el Update de la base de datos 
-                db.Entry(Stock).State = EntityState.Modified;
+                //Hace el Update de la base de datos            
                 pedidodetalle.CantidadProducto -= pedidodetalle.CantidadProducto;
-                pedidodetalle.CantidadFacturada = 0;
                 db.Entry(pedidodetalle).State = EntityState.Modified;
 
 
             }
-            var Cliente = db.Personas.FirstOrDefault(c => c.Id == pedido.IdCliente);
-            Cliente.Saldo = Cliente.Saldo - sumatoria;
-            db.Entry(Cliente).State = EntityState.Modified;
 
             try
             {
@@ -419,10 +403,10 @@ namespace cuentasctacte_web_api.Controllers
                 .Where(x => x.IdPedido == p.Id);
             double precioTotal = 0;
             double ivaTotal = 0;
-            foreach(var pdt in detalles)
+            foreach (var pdt in detalles)
             {
-                precioTotal = precioTotal + pdt.Producto.Precio * pdt.CantidadFacturada;
-                ivaTotal = ivaTotal + pdt.Producto.Iva * pdt.CantidadFacturada;
+                precioTotal = precioTotal + pdt.Producto.Precio * pdt.CantidadProducto;
+                ivaTotal = ivaTotal + pdt.Producto.Iva * pdt.CantidadProducto;
             }
             var prdto = new PedidoResponseDTO
             {
@@ -452,6 +436,7 @@ namespace cuentasctacte_web_api.Controllers
                 IvaTotal = ivaTotal,
                 CostoTotal = precioTotal + ivaTotal,
                 PedidosDetalles = db.PedidoDetalles
+                        .Include(pd => pd.Pedido)
                         .Include(pd => pd.Producto)
                         .Where(pd => pd.IdPedido == p.Id)
                         .ToList()
@@ -475,5 +460,38 @@ namespace cuentasctacte_web_api.Controllers
             };
             return prdto;
         }
+
+
+
+        private PedidoDTORequest ToDTORequest(int id)
+        {
+            var Pedido = db.Pedidos
+                .Include(p => p.Vendedor)
+                .Include(p => p.Cliente)
+                .FirstOrDefault(p => p.Id == id);
+            if (Pedido == null) throw new Exception("Pedido no encontrado");
+
+            var Pedidos = db.PedidoDetalles
+                .Include(p => p.Pedido)
+                .Include(p => p.Producto)
+                .Where(p => p.IdPedido == id);
+
+            if (Pedidos.Count() <= 0) throw new Exception("Pedidos no encontrado");
+            PedidoDTORequest result = new PedidoDTORequest()
+            {
+                ClienteId = Pedido.Cliente.Id,
+                Descripcion = Pedido.PedidoDescripcion,
+                Pedidos = Pedidos
+                 .ToList()
+                 .ConvertAll(p => new PedidoDetalleDTORequest()
+                 {
+                     ProductoId = p.IdProducto,
+                     CantidadProducto = p.CantidadProducto - p.CantidadFacturada
+                 })
+            };
+
+            return result;
+        }
+
     }
 }

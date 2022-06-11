@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace cuentasctacte_web_api.Models.Entities
+﻿namespace cuentasctacte_web_api.Models.Entities
 {
     public class Persona : Data
     {

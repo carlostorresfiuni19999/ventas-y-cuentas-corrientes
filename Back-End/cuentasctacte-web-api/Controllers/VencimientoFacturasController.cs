@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using cuentasctacte_web_api.Models;
+using cuentasctacte_web_api.Models.Entities;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
-using cuentasctacte_web_api.Models;
-using cuentasctacte_web_api.Models.Entities;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -24,11 +20,12 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // GET: api/VencimientoFacturas/5
+        [Authorize]
         [ResponseType(typeof(VencimientoFactura))]
         public IHttpActionResult GetVencimientoFactura(int id)
         {
             VencimientoFactura vencimientoFactura = db.VencimientoFacturas.Find(id);
-            if (vencimientoFactura == null)
+            if (vencimientoFactura == null || vencimientoFactura.Deleted)
             {
                 return NotFound();
             }

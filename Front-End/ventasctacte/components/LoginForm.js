@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import styles from '../styles/LogIn.module.css'
 import login from "../API/login"
 import { useRouter } from 'next/router';
-import hasRole from '../API/hasRole';
+import ValidateLogin from '../API/validateLogin';
 
 function LoginForm() {
     const router = useRouter()
@@ -28,6 +28,7 @@ function LoginForm() {
                     if(res.error_description){
                         alert("Error, Credenciales no validas");
                     }else{
+
                         if(hasRole(res.access_token, res.userName, "Vendedor")){
                             sessionStorage.setItem("token", JSON.stringify(res));
                             alert("Logeado con exito");
@@ -41,9 +42,10 @@ function LoginForm() {
                         if(hasRole(res.access_token, res.userName, "Administrador")){
                             sessionStorage.setItem("token", JSON.stringify(res));
                             alert("Logeado con exito");
-                            router.push("ndp/Lista")
+                            router.push("/users/list")
                         }
                         
+
                     }
                     
                     

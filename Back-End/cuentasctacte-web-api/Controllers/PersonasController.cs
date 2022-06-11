@@ -1,25 +1,25 @@
-﻿using System;
+﻿using cuentasctacte_web_api.Models;
+using cuentasctacte_web_api.Models.DTOs;
+using cuentasctacte_web_api.Models.Entities;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
-using cuentasctacte_web_api.Models;
-using cuentasctacte_web_api.Models.DTOs;
-using cuentasctacte_web_api.Models.Entities;
 
 namespace cuentasctacte_web_api.Controllers
 {
-    [Authorize]
+    
     public class PersonasController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Personas
+        [Authorize]
         public List<PersonaResponseDTO> GetPersonas()
         {
             return db.Personas
@@ -31,9 +31,11 @@ namespace cuentasctacte_web_api.Controllers
                     Nombre = p.Nombre,
                     Apellido = p.Apellido,
                     Documento = p.Documento,
-                    DocumentoTipo = p.DocumentoTipo
+                    DocumentoTipo = p.DocumentoTipo,
+                    UserName = p.UserName
                 });
         }
+        [Authorize]
 
         // GET: api/Personas/8848584
         [ResponseType(typeof(PersonaResponseDTO))]
@@ -53,11 +55,13 @@ namespace cuentasctacte_web_api.Controllers
                 Nombre = persona.Nombre,
                 Apellido = persona.Apellido,
                 Documento = persona.Documento,
-                DocumentoTipo = persona.DocumentoTipo
+                DocumentoTipo = persona.DocumentoTipo,
+                UserName = persona.UserName
             });
         }
 
         // PUT: api/Personas/5
+        [Authorize(Roles ="Administrador")]
         [ResponseType(typeof(void))]
         public IHttpActionResult PutPersona(int id, Persona persona)
         {
@@ -93,35 +97,72 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // POST: api/Personas
-        [ResponseType(typeof(Persona))]
-        public IHttpActionResult PostPersona(Persona persona)
+        [Authorize(Roles= "Administrador")]
+        [ResponseType(typeof(string))]
+        public IHttpActionResult PostPersona(PersonaRequestDTO persona)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            var Persona = new Persona()
+            {
+                Nombre = persona.Nombre,
+                Apellido = persona.Apellido,
+                Documento = persona.Doc,
+                LineaDeCredito = persona.LineaDeCredito,
+                Saldo = 0,
+                DocumentoTipo = persona.DocumentoTipo,
+                Deleted = false,
+                Telefono = persona.Telefono,
+                UserName = persona.UserName
+            };
+            var PersonaSaved = db.Personas.Add(Persona);
 
-            db.Personas.Add(persona);
-            db.SaveChanges();
+            foreach(var rol in persona.Roles)
+            {
+                var Role = db.TipoPersonas
+                    .FirstOrDefault(r => r.Tipo.Equals(rol));
 
-            return CreatedAtRoute("DefaultApi", new { id = persona.Id }, persona);
+                if (Role == null) return BadRequest("Rol no valido");
+                var PersonaTipoPersona = new Personas_Tipos_Personas()
+                {
+                    IdPersona = PersonaSaved.Id,
+                    IdTipoPersona = Role.Id,
+                    Deleted = false,
+                };
+
+                db.Personas_Tipos_Personas.Add(PersonaTipoPersona);
+            }
+            try
+            {
+                db.SaveChanges();
+                return Ok("Guardado Con exito");
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // DELETE: api/Personas/5
+        [Authorize(Roles = "Administrador")]
         [ResponseType(typeof(Persona))]
         public IHttpActionResult DeletePersona(int id)
         {
-            Persona persona = db.Personas.Find(id);
+            Persona persona = db.Personas
+                .Find(id);
             if (persona == null)
             {
                 return NotFound();
             }
 
-            db.Personas.Remove(persona);
+            persona.Deleted = true;
+            db.Entry(persona).State = EntityState.Modified;
             db.SaveChanges();
 
             return Ok(persona);
         }
+
 
         protected override void Dispose(bool disposing)
         {

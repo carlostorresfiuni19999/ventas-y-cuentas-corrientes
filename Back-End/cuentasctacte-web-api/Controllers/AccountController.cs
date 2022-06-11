@@ -1,4 +1,16 @@
-﻿using System;
+﻿using cuentasctacte_web_api.Helpers;
+using cuentasctacte_web_api.Models;
+using cuentasctacte_web_api.Models.DTOs;
+using cuentasctacte_web_api.Models.Entities;
+using cuentasctacte_web_api.Providers;
+using cuentasctacte_web_api.Results;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.OAuth;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
@@ -6,17 +18,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using System.Web.Http.ModelBinding;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.OAuth;
-using cuentasctacte_web_api.Models;
-using cuentasctacte_web_api.Providers;
-using cuentasctacte_web_api.Results;
-
+using System.Linq;
 namespace cuentasctacte_web_api.Controllers
 {
     [Authorize]
@@ -25,7 +27,7 @@ namespace cuentasctacte_web_api.Controllers
     {
         private const string LocalLoginProvider = "Local";
         private ApplicationUserManager _userManager;
-
+        private ApplicationDbContext db = new ApplicationDbContext();
         public AccountController()
         {
         }
@@ -125,7 +127,7 @@ namespace cuentasctacte_web_api.Controllers
 
             IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword,
                 model.NewPassword);
-            
+
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
@@ -258,9 +260,9 @@ namespace cuentasctacte_web_api.Controllers
             if (hasRegistered)
             {
                 Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-                
-                 ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(UserManager,
-                    OAuthDefaults.AuthenticationType);
+
+                ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(UserManager,
+                   OAuthDefaults.AuthenticationType);
                 ClaimsIdentity cookieIdentity = await user.GenerateUserIdentityAsync(UserManager,
                     CookieAuthenticationDefaults.AuthenticationType);
 
@@ -319,24 +321,56 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // POST api/Account/Register
-        [AllowAnonymous]
+        [Authorize(Roles ="Administrador")]
         [Route("Register")]
-        public async Task<IHttpActionResult> Register(RegisterBindingModel model)
+        public async Task<IHttpActionResult> Register(PersonaRequestDTO model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            
 
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            var user = new ApplicationUser() { UserName = model.UserName, Email = model.UserName };
 
             IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-
+       
+            
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
             }
+            foreach (var rol in model.Roles)
+            {
+                UserManager.AddToRole(user.Id, rol);
+            }
+            // AddPersonas
+            var Persona = new Persona()
+            {
+                Nombre = model.Nombre,
+                Apellido = model.Apellido,
+                Documento = model.Doc,
+                LineaDeCredito = model.LineaDeCredito,
+                Saldo = 0,
+                DocumentoTipo = model.DocumentoTipo,
+                Deleted = false,
+                Telefono = model.Telefono,
+                UserName = model.UserName
+            };
+            var PersonaSaved = db.Personas.Add(Persona);
 
+            foreach (var rol in model.Roles)
+            {
+                var Role = db.TipoPersonas
+                    .FirstOrDefault(r => r.Tipo.Equals(rol));
+
+                if (Role == null) return BadRequest("Rol no valido");
+                var PersonaTipoPersona = new Personas_Tipos_Personas()
+                {
+                    IdPersona = PersonaSaved.Id,
+                    IdTipoPersona = Role.Id,
+                    Deleted = false,
+                };
+
+                db.Personas_Tipos_Personas.Add(PersonaTipoPersona);
+            }
+            db.SaveChanges();
             return Ok();
         }
 
@@ -368,10 +402,36 @@ namespace cuentasctacte_web_api.Controllers
             result = await UserManager.AddLoginAsync(user.Id, info.Login);
             if (!result.Succeeded)
             {
-                return GetErrorResult(result); 
+                return GetErrorResult(result);
             }
             return Ok();
         }
+
+        [HttpGet]
+        [Authorize]
+        [Route("IsLogged")]
+        public PersonaResponseDTO GetLogged(string email)
+        {
+            string Id = User.Identity.GetUserId();
+            Persona P = GetUserLogged.GetUser(db, Id);
+            return new PersonaResponseDTO()
+            {
+                Nombre = P.Nombre,
+                Apellido = P.Apellido,
+                Documento = P.Documento,
+                DocumentoTipo = P.DocumentoTipo
+            };
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("HasRole")]
+        public bool HasRole(string email, string role)
+        {
+            return GetRole.HasRole(db, email, role);
+        }
+
+       
 
         protected override void Dispose(bool disposing)
         {

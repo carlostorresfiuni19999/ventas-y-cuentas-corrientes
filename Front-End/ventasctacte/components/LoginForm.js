@@ -28,15 +28,24 @@ function LoginForm() {
                     if(res.error_description){
                         alert("Error, Credenciales no validas");
                     }else{
-                        sessionStorage.setItem("token", JSON.stringify(res));
-                        const validVendedor = ()=> router.push("/ndp/Lista");
-                        const validAdministrador = () => router.push("/admin/users/list");
-                        const validCajero = () => router.push("/");
-                        ValidateLogin(res, "Vendedor",validAdministrador);
-                        ValidateLogin(res, "Vendedor",validCajero);
-                        ValidateLogin(res, "Vendedor",validVendedor ,);
+
+                        if(hasRole(res.access_token, res.userName, "Vendedor")){
+                            sessionStorage.setItem("token", JSON.stringify(res));
+                            alert("Logeado con exito");
+                            router.push("NdP/Lista")
+                        }
+                        if(hasRole(res.access_token, res.userName, "Cajero")){
+                            sessionStorage.setItem("token", JSON.stringify(res));
+                            alert("Logeado con exito");
+                            router.push("Factura/Lista")
+                        }
+                        if(hasRole(res.access_token, res.userName, "Administrador")){
+                            sessionStorage.setItem("token", JSON.stringify(res));
+                            alert("Logeado con exito");
+                            router.push("/users/list")
+                        }
                         
-                        alert("Logeado con exito");
+
                     }
                     
                     

@@ -31,15 +31,15 @@ function Navbar(props) {
                     <div className={styles.secciones}>
                         <label className={styles.listMain} id='ndp'>Notas de Pago</label>
                         <div>
-                            <div><Link href='/ndp/Lista'><label className={styles.listSub} id='ndpLista'>Lista</label></Link></div>
-                            <div><Link href='/ndp/Agregar'><label className={styles.listSub} id='ndpAgregar'>Agregar</label></Link></div>
+                            <div><Link href='/ndp/Lista' passHref><label className={styles.listSub} id='ndpLista'>Lista</label></Link></div>
+                            <div><Link href='/ndp/Agregar' passHref><label className={styles.listSub} id='ndpAgregar'>Agregar</label></Link></div>
                             <div><label className={styles.listSub} id='ndpDetalles'>Detalles</label></div>
                         </div>
                     </div>
                     <div className={styles.secciones}>
                         <label className={styles.listMain} id='fac'>Facturas</label>
                         <div>
-                            <div><Link href='/factura/Lista'><label className={styles.listSub} id='facLista' >Lista</label></Link></div>
+                            <div><Link href='/factura/Lista' passHref><label className={styles.listSub} id='facLista' >Lista</label></Link></div>
                             <div><label className={styles.listSub} id='facDetalles' >Detalles</label></div>
                             
                         </div>

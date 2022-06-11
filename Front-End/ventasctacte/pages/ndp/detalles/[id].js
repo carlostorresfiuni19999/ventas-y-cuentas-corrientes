@@ -13,56 +13,67 @@ import getPedido from '../../../API/getPedido'
 import getProductos from '../../../API/getProductos'
 import putPedido from '../../../API/putPedido'
 import crearFactura from '../../../API/crearFactura'
+import hasRole from '../../../API/hasRole'
 
-export default function detalles() {
+export default function Detalles() {
     const [datos, setDatos] = useState({})
     const [productos, setProductos] = useState([])
     const [listProd, setListProd] = useState([])
     const [precioTotal, setPrecioTotal] = useState({ precio: 0 })
     const [condPago, setCondPago] = useState('CONTADO')
     const [idGenerator, setIdGenerator] = useState(0)
-    const router = useRouter()
+    const Router = useRouter()
 
     useEffect(() => {
-        if (router.isReady) {
-            getPedido(JSON.parse(sessionStorage.getItem('token')).access_token, router.query.id)
-                .then(response => response.text())
-                .then(result => {
-                    const res = JSON.parse(result)
-                    console.log(res)
-                    setDatos({
-                        idClient: res.Cliente.Id,
-                        nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
-                        cin: res.Cliente.Documento,
-                        desc: res.PedidoDescripcion,
-                        fecha: res.FechePedido.split('T')[0],
-                        estado: res.Estado,
-                        costoTotal: res.CostoTotal,
-                        pedidosDetalles: res.PedidosDetalles
-                    })
+        if (sessionStorage.getItem('token') == null) {
+            Router.push('/Login')
+        } else {
+            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
+                if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
+                    Router.push('/Factura/Lista')
+                } else {
+                    Router.push('/Login')
+                }
+            }
+            if (Router.isReady) {
+                getPedido(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
+                    .then(response => response.text())
+                    .then(result => {
+                        const res = JSON.parse(result)
+                        console.log(res)
+                        setDatos({
+                            idClient: res.Cliente.Id,
+                            nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
+                            cin: res.Cliente.Documento,
+                            desc: res.PedidoDescripcion,
+                            fecha: res.FechePedido.split('T')[0],
+                            estado: res.Estado,
+                            costoTotal: res.CostoTotal,
+                            pedidosDetalles: res.PedidosDetalles
+                        })
 
 
-                }).catch(err => console.log(err))
+                    }).catch(err => console.log(err))
 
-            getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
-                .then(response => response.text())
-                .then(result => {
-                    const res = JSON.parse(result)
-                    setListProd(res.map(producto => {
-                        const newProducto = {
-                            id: producto.Id,
-                            nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
-                            codigoBar: producto.CodigoDeBarra,
-                            precio: producto.Precio,
-                            precioIva: producto.Precio + producto.Iva
-                        }
-                        return newProducto
-                    }))
-                }).catch(err => console.log(err))
+                getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
+                    .then(response => response.text())
+                    .then(result => {
+                        const res = JSON.parse(result)
+                        setListProd(res.map(producto => {
+                            const newProducto = {
+                                id: producto.Id,
+                                nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
+                                codigoBar: producto.CodigoDeBarra,
+                                precio: producto.Precio,
+                                precioIva: producto.Precio + producto.Iva
+                            }
+                            return newProducto
+                        }))
+                    }).catch(err => console.log(err))
 
+            }
         }
-
-    }, [router.isReady])
+    }, [Router])
 
 
 
@@ -72,7 +83,7 @@ export default function detalles() {
     const crearDetalles = () => {
         if (typeof datos.pedidosDetalles !== 'undefined') {
             console.log(datos.pedidosDetalles)
-            setProductos(datos.pedidosDetalles.filter((p)=> p.CantidadProductos > 0).map((p) => {
+            setProductos(datos.pedidosDetalles.filter((p) => p.CantidadProductos > 0).map((p) => {
                 const newProd = {
                     id: p.Id,
                     prodId: p.Producto.Id,
@@ -85,7 +96,7 @@ export default function detalles() {
                 return newProd
             }))
             setPrecioTotal({
-                precio: datos.pedidosDetalles.filter((p)=> p.CantidadProductos > 0).map((p) => {
+                precio: datos.pedidosDetalles.filter((p) => p.CantidadProductos > 0).map((p) => {
                     const newProd = {
                         id: p.Id,
                         prodId: p.Producto.Id,
@@ -200,7 +211,7 @@ export default function detalles() {
                     return returnValue
                 })
             })
-            putPedido(JSON.parse(sessionStorage.getItem('token')).access_token, router.query.id, raw)
+            putPedido(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id, raw)
         }
 
     }
@@ -208,7 +219,7 @@ export default function detalles() {
     const facturar = () => {
         if (productos.length > 0) {
             const raw = JSON.stringify({
-                "IdPedido": router.query.id,
+                "IdPedido": Router.query.id,
                 "CantidadCuotas": getCantCuotas(),
                 "Pedido": {
                     "ClienteId": datos.idClient,
@@ -224,7 +235,7 @@ export default function detalles() {
 
             })
             console.log({
-                "IdPedido": router.query.id,
+                "IdPedido": Router.query.id,
                 "CantidadCuotas": getCantCuotas(),
                 "Pedido": {
                     "ClienteId": datos.idClient,
@@ -240,7 +251,7 @@ export default function detalles() {
 
             })
             crearFactura(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-            router.back()
+            Router.back()
         }
     }
 
@@ -263,7 +274,7 @@ export default function detalles() {
                     <nav className="navbar navbar-expand-lg navbar-light bg-light">
                         <div className='ms-5'>
 
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16" onClick={() => { router.back() }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16" onClick={() => { Router.back() }}>
                                 <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
                             </svg>
 
@@ -384,7 +395,7 @@ export default function detalles() {
 
                                     <div className='float-end pe-2 pt-2 pb-5'>
                                         <button className='btn btn-success me-2' onClick={() => { facturar() }}>Facturar</button>
-                                        <button className='btn btn-danger ' onClick={() => { router.back() }}>Cancelar</button>
+                                        <button className='btn btn-danger ' onClick={() => { Router.back() }}>Cancelar</button>
                                     </div>
                                 </div>
                             </div>
@@ -406,7 +417,7 @@ export default function detalles() {
                     <nav className="navbar navbar-expand-lg navbar-light bg-light">
                         <div className='ms-5'>
 
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16" onClick={() => { router.back() }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16" onClick={() => { Router.back() }}>
                                 <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
                             </svg>
 
@@ -433,73 +444,73 @@ export default function detalles() {
 
                     <div className='ms-5 mt-3'>
                         <div className='pt-4 '>
+                            <div className=''>
+                                <h5>Detalles / Facturacion</h5>
+
                                 <div className=''>
-                                    <h5>Detalles / Facturacion</h5>
-                                    
-                                    <div className=''>
-                                        <label>Cliente:</label>
-                                        <label className='px-3'>{datos.nombre}</label>
-                                        <label className=''>CIN:</label>
-                                        <label className='px-3 pe-5'>{formatNum(datos.cin)}</label>
-                                        <label className='ps-5'>Fecha:</label>
-                                        <label className='px-3'>{formatFecha(datos.fecha)}</label>
-                                    </div>
-
-                                    <div className='pe-3'>
-                                        <table className='table'>
-                                            {//thead
-                                            }
-                                            <thead>
-                                                <tr>
-                                                    <th>Cantidad</th>
-                                                    <th>Codigo de Barra</th>
-                                                    <th>Producto</th>
-                                                    <th>Precio Unit.</th>
-                                                    <th>Precio Total</th>
-                                                </tr>
-                                            </thead>
-                                            {//tbody, aca se imprimen los productos que tiene el detalle                        
-                                            }
-                                            <tbody>
-
-                                                {//en prueba
-                                                    productos.map(prod => {
-                                                        return (
-                                                            <tr key={prod.id} id={`tr${prod.id}`}>
-                                                                <td><label>{prod.cantidad}</label></td>
-                                                                <td>{prod.codBarr}</td>
-                                                                <td>
-                                                                    <label>{prod.nombre}</label>
-                                                                </td>
-                                                                <td className='text-center'>{formatNum(prod.precio)}</td>
-                                                                <td className='text-center'>{formatNum(prod.precioTotal)}</td>
-                                                                
-                                                            </tr>
-                                                        )
-                                                    })
-                                                }
-
-                                                <tr key="button" >
-                                                    <td><button className="btn btn-secondary btn-sm" onClick={() => { crearDetalles() }}>Cargar</button></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div>
-                                        <h6 className='float-end pe-5'>{formatNum(precioTotal.precio)}</h6>
-                                        <h6 className='float-end pe-2'>Total:</h6>
-                                        <h6>Descripcion:</h6>
-                                        <label>{datos.desc}</label>
-                                    </div>
-
+                                    <label>Cliente:</label>
+                                    <label className='px-3'>{datos.nombre}</label>
+                                    <label className=''>CIN:</label>
+                                    <label className='px-3 pe-5'>{formatNum(datos.cin)}</label>
+                                    <label className='ps-5'>Fecha:</label>
+                                    <label className='px-3'>{formatFecha(datos.fecha)}</label>
                                 </div>
-                                
-                            
+
+                                <div className='pe-3'>
+                                    <table className='table'>
+                                        {//thead
+                                        }
+                                        <thead>
+                                            <tr>
+                                                <th>Cantidad</th>
+                                                <th>Codigo de Barra</th>
+                                                <th>Producto</th>
+                                                <th>Precio Unit.</th>
+                                                <th>Precio Total</th>
+                                            </tr>
+                                        </thead>
+                                        {//tbody, aca se imprimen los productos que tiene el detalle                        
+                                        }
+                                        <tbody>
+
+                                            {//en prueba
+                                                productos.map(prod => {
+                                                    return (
+                                                        <tr key={prod.id} id={`tr${prod.id}`}>
+                                                            <td><label>{prod.cantidad}</label></td>
+                                                            <td>{prod.codBarr}</td>
+                                                            <td>
+                                                                <label>{prod.nombre}</label>
+                                                            </td>
+                                                            <td className='text-center'>{formatNum(prod.precio)}</td>
+                                                            <td className='text-center'>{formatNum(prod.precioTotal)}</td>
+
+                                                        </tr>
+                                                    )
+                                                })
+                                            }
+
+                                            <tr key="button" >
+                                                <td><button className="btn btn-secondary btn-sm" onClick={() => { crearDetalles() }}>Cargar</button></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div>
+                                    <h6 className='float-end pe-5'>{formatNum(precioTotal.precio)}</h6>
+                                    <h6 className='float-end pe-2'>Total:</h6>
+                                    <h6>Descripcion:</h6>
+                                    <label>{datos.desc}</label>
+                                </div>
+
+                            </div>
+
+
                         </div>
                     </div>
                 </div>

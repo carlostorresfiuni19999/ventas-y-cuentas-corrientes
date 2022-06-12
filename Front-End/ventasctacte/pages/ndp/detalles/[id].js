@@ -28,13 +28,15 @@ export default function Detalles() {
         if (sessionStorage.getItem('token') == null) {
             Router.push('/Login')
         } else {
-            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-                    Router.push('/Factura/Lista')
-                } else {
-                    Router.push('/Login')
-                }
-            }
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Vendedor")
+            .then(r => {
+                if(r == 'false'){
+                    Router.push("/LogIn")
+                    
+                } 
+            }).catch(console.log);
+
             if (Router.isReady) {
                 getPedido(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
                     .then(response => response.text())

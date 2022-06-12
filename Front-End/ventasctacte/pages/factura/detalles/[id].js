@@ -28,15 +28,22 @@ export default function Detalles() {
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
+            Router.push('/LogIn')
         } else {
-            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                    Router.push('/NdP/Lista')
-                } else {
-                    Router.push('/Login')
-                }
-            }
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false'){
+                    hasRole(token.access_token, token.userName, "Vendedor")
+                    .then(k => {
+                        if(k == 'false'){
+                            Router.push("/LogIn");
+                        }
+                    }).catch(console.log)
+                    
+                } 
+            }).catch(console.log);
+                
             if (Router.isReady) {
                 getFactura(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
                     .then(response => response.text())

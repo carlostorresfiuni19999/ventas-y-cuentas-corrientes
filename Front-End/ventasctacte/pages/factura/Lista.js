@@ -19,20 +19,32 @@ export default function Lista() {
     const Router = useRouter()
 
     const [facturas, setFacturas] = useState([])
+    const [band, setBand] = useState(true);
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
             Router.push('/LogIn')
         } else {
             const token = JSON.parse(sessionStorage.getItem('token'));
-            if (!(hasRole(token.access_token, token.userName, "Cajero"))) {
-                if (hasRole(token.access_token, token.userName, "Vendedor")) {
-                    Router.push('/ndp/Lista')
-                } else {
-                    Router.push('/LogIn')
-                }
-            }
-            getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false'){
+                    hasRole(token.access_token, token.userName, "Vendedor")
+                    .then(k => {
+                        if(k == 'false'){
+                            Router.push("../../LogIn");
+                        }
+                    }).catch(e => {
+                        console.log(e);
+                        Router.push("../../Login")
+                    })
+                    
+                } 
+            }).catch(e => {
+                console.log(e);
+                Router.push("../../Login")});
+
+            band && getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
                     .then(res => res.text()).
                     then(result => {
                         const f = JSON.parse(result)
@@ -46,13 +58,63 @@ export default function Lista() {
                                 condicion: fac.CondicionVenta,
                                 estado: fac.Estado
                             }
-                            return facturaNew
+                            
+                            return facturaNew;
                         }))
+                        setBand(false);
 
                     })
                     .catch(error => console.log(error))
+                    return () => {band};
         }
-    }, [facturas, Router])
+    }, []);
+    useEffect(() => {
+        if (sessionStorage.getItem('token') == null) {
+            Router.push('/LogIn')
+        } else {
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false'){
+                    hasRole(token.access_token, token.userName, "Vendedor")
+                    .then(k => {
+                        if(k == 'false'){
+                            Router.push("../../LogIn");
+                        }
+                    }).catch(e => {
+                        console.log(e);
+                        Router.push("../../Login")
+                    })
+                    
+                } 
+            }).catch(e => {
+                console.log(e);
+                Router.push("../../Login")});
+
+            band && getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
+                    .then(res => res.text()).
+                    then(result => {
+                        const f = JSON.parse(result)
+                        setFacturas(f.map(fac => {
+                            const facturaNew = {
+                                id: fac.Id,
+                                cliente: fac.Cliente,
+                                fecha: fac.FechaFacturada.split('T')[0],
+                                monto: fac.MontoTotal,
+                                saldo: fac.SaldoTotal,
+                                condicion: fac.CondicionVenta,
+                                estado: fac.Estado
+                            }
+                            
+                            return facturaNew;
+                        }))
+                        setBand(false);
+
+                    })
+                    .catch(error => console.log(error))
+                    return () => {band};
+        }
+    }, [facturas, Router, band])
 
     const formatfecha = (dateStr) => {
         if (dateStr == null) {

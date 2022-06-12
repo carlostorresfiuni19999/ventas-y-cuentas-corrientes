@@ -44,7 +44,7 @@ function LoginForm() {
                                             } else {
                                                 hasRole(res.access_token, res.userName, "Vendedor")
                                                     .then(r => {
-                                                        if (r == true) {
+                                                        if (r == 'true') {
                                                             
                                                             router.push("ndp/Lista");
                                                         }

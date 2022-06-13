@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 
 //'next'
 import Head from 'next/head'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 //'component/*'
@@ -20,77 +19,102 @@ export default function Lista() {
     const Router = useRouter()
 
     const [facturas, setFacturas] = useState([])
+    const [band, setBand] = useState(true);
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
-        }else{
-        if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-            if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                Router.push('/NdP/Lista')
-            } else {
-                Router.push('/Login')
-            }
-        }
-        getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(res => res.text()).
-            then(result => {
-                const f = JSON.parse(result)
-                setFacturas(f.map(fac => {
-                    const facturaNew = {
-                        id: fac.Id,
-                        cliente: fac.Cliente,
-                        fecha: fac.FechaFacturada.split('T')[0],
-                        monto: fac.MontoTotal,
-                        saldo: fac.SaldoTotal,
-                        condicion: fac.CondicionVenta,
-                        estado: fac.Estado
-                    }
-                    return facturaNew
-                }))
-
-            })
-            .catch(error => console.log(error))
-        }
-    }, [facturas, Router])
-
-    useEffect(() => {
-        if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
+            Router.push('/LogIn')
         } else {
-            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                    Router.push('/NdP/Lista')
-                } else {
-                    Router.push('/Login')
-                }
-            }
-
-            getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
-                .then(res => res.text()).
-                then(result => {
-                    const f = JSON.parse(result)
-                    setFacturas(f.map(factura => {
-                        const facturaNew = {
-                            id: fac.Id,
-                            cliente: fac.Cliente,
-                            fecha: fac.FechaFacturada.split('T')[0],
-                            monto: fac.MontoTotal,
-                            saldo: fac.SaldoTotal,
-                            condicion: fac.CondicionVenta,
-                            estado: fac.Estado
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false'){
+                    hasRole(token.access_token, token.userName, "Vendedor")
+                    .then(k => {
+                        if(k == 'false'){
+                            Router.push("../../LogIn");
                         }
-                        return facturaNew
-                    }))
+                    }).catch(e => {
+                        console.log(e);
+                        Router.push("../../Login")
+                    })
+                    
+                } 
+            }).catch(e => {
+                console.log(e);
+                Router.push("../../Login")});
 
-                })
-                .catch(error => console.log(error))
+            band && getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
+                    .then(res => res.text()).
+                    then(result => {
+                        const f = JSON.parse(result)
+                        setFacturas(f.map(fac => {
+                            const facturaNew = {
+                                id: fac.Id,
+                                cliente: fac.Cliente,
+                                fecha: fac.FechaFacturada.split('T')[0],
+                                monto: fac.MontoTotal,
+                                saldo: fac.SaldoTotal,
+                                condicion: fac.CondicionVenta,
+                                estado: fac.Estado
+                            }
+                            
+                            return facturaNew;
+                        }))
+                        setBand(false);
 
-            return () => {
-                setFacturas([[]])
-            }
+                    })
+                    .catch(error => console.log(error))
+                    return () => {band};
         }
-    }, [Router])
+    }, []);
+    useEffect(() => {
+        if (sessionStorage.getItem('token') == null) {
+            Router.push('/LogIn')
+        } else {
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false'){
+                    hasRole(token.access_token, token.userName, "Vendedor")
+                    .then(k => {
+                        if(k == 'false'){
+                            Router.push("../../LogIn");
+                        }
+                    }).catch(e => {
+                        console.log(e);
+                        Router.push("../../Login")
+                    })
+                    
+                } 
+            }).catch(e => {
+                console.log(e);
+                Router.push("../../Login")});
+
+            band && getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
+                    .then(res => res.text()).
+                    then(result => {
+                        const f = JSON.parse(result)
+                        setFacturas(f.map(fac => {
+                            const facturaNew = {
+                                id: fac.Id,
+                                cliente: fac.Cliente,
+                                fecha: fac.FechaFacturada.split('T')[0],
+                                monto: fac.MontoTotal,
+                                saldo: fac.SaldoTotal,
+                                condicion: fac.CondicionVenta,
+                                estado: fac.Estado
+                            }
+                            
+                            return facturaNew;
+                        }))
+                        setBand(false);
+
+                    })
+                    .catch(error => console.log(error))
+                    return () => {band};
+        }
+    }, [facturas, Router, band])
 
     const formatfecha = (dateStr) => {
         if (dateStr == null) {

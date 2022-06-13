@@ -16,20 +16,21 @@ export default function Agregar() {
     const [personas, setPersonas] = useState([])
     const [productos, setProductos] = useState([])
     const [listaProductos, setListaProductos] = useState([])
-
+    const [band, setBand] = useState(true);
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
+            Router.push('/LogIn')
         } else {
-            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-                    Router.push('/Factura/Lista')
-                } else {
-                    Router.push('/Login')
-                }
-            }
-            getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Vendedor")
+            .then(r => {
+                if(r == 'false'){
+                    Router.push("/LogIn");
+                    
+                } 
+            }).catch(console.log);
+            band && getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
                 .then(response => response.text())
                 .then(result => {
                     const res = JSON.parse(result)
@@ -42,11 +43,13 @@ export default function Agregar() {
                         }
                         return newpersona
                     }))
+
+                    
                 })
                 .catch(error => alert(error));
 
 
-            getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
+            band && getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
                 .then(res => res.text())
                 .then(response => {
                     const res = JSON.parse(response)
@@ -65,8 +68,61 @@ export default function Agregar() {
                 })
                 .catch(error => alert(error));
         }
+        return () => setBand(false);
+    }, [Router, band])
 
-    }, [Router])
+    useEffect(() => {
+        if (sessionStorage.getItem('token') == null) {
+            Router.push('/LogIn')
+        } else {
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Vendedor")
+            .then(r => {
+                if(r == 'false'){
+                    Router.push("/LogIn");
+                    
+                } 
+            }).catch(console.log);
+            band && getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(response => response.text())
+                .then(result => {
+                    const res = JSON.parse(result)
+                    //console.log(result)
+                    setPersonas(res.map(persona => {
+                        const newpersona = {
+                            id: persona.Id,
+                            nombre: persona.Nombre + ' ' + persona.Apellido,
+                            cin: persona.Documento
+                        }
+                        return newpersona
+                    }))
+
+                    
+                })
+                .catch(error => alert(error));
+
+
+            band && getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(res => res.text())
+                .then(response => {
+                    const res = JSON.parse(response)
+                    //console.log(res)
+                    setProductos(res.map(producto => {
+                        const newProducto = {
+                            id: producto.Id,
+                            nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
+                            codigoBar: producto.CodigoDeBarra,
+                            precio: producto.Precio,
+                            precioIva: producto.Precio + producto.Iva
+                        }
+                        return newProducto
+                    }))
+
+                })
+                .catch(error => alert(error));
+        }
+        return () => setBand(false);
+    }, [])
 
     //console.log(productos)
     const [cliente, setCliente] = useState({ id: '', cin: 0 })
@@ -138,7 +194,7 @@ export default function Agregar() {
                 })
             });
             agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-            Router.push('/NdP/Lista')
+            Router.push('/ndp/Lista')
         } else {
             alert("No se puede crear la peticion porque no contiene datos suficientes")
         }

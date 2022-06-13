@@ -12,6 +12,7 @@ import { useRouter } from 'next/router'
 import getCuota from '../../../../API/getCuota'
 import postPago from '../../../../API/postPago'
 import hasRole from '../../../../API/hasRole'
+import { getRouteMatcher } from 'next/dist/shared/lib/router/utils'
 
 
 
@@ -25,22 +26,30 @@ export default function Crear() {
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
+            Router.push('/LogIn')
         } else {
-            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                    Router.push('/NdP/Lista')
-                } else {
-                    Router.push('/Login')
-                }
-            }
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false'){
+                    console.log(r == 'false');
+                    Router.push("/LogIn");
+                
+                } 
+            }).catch(console.log);
+                
+                
             if (typeof Router.query.id !== "undefined") {
                 getCuota(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
+                    
                     .then(res => res.text())
                     .then(res => {
+                        console.log(res);
                         const r = JSON.parse(res)
                         setSaldo(r.Saldo)
                     })
+                    .catch(console.log);
+                    
             }
         }
     }, [Router])
@@ -105,7 +114,7 @@ export default function Crear() {
         } else {
             const raw = JSON.stringify({
                 "IdCuota": Router.query.id,
-                "CantidadCuotas": Pagos.map(p => {
+                "MetodosPagos": Pagos.map(p => {
                     const returnValue = {
                         "MetodoPago": p.metodo,
                         "Monto": p.monto
@@ -123,7 +132,7 @@ export default function Crear() {
                     return returnValue
                 })
             })
-            postPago(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
+            postPago(JSON.parse(sessionStorage.getItem('token')).access_token, raw);
             Router.back()
         }
     }

@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 export default function Home() {
   const Router = useRouter()
   return (
-    <Link href='/Login' passHref>
+    <Link href='/LogIn' passHref>
       <button>Login</button>
     </Link>
     

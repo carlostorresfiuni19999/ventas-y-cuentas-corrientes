@@ -17,29 +17,31 @@ import hasRole from '../../../../API/hasRole'
 export default function Detalle() {
     const Router = useRouter()
 
-    const [Pagos, setPagos] = useState([])
-    const [Selec, setSelect] = useState([])
-    const [Key, SetKey] = useState(0)
+    const [Pagos, setPagos] = useState([]);
+    const [Selec, setSelect] = useState([]);
+    const [Key, SetKey] = useState(0);
+
+    let i = 0;
 
     useEffect(() => {
+       
         if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
+            Router.push('/LogIn')
         } else {
-            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                    Router.push('/NdP/Lista')
-                } else {
-                    Router.push('/Login')
-                }
-            }
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false') Router.push("/LogIn");
+            });
             if (typeof Router.query.id !== "undefined") {
-                getPagos(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
+              getPagos(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
                     .then(res => res.text())
                     .then(res => {
                         const r = JSON.parse(res)
                         console.log(r)
                         setPagos(r.map(p => {
                             const returnValue = {
+                                id: p.Id,
                                 fecha: p.FechaPago.split('T')[0],
                                 cliente: p.Cliente.Nombre + " " + p.Cliente.Apellido,
                                 cajero: p.Cajero.Nombre + " " + p.Cajero.Apellido,
@@ -52,24 +54,24 @@ export default function Detalle() {
                                     return newFP
                                 })
                             }
+                            
                             return returnValue
                         }))
                     })
             }
         }
+        
     }, [Router])
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
+            Router.push('/LogIn')
         } else {
-            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                    Router.push('/NdP/Lista')
-                } else {
-                    Router.push('/Login')
-                }
-            }
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false') Router.push("/LogIn");
+            });
             if (typeof Router.query.id !== "undefined") {
                 getPagos(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
                     .then(res => res.text())
@@ -95,7 +97,7 @@ export default function Detalle() {
                     })
             }
         }
-    }, [Pagos, Router])
+    }, [])
 
     const formatNum = (data) => {
         return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(data)
@@ -138,8 +140,9 @@ export default function Detalle() {
                     <tbody>
                         {
                             Pagos.map(p => {
+                                
                                 return (
-                                    <tr key={p.fecha} onClick={() => { setSelect(p.detallePago) }}>
+                                    <tr key={p.id} onClick={() => { setSelect(p.detallePago) }}>
                                         <th>{p.fecha}</th>
                                         <td>{p.cliente}</td>
                                         <td>{p.cajero}</td>

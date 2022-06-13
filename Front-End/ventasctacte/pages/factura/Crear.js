@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 
 //next
 import Head from 'next/head'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 //components
@@ -38,15 +37,22 @@ export default function Crear() {
     //recive las notas
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
+            Router.push('/LogIn')
         } else {
-            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                    Router.push('/NdP/Lista')
-                } else {
-                    Router.push('/Login')
-                }
-            }
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false'){
+                    hasRole(token.access_token, token.userName, "Vendedor")
+                    .then(k => {
+                        if(k == 'false'){
+                            Router.push("LogIn");
+                        }
+                    }).catch(console.log)
+                    
+                } 
+            }).catch(console.log);
+
             getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
                 .then(res => res.text()).
                 then(result => {
@@ -82,15 +88,22 @@ export default function Crear() {
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
+            Router.push('/LogIn')
         } else {
-            if (!hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Cajero")) {
-                if (hasRole(JSON.parse(sessionStorage.getItem('token')).access_token, "Vendedor")) {
-                    Router.push('/NdP/Lista')
-                } else {
-                    Router.push('/Login')
-                }
-            }
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false'){
+                    hasRole(token.access_token, token.userName, "Vendedor")
+                    .then(k => {
+                        if(k == 'false'){
+                            Router.push("LogIn");
+                        }
+                    }).catch(console.log)
+                    
+                } 
+            }).catch(console.log);
+            
             getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
                 .then(res => res.text()).
                 then(result => {
@@ -121,9 +134,6 @@ export default function Crear() {
 
                 })
                 .catch(error => console.log(error))
-            return () => {
-                setNotas([[]])
-            }
         }
     }, [Router])
 

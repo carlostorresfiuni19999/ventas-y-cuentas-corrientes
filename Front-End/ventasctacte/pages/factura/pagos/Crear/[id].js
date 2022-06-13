@@ -44,7 +44,7 @@ export default function Crear() {
                     
                     .then(res => res.text())
                     .then(res => {
-                        console.log(resp);
+                        console.log(res);
                         const r = JSON.parse(res)
                         setSaldo(r.Saldo)
                     })

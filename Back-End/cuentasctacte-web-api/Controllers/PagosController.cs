@@ -69,7 +69,7 @@ namespace cuentasctacte_web_api.Controllers
 
             Cabecera.MontoTotal = MontoTotal;
             Factura.Saldo -= MontoTotal;
-            if (VencimientoFactura.Saldo - MontoTotal <= 0)
+            if (VencimientoFactura.Saldo - MontoTotal < 0)
             {
                 return BadRequest("El monto que ingresa es superior al Saldo pendiente");
 
@@ -89,15 +89,15 @@ namespace cuentasctacte_web_api.Controllers
             db.Entry(VencimientoFactura).State = EntityState.Modified;
             db.Entry(Cabecera).State = EntityState.Added;
 
-            //try
-            //{
+            try
+            {
                 db.SaveChanges();
                 return Ok("Cobrado Con exito");
-            //}
-            //catch (Exception ex)
-            //{
-            //    return BadRequest(ex.Message);
-            //}
+            }
+            catch (Exception ex)
+            {
+               return BadRequest(ex.Message);
+            }
 
 
         }
@@ -323,6 +323,7 @@ namespace cuentasctacte_web_api.Controllers
 
             var result = new FullPagoResponseDTO()
             {
+                Id = Pago.Id,
                 FechaPago = Pago.FechaPago,
                 Cliente = new PersonaResponseDTO()
                 {

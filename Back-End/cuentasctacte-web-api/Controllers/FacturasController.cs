@@ -222,8 +222,8 @@ namespace cuentasctacte_web_api.Controllers
                 {
                     FacturaId = FacturaDb.Id,
                     FechaVencimiento = Vencimiento.AddMonths(i + 1),
-                    Monto = (FacturaDb.Monto + FacturaDb.Iva) / factura.CantidadCuotas,
-                    Saldo = (FacturaDb.Monto + FacturaDb.Iva) / factura.CantidadCuotas,
+                    Monto = (FacturaDb.Monto) / factura.CantidadCuotas,
+                    Saldo = (FacturaDb.Monto) / factura.CantidadCuotas,
                     Deleted = false
                 };
 
@@ -266,7 +266,11 @@ namespace cuentasctacte_web_api.Controllers
                     
                     Existentes.Add(newDetalle);
 
-                    dets.ForEachAsync(p => db.PedidoDetalles.Remove(p));
+                    dets.ForEachAsync(p =>
+                    {
+                        p.Deleted = true;
+                        db.Entry(p).State = EntityState.Modified;
+                    });
                 }
                 else
                 {
@@ -366,6 +370,8 @@ namespace cuentasctacte_web_api.Controllers
         {
             var Result = new FullFacturaResponseDTO()
             {
+                IdFactura = (int) factura.Id,
+                IdPedido = (int) factura.PedidoId,
                 Cliente = factura.Cliente.Nombre + " " + factura.Cliente.Apellido,
                 DocCliente = factura.Cliente.Documento,
                 PrecioTotal = factura.Monto,

@@ -366,7 +366,7 @@ namespace cuentasctacte_web_api.Controllers
             return db.Facturas.Count(e => e.Id == id) > 0;
         }
 
-        private FullFacturaResponseDTO MapToFullFactura(Factura factura)
+        public FullFacturaResponseDTO MapToFullFactura(Factura factura)
         {
             var Result = new FullFacturaResponseDTO()
             {
@@ -407,5 +407,100 @@ namespace cuentasctacte_web_api.Controllers
             };
             return Result;
         }
-    }
+
+
+        [Route("api/Pedidos/FacturaReporte")]
+        [HttpGet]
+        //Intento 1. AÑO, MES, DIA,
+        //Intento dos. dia, mes, año 
+        public List<FullFacturaResponseDTO> FacturaReporte(String fechaInicio_Str = "01-01-1950", String fechaFin_Str = "01-01-2100", String estado = "ALL")
+        {
+            //DateTime desde = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
+            //DateTime hasta = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
+            Console.WriteLine(fechaInicio_Str);
+
+            DateTime desde = Convert.ToDateTime(fechaInicio_Str);
+            DateTime hasta = Convert.ToDateTime(fechaFin_Str);
+
+
+
+            List<FullFacturaResponseDTO> Facturas_entreFechas_RespondeDTO = new List<FullFacturaResponseDTO>();
+            //Filtramos por fechas
+            List<Factura> facturaList = filtrarReporteFactura_tiempo(desde, hasta);
+            //Filtramos por estado
+            facturaList = filtrarReporteFacturas_estado(facturaList, estado);
+
+            //Voy creando un MapFactura de cada una de las facturas ya filtradas por fecha.
+            // y estado
+            foreach (Factura factura in facturaList)
+            {
+                Facturas_entreFechas_RespondeDTO.Add(MapToFullFactura(factura));
+            }
+
+            return Facturas_entreFechas_RespondeDTO;
+        }
+
+        public List<Factura> filtrarReporteFactura_tiempo(DateTime desde, DateTime hasta)
+        {
+            List<Factura> facturaList = db.Facturas
+                .Include(c => c.Cliente)
+                .Where(f => !f.Deleted)
+                .Where(f => f.FechaFactura >= desde && f.FechaFactura <= hasta)
+                .ToList();
+
+            return facturaList;
+        }
+        //Esta funcion filtra deacuerdo alestado y devuelve una lista de facturas.
+        public List<Factura> filtrarReporteFacturas_estado(List<Factura> F, string estado = "ALL")
+        {
+
+            List<Factura> facturas_filtradas_estado = new List<Factura>();
+
+
+            if (estado == "ALL") return F; //Nada a filtrar
+            //Filtramos por estado.
+            switch (estado)
+            {
+                case "PENDIENTE":
+                    foreach (var factura in F)
+                    {
+                        if (factura.Estado == "PENDIENTE")
+                        {
+                            facturas_filtradas_estado.Add(factura);
+                        }
+
+                    }
+
+                    break;
+                case "PROCESANDO":
+                    foreach (var factura in F)
+                    {
+                        if (factura.Estado == "FACTURANDO")
+                        {
+                            facturas_filtradas_estado.Add(factura);
+                        }
+
+                    }
+                    break;
+                case "PAGADO":
+                    foreach (var factura in F)
+                    {
+                        if (factura.Estado == "PAGADO")
+                        {
+                            facturas_filtradas_estado.Add(factura);
+                        }
+
+                    }
+                    break;
+            }
+
+            return facturas_filtradas_estado;
+
+        }
+
+    
+
+
+
+}
 }

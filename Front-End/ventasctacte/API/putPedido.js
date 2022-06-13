@@ -15,7 +15,7 @@ export async function putPedido(token, id, raw) {
     return fetch(link, requestOptions)
         .then(response => response.text())
         .then(result => {
-            console.log(JSON.parse(result).Message)
+            console.log(JSON.parse(result))
             
         })
         .catch(error => alert(error.Message));

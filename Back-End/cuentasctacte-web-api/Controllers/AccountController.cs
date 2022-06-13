@@ -12,6 +12,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OAuth;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -340,6 +341,8 @@ namespace cuentasctacte_web_api.Controllers
             {
                 UserManager.AddToRole(user.Id, rol);
             }
+
+            
             // AddPersonas
             var Persona = new Persona()
             {
@@ -374,6 +377,79 @@ namespace cuentasctacte_web_api.Controllers
             return Ok();
         }
 
+        [Authorize(Roles ="Administrador")]
+        [HttpPut]
+        [Route("Edit")]
+        public async Task<IHttpActionResult> EditPersonaAsync(string username, PersonaRequestDTO persona)
+        {
+            Persona Persona = db.Personas
+                .Where(p => !p.Deleted)
+                .Where(p => p.UserName.Equals(username))
+                .FirstOrDefault();
+
+            if (Persona == null) return BadRequest("Persona no encontrada "+Persona.UserName);
+            var userManager = db.Users.FirstOrDefault(u => u.UserName.Equals(username));
+
+            if (userManager == null) return NotFound();
+            //Actualizamos primero la Persona en la bd
+
+            Persona.LineaDeCredito = persona.LineaDeCredito;
+            Persona.UserName = persona.UserName;
+            Persona.Documento = persona.Doc;
+            Persona.DocumentoTipo = persona.DocumentoTipo;
+            Persona.Telefono = persona.Telefono;
+            Persona.Nombre = persona.Nombre;
+            Persona.Apellido = persona.Apellido;
+
+            //Actualizamos
+
+            db.Entry(Persona).State = EntityState.Modified;
+
+            //Borramos todos los roles que tenia
+
+            _ = db.Personas_Tipos_Personas
+                .Include(ptp => ptp.Persona)
+                .Include(ptp => ptp.TipoPersona)
+                .Where(ptp => !ptp.Deleted)
+                .Where(ptp => ptp.IdPersona == Persona.Id)
+                .ForEachAsync(ptp =>
+                {
+                    db.Personas_Tipos_Personas.Remove(ptp);
+                    UserManager.RemoveFromRole(userManager.Id, ptp.TipoPersona.Tipo);
+                });
+            //Cargamos los nuevos roles
+            persona.Roles.ForEach(r =>
+            {
+                var roldb = new Personas_Tipos_Personas
+                {
+                    IdPersona = Persona.Id,
+                    TipoPersona = db.TipoPersonas
+                        .FirstOrDefault(tp => tp.Tipo.Equals(r)),
+                    Deleted = false
+                };
+
+                db.Personas_Tipos_Personas.Add(roldb);
+                UserManager.AddToRole(userManager.Id, r);
+            });
+
+            //Actualizamos los datos del user para la verificacion
+            userManager.Email = persona.UserName;
+
+            IdentityResult result = await UserManager.CreateAsync(userManager, persona.Password);
+
+            if (!result.Succeeded) return BadRequest("Ocurrio un error al editar el usuario");
+
+            try
+            {
+                db.SaveChanges();
+                return Ok("Editado con exito");
+            }
+            catch
+            {
+                return BadRequest("Ocurrio un error al ejecutar la transaccion");
+            }
+
+        }
         // POST api/Account/RegisterExternal
         [OverrideAuthentication]
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]

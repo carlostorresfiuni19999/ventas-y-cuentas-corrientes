@@ -138,22 +138,23 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // POST api/Account/SetPassword
+        [HttpPut]
         [Route("SetPassword")]
-        public async Task<IHttpActionResult> SetPassword(SetPasswordBindingModel model)
+        [Authorize(Roles = "Administrador")]
+        public async Task<IHttpActionResult> SetPassword(string UserName, SetPasswordBindingModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
-            IdentityResult result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
+            var user = db.Users.FirstOrDefault(u => u.UserName.Equals(UserName));
+
+            if (user == null) return BadRequest("Usuario no valido");
+            IdentityResult result = await UserManager.AddPasswordAsync(user.Id, model.NewPassword);
 
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
             }
 
-            return Ok();
+            return Ok("Modificado con exito");
         }
 
         // POST api/Account/AddExternalLogin
@@ -377,76 +378,103 @@ namespace cuentasctacte_web_api.Controllers
             return Ok();
         }
 
-        [Authorize(Roles ="Administrador")]
+        [Authorize(Roles = "Administrador")]
         [HttpPut]
         [Route("Edit")]
-        public async Task<IHttpActionResult> EditPersonaAsync(string username, PersonaRequestDTO persona)
+        public IHttpActionResult EditPersonaAsync(string username, PersonaRequestDTO persona)
         {
             Persona Persona = db.Personas
                 .Where(p => !p.Deleted)
                 .Where(p => p.UserName.Equals(username))
                 .FirstOrDefault();
 
-            if (Persona == null) return BadRequest("Persona no encontrada "+Persona.UserName);
+            if (Persona == null) return (BadRequest("Persona no encontrada "));
             var userManager = db.Users.FirstOrDefault(u => u.UserName.Equals(username));
 
-            if (userManager == null) return NotFound();
+            if (userManager == null) return (NotFound());
+
+            //Verificamos si hay un cambio en la tabla de Personas
+
+            if (!(Persona.LineaDeCredito == persona.LineaDeCredito &&
+                Persona.UserName == persona.UserName
+                && Persona.Documento == persona.Doc
+                && Persona.DocumentoTipo == persona.DocumentoTipo
+                && Persona.Telefono == persona.Telefono
+                && Persona.Nombre == persona.Nombre
+                && Persona.Apellido == persona.Apellido))
+            {
+                Persona.LineaDeCredito = persona.LineaDeCredito;
+                Persona.UserName = persona.UserName;
+                Persona.Documento = persona.Doc;
+                Persona.DocumentoTipo = persona.DocumentoTipo;
+                Persona.Telefono = persona.Telefono;
+                Persona.Nombre = persona.Nombre;
+                Persona.Apellido = persona.Apellido;
+
+                //Actualizamos
+
+
+
+            }
             //Actualizamos primero la Persona en la bd
 
-            Persona.LineaDeCredito = persona.LineaDeCredito;
-            Persona.UserName = persona.UserName;
-            Persona.Documento = persona.Doc;
-            Persona.DocumentoTipo = persona.DocumentoTipo;
-            Persona.Telefono = persona.Telefono;
-            Persona.Nombre = persona.Nombre;
-            Persona.Apellido = persona.Apellido;
 
-            //Actualizamos
-
-            db.Entry(Persona).State = EntityState.Modified;
 
             //Borramos todos los roles que tenia
 
-            _ = db.Personas_Tipos_Personas
+            var query = db.Personas_Tipos_Personas
                 .Include(ptp => ptp.Persona)
                 .Include(ptp => ptp.TipoPersona)
                 .Where(ptp => !ptp.Deleted)
-                .Where(ptp => ptp.IdPersona == Persona.Id)
-                .ForEachAsync(ptp =>
-                {
-                    db.Personas_Tipos_Personas.Remove(ptp);
-                    UserManager.RemoveFromRole(userManager.Id, ptp.TipoPersona.Tipo);
-                });
-            //Cargamos los nuevos roles
-            persona.Roles.ForEach(r =>
+                .Where(ptp => ptp.IdPersona == Persona.Id);
+
+            foreach (var ptp in query)
             {
+                UserManager.RemoveFromRole(userManager.Id, ptp.TipoPersona.Tipo);
+
+            }
+
+            foreach (var r in persona.Roles)
+            {
+                UserManager.AddToRole(userManager.Id, r);
+            }
+
+            foreach (var ptp in query)
+            {
+                db.Personas_Tipos_Personas.Remove(ptp);
+            }
+            //Cargamos los nuevos roles
+            persona.Roles.ForEach(r => {
                 var roldb = new Personas_Tipos_Personas
                 {
                     IdPersona = Persona.Id,
-                    TipoPersona = db.TipoPersonas
-                        .FirstOrDefault(tp => tp.Tipo.Equals(r)),
+                    IdTipoPersona = db.TipoPersonas
+                        .FirstOrDefault(tp => tp.Tipo.Equals(r)).Id,
                     Deleted = false
                 };
 
                 db.Personas_Tipos_Personas.Add(roldb);
-                UserManager.AddToRole(userManager.Id, r);
-            });
+            }
+            );
+
 
             //Actualizamos los datos del user para la verificacion
+            UserManager.RemovePassword(userManager.Id);
+            UserManager.AddPassword(userManager.Id, persona.Password);
+
+            userManager.UserName = persona.UserName;
             userManager.Email = persona.UserName;
-
-            IdentityResult result = await UserManager.CreateAsync(userManager, persona.Password);
-
-            if (!result.Succeeded) return BadRequest("Ocurrio un error al editar el usuario");
+            db.Entry(userManager).State = EntityState.Modified;
+            db.Entry(Persona).State = EntityState.Modified;
 
             try
             {
                 db.SaveChanges();
-                return Ok("Editado con exito");
+                return (Ok("Editado con exito"));
             }
             catch
             {
-                return BadRequest("Ocurrio un error al ejecutar la transaccion");
+                return (BadRequest("Ocurrio un error al ejecutar la transaccion"));
             }
 
         }

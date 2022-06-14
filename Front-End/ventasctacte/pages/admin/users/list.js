@@ -96,7 +96,7 @@ const List = () => {
                     }
                 })
                 .catch(console.log)
-        } else{
+        } else {
             alert("Primero Inicie Sesion");
             router.push("/LogIn");
         }
@@ -108,7 +108,7 @@ const List = () => {
     }, [band, router])
 
     //Efecto para que haga solo una precarga
-   
+
     //Efecto para cargar en caso de que cambie la persona
     useEffect(() => {
         loadData();
@@ -116,66 +116,66 @@ const List = () => {
 
     const rendered = () => {
         const element =
-        <Fragment>
-            <AdminNavbar />
+            <Fragment>
+                <AdminNavbar />
 
-            <div style={buttonStyle}>
-                <Button variant="primary" onClick={open}>
-                    Agregar
-                </Button>
-                <Modal show = {show} onHide={close}>
-                <Modal.Header closeButton>
-                        <Modal.Title>Agregar</Modal.Title>
+                <div style={buttonStyle}>
+                    <Button variant="primary" onClick={open}>
+                        Agregar
+                    </Button>
+                    <Modal show={show} onHide={close}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Agregar</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <PersonForm 
-                            onEdit={handleEdit} 
-                            onSave={handleSave} 
-                            editable = {false} 
+                            <PersonForm
+                                onEdit={handleEdit}
+                                onSave={handleSave}
+                                editable={false}
                             />
                         </Modal.Body>
-                </Modal>
-            </div>
+                    </Modal>
+                </div>
 
-            <Tabs
-                id="controlled-tab-example"
-                activeKey={key}
-                onSelect={(k) => setKey(k)}
-                className="mb-3"
-            >
-                <Tab eventKey="Clientes" title="Clientes">
-                    <PersonList
-                        onChangePassword={handleChangePassword}
-                        style={{ marginLeft: "30px", marginRight: "30px" }}
-                        personas={personas}
-                        onEdit = {handleEdit}
-                    />
-                </Tab>
-                <Tab
-                    eventKey="Vendedores"
-                    title="Vendedores">
-                    <PersonList
-                        onChangePassword={handleChangePassword}
-                        style={{ marginLeft: "30px", marginRight: "30px" }}
-                        personas={vendedores}
-                        onEdit = {handleEdit}
-                    />
-                </Tab>
-                <Tab eventKey="Cajeros"
-                    title="Cajeros"
+                <Tabs
+                    id="controlled-tab-example"
+                    activeKey={key}
+                    onSelect={(k) => setKey(k)}
+                    className="mb-3"
                 >
-                    <PersonList
-                        onChangePassword={handleChangePassword}
-                        style={{ marginLeft: "30px", marginRight: "30px" }}
-                        personas={cajeros}
-                        onEdit = {handleEdit}
-                    />
+                    <Tab eventKey="Clientes" title="Clientes">
+                        <PersonList
+                            onChangePassword={handleChangePassword}
+                            style={{ marginLeft: "30px", marginRight: "30px" }}
+                            personas={personas}
+                            onEdit={handleEdit}
+                        />
+                    </Tab>
+                    <Tab
+                        eventKey="Vendedores"
+                        title="Vendedores">
+                        <PersonList
+                            onChangePassword={handleChangePassword}
+                            style={{ marginLeft: "30px", marginRight: "30px" }}
+                            personas={vendedores}
+                            onEdit={handleEdit}
+                        />
+                    </Tab>
+                    <Tab eventKey="Cajeros"
+                        title="Cajeros"
+                    >
+                        <PersonList
+                            onChangePassword={handleChangePassword}
+                            style={{ marginLeft: "30px", marginRight: "30px" }}
+                            personas={cajeros}
+                            onEdit={handleEdit}
+                        />
 
-                </Tab>
+                    </Tab>
 
-            </Tabs>
+                </Tabs>
 
-        </Fragment>
+            </Fragment>
         return element;
     }
 

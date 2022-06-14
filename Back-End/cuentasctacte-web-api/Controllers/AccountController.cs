@@ -65,15 +65,20 @@ namespace cuentasctacte_web_api.Controllers
             var user = db.Users.FirstOrDefault(u => u.UserName.Equals(UserName));
             
             if (user == null) return BadRequest("Usuario no valido");
-            IdentityResult resultRemovePass = await UserManager.RemovePasswordAsync(user.Id);
-            IdentityResult result = await UserManager.CreateAsync(user, model.NewPassword);
+            user.PasswordHash = UserManager.PasswordHasher.HashPassword(model.NewPassword);
 
-            if (!(result.Succeeded && resultRemovePass.Succeeded))
+            db.Entry(user).State = EntityState.Modified;
+            try
             {
-                return GetErrorResult(result);
+                db.SaveChanges();
+                return Ok("Modificado con exito");
+            }
+            catch
+            {
+                return BadRequest("Error en la transaccion");
             }
 
-            return Ok("Modificado con exito");
+            
         }
 
        

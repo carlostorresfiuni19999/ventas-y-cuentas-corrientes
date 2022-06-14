@@ -5,6 +5,8 @@ using System.Linq;
 using System.Web.Http.Description;
 using cuentasctacte_web_api.Models.DTOs;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -87,8 +89,43 @@ namespace cuentasctacte_web_api.Controllers
 
 
         }
+        [HttpGet]
+        [Authorize(Roles ="Administrador")]
+        [Route("api/Cajas/saldo")]
+        public double GetSaldoTotal()
+        {
+            double saldo = (from caja in db.Cajas
+                            where !caja.Deleted
+                            select caja.Saldo).Sum();
 
+            return saldo;
+                           
 
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrador")]
+        [Route("api/Cajas/Personas/Disponibles")]
+        public List<string> GetCajerosNoAsignados()
+        {
+            var Cajeros = db.Personas_Tipos_Personas
+                .Include(tp => tp.Persona)
+                .Include(tp => tp.TipoPersona)
+                .Where(tp => tp.TipoPersona.Tipo.Equals("Cajero"))
+                .Select(tp => tp.Persona);
+
+            var query = (from cajero in Cajeros
+                         join caja in db.Cajas
+                         on cajero.Id equals caja.IdCajero
+                         into GrupoCajeros
+                         from cajeroId
+                         in GrupoCajeros.DefaultIfEmpty()
+                         where cajeroId == null
+                         select cajero.UserName)
+                         .ToList();
+
+            return query;           
+        }
           
     }
 }

@@ -8,9 +8,6 @@ const CajaList = ({ cajas }) => {
                 <Column header= "Cajero" field="Cajero" ></Column>
                 <Column header= "Username" field="UserName" ></Column>
                 <Column header= "Saldo" field="Saldo" ></Column>
-                <Column type="action">
-                    <MenuItem label = "Editar" onClick = {(event, data) => console.log(data)} />  
-                </Column>
             </TableWithBrowserPagination>
 
         </Fragment>

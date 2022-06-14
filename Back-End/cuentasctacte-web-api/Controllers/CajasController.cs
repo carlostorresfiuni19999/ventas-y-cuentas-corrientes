@@ -4,6 +4,7 @@ using System.Web.Http;
 using System.Linq;
 using System.Web.Http.Description;
 using cuentasctacte_web_api.Models.DTOs;
+using System.Collections.Generic;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -14,7 +15,7 @@ namespace cuentasctacte_web_api.Controllers
         [HttpGet]
         [Route("api/Cajas")]
         [Authorize(Roles = "Administrador")]
-        [ResponseType(typeof(IQueryable<>))]
+        [ResponseType(typeof(List<CajaResponseDTO>))]
         public IHttpActionResult GetCajas()
         {
             var query = from caja in db.Cajas
@@ -26,9 +27,18 @@ namespace cuentasctacte_web_api.Controllers
                             IdCaja = caja.Id,
                             Saldo = caja.Saldo,
                             Cajero = cajero.Nombre + " " + cajero.Apellido,
-                            UserName = cajero.UserName
+                            UserName = cajero.UserName,
+                            Nombre =  caja.NombreCaja
                         };
-            return Ok(query);
+            return Ok(query.ToList().ConvertAll(t => new CajaResponseDTO()
+            {
+                Saldo = t.Saldo,
+                IdCaja = t.IdCaja,
+                Cajero = t.Cajero,
+                UserName = t.UserName,
+                Nombre = t.Nombre
+
+            }));
         }
 
         [HttpPost]

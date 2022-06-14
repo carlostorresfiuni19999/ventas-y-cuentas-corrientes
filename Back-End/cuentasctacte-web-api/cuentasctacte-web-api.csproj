@@ -311,6 +311,7 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Data.cs" />
     <Compile Include="Models\DTOs\CajaRequestDTO.cs" />
+    <Compile Include="Models\DTOs\CajaResponseDTO.cs" />
     <Compile Include="Models\DTOs\CuotaRequestDTO.cs" />
     <Compile Include="Models\DTOs\FacturaDetalleResponseDTO.cs" />
     <Compile Include="Models\DTOs\FacturaRequestDTO.cs" />

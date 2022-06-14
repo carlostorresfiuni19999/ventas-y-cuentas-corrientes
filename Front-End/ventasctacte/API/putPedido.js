@@ -16,7 +16,7 @@ export async function putPedido(token, id, raw) {
         .then(response => response.text())
         .then(result => {
             console.log(JSON.parse(result))
-            
+            alert("Editado con exito");
         })
         .catch(error => alert(error.Message));
 }

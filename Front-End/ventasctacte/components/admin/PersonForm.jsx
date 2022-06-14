@@ -1,7 +1,7 @@
 import PersonFormUpdate from "./PersonFormUpdate";
 import PersonFormPost from "./PersonFormPost";
 
-const PersonForm = ({onEdit, onSave, editable, value}) => {
+const PersonForm = ({onEdit, onSave, editable = false, value}) => {
 
  if(editable){
     return <PersonFormUpdate 
@@ -10,7 +10,9 @@ const PersonForm = ({onEdit, onSave, editable, value}) => {
         value={value} />
  } else {
     return <PersonFormPost
-        onSave ={onSave} />
+        onSave ={onSave} 
+        />
+        
  }
 }
 

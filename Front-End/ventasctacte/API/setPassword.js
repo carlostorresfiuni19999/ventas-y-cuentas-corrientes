@@ -18,7 +18,7 @@ export default async function setPassword(token, UserName, raw){
         if (result_1.ok) {
             alert("Modificado con exito");
         } else {
-            alert("Error en la modificacion");
+            alert("Error en la modificacion, Verifica las credenciales si son correctas");
         }
     } catch (message_1) {
         return console.log(message_1);

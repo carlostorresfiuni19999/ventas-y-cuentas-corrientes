@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import PersonForm from "../../../components/admin/PersonForm";
 import PostPersona from "../../../API/postPersona";
 import { editPersona } from "../../../API/editPersona";
+import setPassword from "../../../API/setPassword";
 const List = () => {
 
     const [band, setBand] = useState(true);
@@ -32,6 +33,11 @@ const List = () => {
         const token = JSON.parse(sessionStorage.getItem("token"));
         PostPersona(value, token.access_token);
         loadData();
+    }
+
+    const handleChangePassword = (username, value) => {
+        const token = JSON.parse(sessionStorage.getItem("token"));
+        setPassword(token.access_token, username, JSON.stringify(value));
     }
 
     const handleEdit = (username, value) => {
@@ -139,9 +145,9 @@ const List = () => {
             >
                 <Tab eventKey="Clientes" title="Clientes">
                     <PersonList
+                        onChangePassword={handleChangePassword}
                         style={{ marginLeft: "30px", marginRight: "30px" }}
                         personas={personas}
-                        redirect = {redirect}
                         onEdit = {handleEdit}
                     />
                 </Tab>
@@ -149,9 +155,9 @@ const List = () => {
                     eventKey="Vendedores"
                     title="Vendedores">
                     <PersonList
+                        onChangePassword={handleChangePassword}
                         style={{ marginLeft: "30px", marginRight: "30px" }}
                         personas={vendedores}
-                        redirect = {redirect}
                         onEdit = {handleEdit}
                     />
                 </Tab>
@@ -159,9 +165,9 @@ const List = () => {
                     title="Cajeros"
                 >
                     <PersonList
+                        onChangePassword={handleChangePassword}
                         style={{ marginLeft: "30px", marginRight: "30px" }}
                         personas={cajeros}
-                        redirect = {redirect}
                         onEdit = {handleEdit}
                     />
 

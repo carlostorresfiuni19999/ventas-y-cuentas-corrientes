@@ -30,7 +30,6 @@ export default function Lista() {
                 then(result => {
                     
                     const n = JSON.parse(result);
-                    console.log(n);
                     setNotas(n.map(nota => {
                         const notaNew = {
                             id: nota.Id,
@@ -67,7 +66,6 @@ export default function Lista() {
                 .then(res => res.text()).
                 then(result => {
                     const n = JSON.parse(result);
-                    console.log(n);
                     setNotas(n.map(nota => {
                         const notaNew = {
                             id: nota.Id,
@@ -112,7 +110,7 @@ export default function Lista() {
                 <title>Lista de Pedidos</title>
             </Head>
             <div className=''>
-                <Navbar rango='ndp' page='ndpLista' />
+                <Navbar rol='v' rango='ndp' page='ndpLista' />
             </div>
             <div className='ms-4'>
                 <div>

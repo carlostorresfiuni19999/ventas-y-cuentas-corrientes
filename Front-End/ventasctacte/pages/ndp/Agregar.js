@@ -34,7 +34,6 @@ export default function Agregar() {
                 .then(response => response.text())
                 .then(result => {
                     const res = JSON.parse(result)
-                    //console.log(result)
                     setPersonas(res.map(persona => {
                         const newpersona = {
                             id: persona.Id,
@@ -53,7 +52,6 @@ export default function Agregar() {
                 .then(res => res.text())
                 .then(response => {
                     const res = JSON.parse(response)
-                    //console.log(res)
                     setProductos(res.map(producto => {
                         const newProducto = {
                             id: producto.Id,
@@ -87,7 +85,6 @@ export default function Agregar() {
                 .then(response => response.text())
                 .then(result => {
                     const res = JSON.parse(result)
-                    //console.log(result)
                     setPersonas(res.map(persona => {
                         const newpersona = {
                             id: persona.Id,
@@ -106,7 +103,6 @@ export default function Agregar() {
                 .then(res => res.text())
                 .then(response => {
                     const res = JSON.parse(response)
-                    //console.log(res)
                     setProductos(res.map(producto => {
                         const newProducto = {
                             id: producto.Id,
@@ -124,7 +120,6 @@ export default function Agregar() {
         return () => setBand(false);
     }, [])
 
-    //console.log(productos)
     const [cliente, setCliente] = useState({ id: '', cin: 0 })
     const [selectProd, setSelectProd] = useState({ id: '', codBar: '', prod: '', precio: 0 })
     const [idListaProd, setIdListaProd] = useState(1)
@@ -208,7 +203,7 @@ export default function Agregar() {
             <Head>
                 <title>Agregar Pedido</title>
             </Head>
-            <Navbar rango='ndp' page='ndpAgregar' />
+            <Navbar rol='v' rango='ndp' page='ndpAgregar' />
             <div className=''>
                 {/*La parte de arriba de la agregar */}
                 <NavMain person="vendedor" pag="Agregar Nota de Pago" />

@@ -172,17 +172,15 @@ export default function Crear() {
             crearFactura(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
             Router.back()
         }
-    }
-
-    console.log(notas)
-
+    } 
+    
     return (
         <div>
             <Head>
                 <title>Crear Nueva Factura</title>
             </Head>
             <div>
-                <Navbar rango='fac' page='facCrear' />
+                <Navbar rol='c' rango='fac' page='facCrear' />
             </div>
             <div className='ms-4'>
                 {/*La parte de arriba*/}

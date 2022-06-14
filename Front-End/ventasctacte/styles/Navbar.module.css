@@ -1,5 +1,5 @@
-.mainNav {
-    position: absolute;
+.mainNavV {
+    position:fixed;
     height: 100%;
     background-color: #929292;
     width: 0px;
@@ -11,10 +11,62 @@
     box-shadow: rgba(0, 0, 0, 0.65) 0px 0px 17px 5px;
 }
 
-.apareceNav{
-    position: absolute;
+.apareceNavV{
+    position: fixed;
     height: 100%;
     background-color: #929292;
+    width: 1.5%;
+    z-index: 1;
+    overflow-x: hidden;
+    transition: 0.5s;
+    top: 0;
+    left: 0;
+    box-shadow: rgba(0, 0, 0, 0.65) 0px 0px 17px 5px;
+}
+
+.mainNavC {
+    position:fixed;
+    height: 100%;
+    background-color: #15d5eb;
+    width: 0px;
+    z-index: 1;
+    overflow-x: hidden;
+    transition: 0.5s;
+    top: 0;
+    left: 0;
+    box-shadow: rgba(0, 0, 0, 0.65) 0px 0px 17px 5px;
+}
+
+.apareceNavC{
+    position: fixed;
+    height: 100%;
+    background-color: #15d5eb;
+    width: 1.5%;
+    z-index: 1;
+    overflow-x: hidden;
+    transition: 0.5s;
+    top: 0;
+    left: 0;
+    box-shadow: rgba(0, 0, 0, 0.65) 0px 0px 17px 5px;
+}
+
+.mainNavA {
+    position:fixed;
+    height: 100%;
+    background-color: #70d657a0;
+    width: 0px;
+    z-index: 1;
+    overflow-x: hidden;
+    transition: 0.5s;
+    top: 0;
+    left: 0;
+    box-shadow: rgba(0, 0, 0, 0.65) 0px 0px 17px 5px;
+}
+
+.apareceNavA{
+    position: fixed;
+    height: 100%;
+    background-color: #70d657a0;
     width: 1.5%;
     z-index: 1;
     overflow-x: hidden;
@@ -58,7 +110,7 @@
     font-size: x-large;
     padding-top: 10px;
     padding-left: 10px;
-    color: white;
+    color: #929292;
 }
 
 .noTitulo{

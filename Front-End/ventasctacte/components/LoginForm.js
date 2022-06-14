@@ -14,7 +14,6 @@ function LoginForm() {
             pass: ''
         },
         onSubmit: (values) => {
-            console.log("Hola mundo")
             login(values.user, values.pass)
                 .catch(error => {
                     console.log('error', error);
@@ -22,7 +21,6 @@ function LoginForm() {
                 })
                 .then(response => response.text())
                 .then(result => {
-                    console.log(result);
                     const res = JSON.parse(result)
 
                     if (res.error_description) {
@@ -103,7 +101,7 @@ function LoginForm() {
         <div className={styles.LoginPanel}>
             <h1 className={styles.letraGrande}>Login</h1>
             <form onSubmit={formik.handleSubmit}>
-                <div>
+                <div className='py-3'>
                     <label htmlFor='user'>
                         Email
                     </label>
@@ -111,6 +109,7 @@ function LoginForm() {
                         id="user"
                         name="user"
                         type="email"
+                        className={styles.inputForm}
                         onChange={formik.handleChange}
                         value={formik.values.user}
                     />
@@ -124,6 +123,7 @@ function LoginForm() {
                         id="pass"
                         name="pass"
                         type="password"
+                        className={styles.inputForm}
                         onChange={formik.handleChange}
                         value={formik.values.pass}
                     />

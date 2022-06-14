@@ -48,6 +48,7 @@ const PersonFormPost = ({ onSave }) => {
     });
 
     const handleSubmit = (values) => {
+        console.log(values);
         onSave(values);
     }
 
@@ -231,7 +232,7 @@ const PersonFormPost = ({ onSave }) => {
                             <ErrorMessage name="ConfirmPassword" />
                         </Col>
                     </Row>
-                    <Button type="input">Guardar</Button>
+                    <Button type="submit">Guardar</Button>
 
 
                 </Form>

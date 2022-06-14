@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import PersonForm from "../../../components/admin/PersonForm";
 import PostPersona from "../../../API/postPersona";
 import { editPersona } from "../../../API/editPersona";
+import setPassword from "../../../API/setPassword";
 const List = () => {
 
     const [band, setBand] = useState(true);
@@ -32,6 +33,11 @@ const List = () => {
         const token = JSON.parse(sessionStorage.getItem("token"));
         PostPersona(value, token.access_token);
         loadData();
+    }
+
+    const handleChangePassword = (username, value) => {
+        const token = JSON.parse(sessionStorage.getItem("token"));
+        setPassword(token.access_token, username, JSON.stringify(value));
     }
 
     const handleEdit = (username, value) => {
@@ -90,7 +96,7 @@ const List = () => {
                     }
                 })
                 .catch(console.log)
-        } else{
+        } else {
             alert("Primero Inicie Sesion");
             router.push("/LogIn");
         }
@@ -102,7 +108,7 @@ const List = () => {
     }, [band, router])
 
     //Efecto para que haga solo una precarga
-   
+
     //Efecto para cargar en caso de que cambie la persona
     useEffect(() => {
         loadData();
@@ -110,66 +116,66 @@ const List = () => {
 
     const rendered = () => {
         const element =
-        <Fragment>
-            <AdminNavbar />
+            <Fragment>
+                <AdminNavbar />
 
-            <div style={buttonStyle}>
-                <Button variant="primary" onClick={open}>
-                    Agregar
-                </Button>
-                <Modal show = {show} onHide={close}>
-                <Modal.Header closeButton>
-                        <Modal.Title>Agregar</Modal.Title>
+                <div style={buttonStyle}>
+                    <Button variant="primary" onClick={open}>
+                        Agregar
+                    </Button>
+                    <Modal show={show} onHide={close}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Agregar</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <PersonForm 
-                            onEdit={handleEdit} 
-                            onSave={handleSave} 
-                            editable = {false} 
+                            <PersonForm
+                                onEdit={handleEdit}
+                                onSave={handleSave}
+                                editable={false}
                             />
                         </Modal.Body>
-                </Modal>
-            </div>
+                    </Modal>
+                </div>
 
-            <Tabs
-                id="controlled-tab-example"
-                activeKey={key}
-                onSelect={(k) => setKey(k)}
-                className="mb-3"
-            >
-                <Tab eventKey="Clientes" title="Clientes">
-                    <PersonList
-                        style={{ marginLeft: "30px", marginRight: "30px" }}
-                        personas={personas}
-                        redirect = {redirect}
-                        onEdit = {handleEdit}
-                    />
-                </Tab>
-                <Tab
-                    eventKey="Vendedores"
-                    title="Vendedores">
-                    <PersonList
-                        style={{ marginLeft: "30px", marginRight: "30px" }}
-                        personas={vendedores}
-                        redirect = {redirect}
-                        onEdit = {handleEdit}
-                    />
-                </Tab>
-                <Tab eventKey="Cajeros"
-                    title="Cajeros"
+                <Tabs
+                    id="controlled-tab-example"
+                    activeKey={key}
+                    onSelect={(k) => setKey(k)}
+                    className="mb-3"
                 >
-                    <PersonList
-                        style={{ marginLeft: "30px", marginRight: "30px" }}
-                        personas={cajeros}
-                        redirect = {redirect}
-                        onEdit = {handleEdit}
-                    />
+                    <Tab eventKey="Clientes" title="Clientes">
+                        <PersonList
+                            onChangePassword={handleChangePassword}
+                            style={{ marginLeft: "30px", marginRight: "30px" }}
+                            personas={personas}
+                            onEdit={handleEdit}
+                        />
+                    </Tab>
+                    <Tab
+                        eventKey="Vendedores"
+                        title="Vendedores">
+                        <PersonList
+                            onChangePassword={handleChangePassword}
+                            style={{ marginLeft: "30px", marginRight: "30px" }}
+                            personas={vendedores}
+                            onEdit={handleEdit}
+                        />
+                    </Tab>
+                    <Tab eventKey="Cajeros"
+                        title="Cajeros"
+                    >
+                        <PersonList
+                            onChangePassword={handleChangePassword}
+                            style={{ marginLeft: "30px", marginRight: "30px" }}
+                            personas={cajeros}
+                            onEdit={handleEdit}
+                        />
 
-                </Tab>
+                    </Tab>
 
-            </Tabs>
+                </Tabs>
 
-        </Fragment>
+            </Fragment>
         return element;
     }
 

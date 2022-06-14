@@ -180,7 +180,7 @@ export default function Crear() {
                 <title>Crear Nueva Factura</title>
             </Head>
             <div>
-                <Navbar rango='fac' page='facCrear' />
+                <Navbar rol='c' rango='fac' page='facCrear' />
             </div>
             <div className='ms-4'>
                 {/*La parte de arriba*/}

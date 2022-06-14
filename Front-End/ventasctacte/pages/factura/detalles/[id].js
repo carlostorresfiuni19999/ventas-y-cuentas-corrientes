@@ -114,7 +114,7 @@ export default function Detalles() {
             </Head>
             <div className='ms-4'>
                 <div className=''>
-                    <Navbar rango='fac' page='facDetalles' />
+                    <Navbar rol='c' rango='fac' page='facDetalles' />
                 </div>
 
                 {/*La parte de arriba*/}

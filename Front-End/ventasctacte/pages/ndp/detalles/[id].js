@@ -253,7 +253,7 @@ export default function Detalles() {
                 <Head>
                     <title>Detalles / Facturacion de pedido</title>
                 </Head>
-                <Navbar rango='ndp' page='ndpDetalles' />
+                <Navbar rol='v' rango='ndp' page='ndpDetalles' />
                 <div className=''>
                     {/*La parte de arriba de la lista */}
                     <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -396,7 +396,7 @@ export default function Detalles() {
                 <Head>
                     <title>Detalles / Facturacion de pedido</title>
                 </Head>
-                <Navbar rango='ndp' page='ndpDetalles' />
+                <Navbar rol='v' rango='ndp' page='ndpDetalles' />
                 <div className=''>
                     {/*La parte de arriba de la lista */}
                     <nav className="navbar navbar-expand-lg navbar-light bg-light">

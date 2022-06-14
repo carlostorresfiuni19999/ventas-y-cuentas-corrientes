@@ -203,7 +203,7 @@ export default function Agregar() {
             <Head>
                 <title>Agregar Pedido</title>
             </Head>
-            <Navbar rango='ndp' page='ndpAgregar' />
+            <Navbar rol='v' rango='ndp' page='ndpAgregar' />
             <div className=''>
                 {/*La parte de arriba de la agregar */}
                 <NavMain person="vendedor" pag="Agregar Nota de Pago" />

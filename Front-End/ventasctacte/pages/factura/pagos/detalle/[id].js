@@ -91,7 +91,7 @@ export default function Detalle() {
             </Head>
             <div className='ms-4'>
                 <div className=''>
-                    <Navbar rango='fac' page='facDetalles' />
+                    <Navbar rol='c' rango='fac' page='facDetalles' />
                 </div>
 
                 <NavMain person="Cajero" pag="Detalle De Pago" />

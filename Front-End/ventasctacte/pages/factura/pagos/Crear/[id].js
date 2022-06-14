@@ -132,7 +132,7 @@ export default function Crear() {
             </Head>
             <div className='ms-4'>
                 <div className=''>
-                    <Navbar rango='fac' page='facDetalles' />
+                    <Navbar rol='c' rango='fac' page='facDetalles' />
                 </div>
 
                 <NavMain person="Cajero" pag="Pago de Cuotas" />

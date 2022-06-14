@@ -110,7 +110,7 @@ export default function Lista() {
                 <title>Lista de Pedidos</title>
             </Head>
             <div className=''>
-                <Navbar rango='ndp' page='ndpLista' />
+                <Navbar rol='v' rango='ndp' page='ndpLista' />
             </div>
             <div className='ms-4'>
                 <div>

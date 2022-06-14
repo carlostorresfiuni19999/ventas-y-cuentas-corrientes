@@ -258,6 +258,7 @@
     <Compile Include="Models\DTOs\FacturaDetalleResponseDTO.cs" />
     <Compile Include="Models\DTOs\FacturaRequestDTO.cs" />
     <Compile Include="Models\DTOs\FacturaResponseDTO.cs" />
+    <Compile Include="Models\DTOs\FacturasDePedidoResponseDTO.cs" />
     <Compile Include="Models\DTOs\FormasPagosResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullClienteResponseDTO.cs" />
     <Compile Include="Models\DTOs\FullCuotaResponseDTO.cs" />

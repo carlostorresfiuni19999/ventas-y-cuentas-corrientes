@@ -1,8 +1,11 @@
 import React from "react"
 import styles from "../styles/Navbar.module.css"
 import Link from 'next/link'
+import {useRouter} from 'next/router'
+import Head from 'next/head'
 
 function Navbar(props) {
+    const router = useRouter()
     
     const apareceNav = () => {
         document.getElementById("mainNav").style.width = "200px";
@@ -16,8 +19,15 @@ function Navbar(props) {
         document.getElementById("subNav").style.width = "1.5%";
     }
 
+    const handleLogOut = () =>{
+        sessionStorage.clear();
+        router.push("/LogIn")
+    }
     return (
         <div>
+            <Head>
+                <title>LogIn</title>
+            </Head>
             <div className={styles.mainNav} id="mainNav">
                 <div className={styles.Titulo}>
                     <Link href="/">
@@ -44,13 +54,7 @@ function Navbar(props) {
                             
                         </div>
                     </div>
-                    <div className={styles.secciones}>
-                        <label className={styles.listMain}id='db'>Stock</label>
-                        <div>
-                            <div><label className={styles.listSub} id='db1'>TBD1</label></div>
-                            <div><label className={styles.listSub} id='db2'>TBD2</label></div>
-                        </div>
-                    </div>
+                    <button className="btn btn-sm btn-link mx-2 float-end" onClick={()=>{handleLogOut()}}>LogOut</button>
                 </div>
             </div>
             <div className={styles.apareceNav} id="subNav" onClick={apareceNav}>

@@ -172,10 +172,8 @@ export default function Crear() {
             crearFactura(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
             Router.back()
         }
-    }
-
-    console.log(notas)
-
+    } 
+    
     return (
         <div>
             <Head>

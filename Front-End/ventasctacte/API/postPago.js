@@ -11,8 +11,12 @@ const postPago = (token, raw) => {
     };
 
     fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Pagos", requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
-        .catch(error => alert('error', error));
+        .then(response => {
+            if(response.ok){
+                alert("Creado con exito");
+            }else{
+                response.json().then(error => {alert(error.Message)});
+            }
+        }).catch(error => console.log(error));
 }
 export default postPago

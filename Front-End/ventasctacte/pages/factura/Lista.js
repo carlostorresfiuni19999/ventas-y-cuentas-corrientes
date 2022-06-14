@@ -151,7 +151,7 @@ export default function Lista() {
             </Head>
 
             <div className=''>
-                <Navbar rango='fac' page='facLista' />
+                <Navbar rol='c' rango='fac' page='facLista' />
             </div>
 
             <div className='ms-4'>

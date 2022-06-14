@@ -32,7 +32,6 @@ export default function Crear() {
             hasRole(token.access_token, token.userName, "Cajero")
             .then(r => {
                 if(r == 'false'){
-                    console.log(r == 'false');
                     Router.push("/LogIn");
                 
                 } 
@@ -44,7 +43,6 @@ export default function Crear() {
                     
                     .then(res => res.text())
                     .then(res => {
-                        console.log(res);
                         const r = JSON.parse(res)
                         setSaldo(r.Saldo)
                     })
@@ -90,7 +88,6 @@ export default function Crear() {
             }
             setPagos([...Pagos, newPago])
             setPrecioMax([...Pagos, newPago].map(p => { return p.monto }).reduce((a, b) => a + b, 0))
-            console.log([...Pagos, newPago])
             docGet('addPagoMetodo').value = ""
             docGet('addPagoMonto').value = 0
         }
@@ -100,6 +97,8 @@ export default function Crear() {
     const controlNum = () => {
         if (parseInt(docGet('addPagoMonto').value) > getMax()) {
             docGet('addPagoMonto').value = getMax()
+        }else if(parseInt(docGet('addPagoMonto').value) < 0){
+            docGet('addPagoMonto').value = 0
         }
     }
 
@@ -122,16 +121,6 @@ export default function Crear() {
                     return returnValue
                 })
             })
-            console.log({
-                "IdCuota": parseInt(Router.query.id),
-                "MetodosPagos": Pagos.map(p => {
-                    const returnValue = {
-                        "MetodoPago": p.metodo,
-                        "Monto": p.monto
-                    }
-                    return returnValue
-                })
-            })
             postPago(JSON.parse(sessionStorage.getItem('token')).access_token, raw);
             Router.back()
         }
@@ -143,7 +132,7 @@ export default function Crear() {
             </Head>
             <div className='ms-4'>
                 <div className=''>
-                    <Navbar rango='fac' page='facDetalles' />
+                    <Navbar rol='c' rango='fac' page='facDetalles' />
                 </div>
 
                 <NavMain person="Cajero" pag="Pago de Cuotas" />

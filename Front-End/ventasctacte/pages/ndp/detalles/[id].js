@@ -42,7 +42,6 @@ export default function Detalles() {
                     .then(response => response.text())
                     .then(result => {
                         const res = JSON.parse(result)
-                        console.log(res)
                         setDatos({
                             idClient: res.Cliente.Id,
                             nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
@@ -78,13 +77,8 @@ export default function Detalles() {
     }, [Router])
 
 
-
-
-    console.log(datos)
-
     const crearDetalles = () => {
         if (typeof datos.pedidosDetalles !== 'undefined') {
-            console.log(datos.pedidosDetalles)
             setProductos(datos.pedidosDetalles.filter((p) => p.CantidadProductos > 0).map((p) => {
                 const newProd = {
                     id: p.Id,
@@ -115,7 +109,6 @@ export default function Detalles() {
 
     }
 
-    console.log(productos)
     const formatFecha = (dateStr) => {
         if (dateStr == null) {
             return ''
@@ -194,13 +187,6 @@ export default function Detalles() {
     }
 
     const modificarNota = () => {
-        console.log(productos.map(p => {
-            const returnValue = {
-                "ProductoId": p.prodId,
-                "CantidadProducto": p.cantidad
-            }
-            return returnValue
-        }))
         if (productos.length > 0) {
             const raw = JSON.stringify({
                 "ClienteId": datos.idClient,
@@ -220,23 +206,19 @@ export default function Detalles() {
 
     const facturar = () => {
         if (productos.length > 0) {
-            const raw = JSON.stringify({
-                "IdPedido": Router.query.id,
-                "CantidadCuotas": getCantCuotas(),
-                "Pedido": {
-                    "ClienteId": datos.idClient,
-                    "Descripcion": datos.desc,
-                    "Pedidos": productos.map(p => {
-                        const returnValue = {
-                            "ProductoId": p.prodId,
-                            "CantidadProducto": p.cantidad
-                        }
-                        return returnValue
-                    })
-                }
-
+            const rawPedido = JSON.stringify({
+                "ClienteId": datos.idClient,
+                "Descripcion": datos.desc,
+                "Pedidos": productos.map(p => {
+                    const returnValue = {
+                        "ProductoId": p.prodId,
+                        "CantidadProducto": p.cantidad
+                    }
+                    return returnValue
+                })
             })
-            console.log({
+            putPedido(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id, rawPedido)
+            const raw = JSON.stringify({
                 "IdPedido": Router.query.id,
                 "CantidadCuotas": getCantCuotas(),
                 "Pedido": {
@@ -264,13 +246,14 @@ export default function Detalles() {
             return parseInt(document.getElementById("cantCuotasCred").value)
         }
     }
-    if (datos.estado == "PENDIENTE") {
+    
+    if (datos.estado != "FACTURADO") {
         return (
             <div>
                 <Head>
                     <title>Detalles / Facturacion de pedido</title>
                 </Head>
-                <Navbar rango='ndp' page='ndpDetalles' />
+                <Navbar rol='v' rango='ndp' page='ndpDetalles' />
                 <div className=''>
                     {/*La parte de arriba de la lista */}
                     <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -413,7 +396,7 @@ export default function Detalles() {
                 <Head>
                     <title>Detalles / Facturacion de pedido</title>
                 </Head>
-                <Navbar rango='ndp' page='ndpDetalles' />
+                <Navbar rol='v' rango='ndp' page='ndpDetalles' />
                 <div className=''>
                     {/*La parte de arriba de la lista */}
                     <nav className="navbar navbar-expand-lg navbar-light bg-light">

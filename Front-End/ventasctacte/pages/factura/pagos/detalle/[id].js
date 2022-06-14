@@ -18,50 +18,8 @@ export default function Detalle() {
     const Router = useRouter()
 
     const [Pagos, setPagos] = useState([]);
-    const [Selec, setSelect] = useState([]);
     const [Key, SetKey] = useState(0);
-
-    let i = 0;
-
-    useEffect(() => {
-       
-        if (sessionStorage.getItem('token') == null) {
-            Router.push('/LogIn')
-        } else {
-            const token = JSON.parse(sessionStorage.getItem('token'));
-            hasRole(token.access_token, token.userName, "Cajero")
-            .then(r => {
-                if(r == 'false') Router.push("/LogIn");
-            });
-            if (typeof Router.query.id !== "undefined") {
-              getPagos(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
-                    .then(res => res.text())
-                    .then(res => {
-                        const r = JSON.parse(res)
-                        console.log(r)
-                        setPagos(r.map(p => {
-                            const returnValue = {
-                                id: p.Id,
-                                fecha: p.FechaPago.split('T')[0],
-                                cliente: p.Cliente.Nombre + " " + p.Cliente.Apellido,
-                                cajero: p.Cajero.Nombre + " " + p.Cajero.Apellido,
-                                montoTot: p.MontoTotal,
-                                detallePago: p.FormasPagos.map(fp => {
-                                    const newFP = {
-                                        metodo: fp.FormaPago,
-                                        monto: fp.Monto
-                                    }
-                                    return newFP
-                                })
-                            }
-                            
-                            return returnValue
-                        }))
-                    })
-            }
-        }
-        
-    }, [Router])
+    const [Pagado, setPagado] = useState(0)
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
@@ -69,18 +27,17 @@ export default function Detalle() {
         } else {
             const token = JSON.parse(sessionStorage.getItem('token'));
             hasRole(token.access_token, token.userName, "Cajero")
-            .then(r => {
-                if(r == 'false') Router.push("/LogIn");
-            });
+                .then(r => {
+                    if (r == 'false') Router.push("/LogIn");
+                });
             if (typeof Router.query.id !== "undefined") {
                 getPagos(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
                     .then(res => res.text())
                     .then(res => {
                         const r = JSON.parse(res)
-                        console.log(r)
                         setPagos(r.map(p => {
                             const returnValue = {
-                                fecha: p.FechaPago.split('T')[0],
+                                fecha: p.FechaPago,
                                 cliente: p.Cliente.Nombre + " " + p.Cliente.Apellido,
                                 cajero: p.Cajero.Nombre + " " + p.Cajero.Apellido,
                                 montoTot: p.MontoTotal,
@@ -94,10 +51,16 @@ export default function Detalle() {
                             }
                             return returnValue
                         }))
+                        setPagado(
+                            r.map(p => {
+                                return p.MontoTotal
+                            }).reduce((x, y) => x + y)
+                        )
                     })
+                    .catch(error => console.log(error))
             }
         }
-    }, [])
+    }, [Router])
 
     const formatNum = (data) => {
         return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(data)
@@ -109,6 +72,18 @@ export default function Detalle() {
         return returnValue
     }
 
+    const handleClickPago = (fecha) => {
+
+        document.getElementById('tbodyDetPago').innerHTML =
+            Pagos.filter(p => { return p.fecha == fecha })[0].detallePago.map(dp => {
+                return `<tr key=${getKey().toString()}>
+                <th>${dp.metodo}</th>
+                <td>${formatNum(dp.monto)} Gs.</td>
+            </tr>`
+            }).join("")
+
+    }
+
     return (
         <div>
             <Head>
@@ -116,7 +91,7 @@ export default function Detalle() {
             </Head>
             <div className='ms-4'>
                 <div className=''>
-                    <Navbar rango='fac' page='facDetalles' />
+                    <Navbar rol='c' rango='fac' page='facDetalles' />
                 </div>
 
                 <NavMain person="Cajero" pag="Detalle De Pago" />
@@ -134,16 +109,16 @@ export default function Detalle() {
                             <th scope='col'>Cliente</th>
                             <th scope='col'>Cajero</th>
                             <th scope='col'>Monto</th>
-                            <th scope='col'> <button className='btn btn-sm btn-primary' onClick={() => { Router.push(`/factura/pagos/Crear/${Router.query.id}`) }}> Nuevo Pago </button> </th>
+                            <th scope='col'> <button className='btn btn-sm btn-primary' onClick={() => { Router.push(`/factura/pagos/crear/${Router.query.id}`) }}> Nuevo Pago </button> </th>
                         </tr>
                     </thead>
                     <tbody>
                         {
                             Pagos.map(p => {
-                                
+
                                 return (
-                                    <tr key={p.id} onClick={() => { setSelect(p.detallePago) }}>
-                                        <th>{p.fecha}</th>
+                                    <tr key={p.fecha} onClick={() => { handleClickPago(p.fecha) }}>
+                                        <th>{p.fecha.split('T')[0]}</th>
                                         <td>{p.cliente}</td>
                                         <td>{p.cajero}</td>
                                         <td>{formatNum(p.montoTot)} Gs.</td>
@@ -158,8 +133,7 @@ export default function Detalle() {
 
                 </table>
                 <div>
-                    <label className='float-end mx-3'>Saldo: {formatNum(0)} Gs</label>
-                    <label className='float-end'> Precio Total: {formatNum(0)} Gs </label>
+                    <label className='float-end'> Pagado Total: {formatNum(Pagado)} Gs </label>
 
                 </div>
             </div>
@@ -172,17 +146,10 @@ export default function Detalle() {
                             <th scope='col'>Monto</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {
-                            Selec.map(dp => {
-                                return (
-                                    <tr key={getKey().toString()}>
-                                        <th>{dp.metodo}</th>
-                                        <td>{formatNum(dp.monto)} Gs.</td>
-                                    </tr>
-                                )
-                            })
-                        }
+                    <tbody id='tbodyDetPago'>
+                        <tr>
+                            <th scope='col-2'><h6>Clickea en un pago de arriba para ver el detalle de un pago...</h6></th>
+                        </tr>
 
 
                     </tbody>

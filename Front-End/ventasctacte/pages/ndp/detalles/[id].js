@@ -8,12 +8,15 @@ import Link from 'next/link'
 //componentes
 import Navbar from '../../../components/Navbar'
 import FDPControl from '../../../components/fdpControl'
+import NavMain from '../../../components/NavMain'
+
 //api
 import getPedido from '../../../API/getPedido'
 import getProductos from '../../../API/getProductos'
 import putPedido from '../../../API/putPedido'
 import crearFactura from '../../../API/crearFactura'
 import hasRole from '../../../API/hasRole'
+import getFacturasDePedidos from '../../../API/getFacturasDePedidos'
 
 export default function Detalles() {
     const [datos, setDatos] = useState({})
@@ -22,6 +25,9 @@ export default function Detalles() {
     const [precioTotal, setPrecioTotal] = useState({ precio: 0 })
     const [condPago, setCondPago] = useState('CONTADO')
     const [idGenerator, setIdGenerator] = useState(0)
+
+    const [listaFacturas, setListaFacturas] = useState([])
+
     const Router = useRouter()
 
     useEffect(() => {
@@ -30,28 +36,35 @@ export default function Detalles() {
         } else {
             const token = JSON.parse(sessionStorage.getItem('token'));
             hasRole(token.access_token, token.userName, "Vendedor")
-            .then(r => {
-                if(r == 'false'){
-                    Router.push("/LogIn")
-                    
-                } 
-            }).catch(console.log);
+                .then(r => {
+                    if (r == 'false') {
+                        Router.push("/LogIn")
+
+                    }
+                }).catch(console.log);
 
             if (Router.isReady) {
                 getPedido(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
-                    .then(response => response.text())
-                    .then(result => {
-                        const res = JSON.parse(result)
-                        setDatos({
-                            idClient: res.Cliente.Id,
-                            nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
-                            cin: res.Cliente.Documento,
-                            desc: res.PedidoDescripcion,
-                            fecha: res.FechePedido.split('T')[0],
-                            estado: res.Estado,
-                            costoTotal: res.CostoTotal,
-                            pedidosDetalles: res.PedidosDetalles
-                        })
+                    .then(response => response.json())
+                    .then(res => {
+                        console.log(res)
+                        if (typeof res.Message !== 'undefined') {
+                            alert(res.Message)
+                            Router.back()
+                        } else {
+                            setDatos({
+                                idClient: res.Cliente.Id,
+                                nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
+                                cin: res.Cliente.Documento,
+                                desc: res.PedidoDescripcion,
+                                fecha: res.FechePedido.split('T')[0],
+                                estado: res.Estado,
+                                costoTotal: res.CostoTotal,
+                                pedidosDetalles: res.PedidosDetalles
+                            })
+                        }
+
+
 
 
                     }).catch(err => console.log(err))
@@ -72,12 +85,66 @@ export default function Detalles() {
                         }))
                     }).catch(err => console.log(err))
 
+                getFacturasDePedidos(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id)
+                    .then(res => res.json())
+                    .then(res => {
+                        if (typeof res.Message === 'undefined') {
+                            console.log(res.FullFacturas)
+                            setListaFacturas(
+                                res.FullFacturas.map(f => {
+                                    const returnValue = {
+                                        id: f.IdFactura,
+                                        fecha: f.FechaFacturacion.split('T')[0],
+                                        detalles: f.Detalles,
+                                        saldo: f.SaldoTotal + f.IvaTotal
+                                    }
+                                    return returnValue
+                                })
+                            )
+
+                        } else {
+                            alert(res.Message)
+                            Router.back()
+                        }
+                    }).catch(err => console.log(err))
             }
         }
     }, [Router])
 
 
     const crearDetalles = () => {
+        if (typeof datos.pedidosDetalles !== 'undefined') {
+            setProductos(datos.pedidosDetalles.filter((p) => p.CantidadProductos > 0).map((p) => {
+                const newProd = {
+                    id: p.Id,
+                    prodId: p.Producto.Id,
+                    cantidad: p.CantidadProductos - p.CantidadFacturada,
+                    nombre: p.Producto.MarcaProducto + ' ' + p.Producto.NombreProducto,
+                    codBarr: p.Producto.CodigoDeBarra,
+                    precio: p.Producto.Precio + p.Producto.Iva,
+                    precioTotal: (p.Producto.Precio + p.Producto.Iva) * p.CantidadProductos
+                }
+                return newProd
+            }).filter((p) => p.cantidad > 0))
+            setPrecioTotal({
+                precio: datos.pedidosDetalles.filter((p) => p.CantidadProductos > 0).map((p) => {
+                    const newProd = {
+                        id: p.Id,
+                        prodId: p.Producto.Id,
+                        cantidad: p.CantidadProductos - p.CantidadFacturada,
+                        nombre: p.Producto.MarcaProducto + ' ' + p.Producto.NombreProducto,
+                        codBarr: p.Producto.CodigoDeBarra,
+                        precio: p.Producto.Precio + p.Producto.Iva,
+                        precioTotal: (p.Producto.Precio + p.Producto.Iva) * p.CantidadProductos
+                    }
+                    return newProd
+                }).filter((p) => p.cantidad > 0).map(p => { return p.precioTotal }).reduce((a, b) => a + b, 0)
+            })
+        }
+
+    }
+
+    const crearDetallesFacturado = () => {
         if (typeof datos.pedidosDetalles !== 'undefined') {
             setProductos(datos.pedidosDetalles.filter((p) => p.CantidadProductos > 0).map((p) => {
                 const newProd = {
@@ -90,7 +157,7 @@ export default function Detalles() {
                     precioTotal: (p.Producto.Precio + p.Producto.Iva) * p.CantidadProductos
                 }
                 return newProd
-            }))
+            }).filter((p) => p.cantidad > 0))
             setPrecioTotal({
                 precio: datos.pedidosDetalles.filter((p) => p.CantidadProductos > 0).map((p) => {
                     const newProd = {
@@ -103,10 +170,9 @@ export default function Detalles() {
                         precioTotal: (p.Producto.Precio + p.Producto.Iva) * p.CantidadProductos
                     }
                     return newProd
-                }).map(p => { return p.precioTotal }).reduce((a, b) => a + b, 0)
+                }).filter((p) => p.cantidad > 0).map(p => { return p.precioTotal }).reduce((a, b) => a + b, 0)
             })
         }
-
     }
 
     const formatFecha = (dateStr) => {
@@ -246,7 +312,25 @@ export default function Detalles() {
             return parseInt(document.getElementById("cantCuotasCred").value)
         }
     }
-    
+
+    const getButtonEditable = () => {
+        if (datos.estado == "PENDIENTE") {
+            return (<button className="btn btn-info btn-sm" onClick={() => { modificarNota() }}>Guardar Cambios</button>)
+        } else {
+            return (<button className="btn btn-info btn-sm" onClick={() => { modificarNota() }} disabled>Guardar Cambios</button>)
+        }
+    }
+
+    const handleClickFacturaDetalle = (arr) => {
+        document.getElementById('facturaDetallesShowTbody').innerHTML = arr.map(fd =>{
+            return `<tr key=${fd.Id}>
+                <th>${fd.Producto}</th>
+                <td>${fd.Cantidad}</td>
+                <td>${formatNum(fd.PrecioUnitario + fd.Iva)}</td>
+            </tr>`
+        }).join('')
+    }
+
     if (datos.estado != "FACTURADO") {
         return (
             <div>
@@ -256,31 +340,7 @@ export default function Detalles() {
                 <Navbar rol='v' rango='ndp' page='ndpDetalles' />
                 <div className=''>
                     {/*La parte de arriba de la lista */}
-                    <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                        <div className='ms-5'>
-
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16" onClick={() => { Router.back() }}>
-                                <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
-                            </svg>
-
-                        </div>
-
-                        <div className="ms-5">
-                            <ul className=" navbar-nav mr-auto">
-                                <li className="nav-item active">
-                                    <h6 className='pt-3 nav-link'>Notas de Pago</h6>
-                                </li>
-                                <li>
-                                    <h6 className='pt-3 nav-link'> - </h6>
-                                </li>
-                                <li className="nav-item">
-                                    <h6 className='pt-3 nav-link'>Agregar</h6>
-                                </li>
-
-                            </ul>
-                        </div>
-
-                    </nav>
+                    <NavMain person="vendedor" pag="Detalles de Factura / Facturacion" />
                     {/*La parte de abajo de la lista */}
 
 
@@ -291,7 +351,7 @@ export default function Detalles() {
                                     <h5>Detalles / Facturacion</h5>
                                     {/* lista de los objetos que se pidio, se deberia tener que cambiar se tiene que implementar
                         selectize, para eso necesito la lista de los productos.
-                    */ }
+                        */ }
                                     <div className=''>
                                         <label>Cliente:</label>
                                         <label className='px-3'>{datos.nombre}</label>
@@ -356,7 +416,7 @@ export default function Detalles() {
                                                     <td></td>
                                                     <td></td>
                                                     <td></td>
-                                                    <td><button className="btn btn-info btn-sm" onClick={() => { modificarNota() }}>Guardar Cambios</button></td>
+                                                    <td>{getButtonEditable()}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -386,6 +446,48 @@ export default function Detalles() {
                             </div>
                         </div>
                     </div>
+                    <div className='pe-3 pt-5 container'>
+                                    <div className='row'>
+                                        <div className='col-6'>
+                                            <h5>Factras Creadas desde este Pedido</h5>
+                                            <table className='table'>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Fecha</th>
+                                                        <th>Saldo</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {
+                                                        listaFacturas.map(f => {
+                                                            return (
+                                                                <tr key={f.id} onClick={()=>handleClickFacturaDetalle(f.detalles)}>
+                                                                    <th>{formatFecha(f.fecha)}</th>
+                                                                    <td>{formatNum(f.saldo)}</td>
+                                                                </tr>
+                                                            )
+                                                        })
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div className='col-6'>
+                                            <table className='table'>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Producto</th>
+                                                        <th>Cantidad</th>
+                                                        <th>Precio</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id='facturaDetallesShowTbody'>
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
                 </div>
             </div>
         )
@@ -476,7 +578,7 @@ export default function Detalles() {
                                             }
 
                                             <tr key="button" >
-                                                <td><button className="btn btn-secondary btn-sm" onClick={() => { crearDetalles() }}>Cargar</button></td>
+                                                <td><button className="btn btn-secondary btn-sm" onClick={() => { crearDetallesFacturado() }}>Cargar</button></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
@@ -492,7 +594,48 @@ export default function Detalles() {
                                     <h6>Descripcion:</h6>
                                     <label>{datos.desc}</label>
                                 </div>
+                                <div className='pe-3 pt-5 container'>
+                                    <div className='row'>
+                                        <div className='col-6'>
+                                            <h5>Factras Creadas desde este Pedido</h5>
+                                            <table className='table'>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Fecha</th>
+                                                        <th>Saldo</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {
+                                                        listaFacturas.map(f => {
+                                                            return (
+                                                                <tr key={f.id} onClick={()=>handleClickFacturaDetalle(f.detalles)}>
+                                                                    <th>{formatFecha(f.fecha)}</th>
+                                                                    <td>{formatNum(f.saldo)}</td>
+                                                                </tr>
+                                                            )
+                                                        })
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div className='col-6'>
+                                            <table className='table'>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Producto</th>
+                                                        <th>Cantidad</th>
+                                                        <th>Precio</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id='facturaDetallesShowTbody'>
 
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
 
 

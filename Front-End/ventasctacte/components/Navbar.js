@@ -10,8 +10,6 @@ function Navbar(props) {
     const apareceNav = () => {
         document.getElementById("mainNav").style.width = "300px";
         document.getElementById("subNav").style.width = "0px";
-        document.getElementById(props.page).style.color = "black"
-        document.getElementById(props.rango).style.color = "black"
     }
 
     const desapareceNav = () => {

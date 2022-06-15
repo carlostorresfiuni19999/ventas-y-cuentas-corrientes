@@ -122,7 +122,7 @@ export default function Crear() {
                 })
             })
             postPago(JSON.parse(sessionStorage.getItem('token')).access_token, raw);
-            Router.back()
+            Router.push(`/factura/pagos/detalle/${Router.query.id}`)
         }
     }
     return (
@@ -172,7 +172,14 @@ export default function Crear() {
                         }
                         <tr>
                             <th>
-                                <input type='text' id='addPagoMetodo' />
+                                <input type='text' id='addPagoMetodo' list='dataListMetodo'/>
+                                <datalist id='dataListMetodo'>
+                                    <option value="Efectivo" />
+                                    <option value="Tarjeta de Credito" />
+                                    <option value="Tarjeta de Debito" />
+                                    <option value="Transferencia Bancaria" />
+                                    <option value="Cheque" />
+                                </datalist>
                             </th>
                             <td>
                                 <input type='number' step={5000} max={getMax()} id='addPagoMonto' onBlur={() => { controlNum() }} />

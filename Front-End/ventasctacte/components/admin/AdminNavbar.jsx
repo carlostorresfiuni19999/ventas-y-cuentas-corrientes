@@ -1,8 +1,8 @@
-import { Navbar, Container, Nav } from "react-bootstrap";
+import { Navbar, Container, Nav, NavDropdown } from "react-bootstrap";
 import { Fragment } from "react";
 
 const AdminNavbar = () => {
-   
+
     return (
         <Fragment>
             <Navbar bg="light" expand="lg">
@@ -13,7 +13,12 @@ const AdminNavbar = () => {
                         <Nav className="me-auto">
                             <Nav.Link href="/admin/users/list">Usuarios</Nav.Link>
                             <Nav.Link href="/admin/cajas/list">Cajas</Nav.Link>
-                            
+                            <NavDropdown title="Historicos" id ="basic-nav-dropdown">
+                                <NavDropdown.Item href="/ndp/Lista">Pedidos</NavDropdown.Item>
+                                <NavDropdown.Item href="/factura/Lista">
+                                   Facturas
+                                </NavDropdown.Item>
+                            </NavDropdown>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

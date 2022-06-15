@@ -10,6 +10,8 @@ using System.Linq;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Timers;
+using System.Globalization;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -380,16 +382,20 @@ namespace cuentasctacte_web_api.Controllers
         //Intento 1. AÑO, MES, DIA,
         //Intento dos. dia, mes, año 
 
-        public List<FullFacturaResponseDTO> FacturaReporte(String fechaInicio_Str = "01-01-1950", String fechaFin_Str = "01-01-2100", String estado = "ALL")
+        public List<FullFacturaResponseDTO> FacturaReporte(String fechaInicio_Str = "1950/05/05", String fechaFin_Str = "2100/09/09", String estado = "ALL")
         {
             //DateTime desde = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
             //DateTime hasta = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
-            Console.WriteLine(fechaInicio_Str);
-
-            DateTime desde = Convert.ToDateTime(fechaInicio_Str);
-            DateTime hasta = Convert.ToDateTime(fechaFin_Str);
-
             
+
+           // DateTime desde = Convert.ToDateTime(fechaInicio_Str);
+           // DateTime hasta = Convert.ToDateTime(fechaFin_Str);
+
+            var desde = ParseDate(fechaInicio_Str);
+            var hasta = ParseDate(fechaFin_Str);
+
+            Console.WriteLine(desde.ToString());
+
 
             List<FullFacturaResponseDTO> Facturas_entreFechas_RespondeDTO = new List<FullFacturaResponseDTO>();
             //Filtramos por fechas
@@ -408,12 +414,25 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         public List<Factura> filtrarReporteFactura_tiempo(DateTime desde, DateTime hasta)
-        {
+        {       /*
             List<Factura> facturaList = db.Facturas
                 .Include(c => c.Cliente)
                 .Where(f => !f.Deleted)
                 .Where(f => f.FechaFactura >= desde && f.FechaFactura <= hasta)
+
                 .ToList();
+            */
+            List<Factura> facturaList = db.Facturas
+                .Include(c => c.Cliente)
+                .Where(f => !f.Deleted)
+                .ToList()
+                .FindAll(
+                           t => 0 == DateTime.Compare(desde, t.FechaFactura)//Si la fecha de Inicio es igual a la fecha de creacion
+                               || (0 > DateTime.Compare(desde, t.FechaFactura)//Si la Fecha de Inicio esta antes de la Fecha de Creacion Y
+                               && 0 < DateTime.Compare(hasta, t.FechaFactura))//Si la fecha Fin esta despues de la fecha de creacion
+                               || 0 == DateTime.Compare(desde, t.FechaFactura) // Si la fecha fin es igual a la fecha de Creacion
+                    );
+
 
             return facturaList;
         }
@@ -464,6 +483,17 @@ namespace cuentasctacte_web_api.Controllers
             return facturas_filtradas_estado;
 
         }
-
+        private static DateTime ParseDate(string providedDate)
+        {
+            DateTime validDate;
+            string[] formats = { "dd/MM/yyyy hh:mm:ss", "yyyy-MM-dd'T'hh:mm:ss'Z'" };
+            var dateFormatIsValid = DateTime.TryParseExact(
+                providedDate,
+                formats,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out validDate);
+            return dateFormatIsValid ? validDate : DateTime.MinValue;
+        }
     }
 }

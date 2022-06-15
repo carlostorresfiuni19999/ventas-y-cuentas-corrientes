@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 
 //next
 import Head from 'next/head'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 //components
@@ -13,11 +12,13 @@ import FDPControl from '../../components/fdpControl'
 //api
 import getPedidosSF from '../../API/getPedidosSF'
 import crearFactura from '../../API/crearFactura'
+import NavMain from '../../components/NavMain'
+import hasRole from '../../API/hasRole'
 
 export default function Crear() {
 
     //router
-    const router = useRouter()
+    const Router = useRouter()
 
     //estados
     const [notas, setNotas] = useState([])
@@ -35,74 +36,106 @@ export default function Crear() {
 
     //recive las notas
     useEffect(() => {
-        getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(res => res.text()).
-            then(result => {
-                const n = JSON.parse(result)
-                setNotas(n.map(nota => {
-                    const notaNew = {
-                        id: nota.Id,
-                        cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
-                        cin: nota.Cliente.Documento,
-                        vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
-                        fecha: nota.FechePedido.split('T')[0],
-                        precioTotal: nota.CostoTotal,
-                        pedidoDesc: nota.PedidoDescripcion,
-                        productos: nota.PedidosDetalles.map((detalle) => {
-                            const newProdRow = {
-                                id: detalle.Id,
-                                cantidad: detalle.CantidadProductos,
-                                nombre: detalle.Producto.MarcaProducto + ' ' + detalle.Producto.NombreProducto,
-                                precio: detalle.Producto.Precio + detalle.Producto.Iva,
-                                codBarra: detalle.Producto.CodigoDeBarra,
-                                precioTotal: (detalle.Producto.Precio + detalle.Producto.Iva) * detalle.CantidadProductos
-                            }
-                            return newProdRow
-                        })
-                    }
-                    return notaNew
-                }))
+        if (sessionStorage.getItem('token') == null) {
+            Router.push('/LogIn')
+        } else {
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false'){
+                    hasRole(token.access_token, token.userName, "Vendedor")
+                    .then(k => {
+                        if(k == 'false'){
+                            Router.push("LogIn");
+                        }
+                    }).catch(console.log)
+                    
+                } 
+            }).catch(console.log);
 
-            })
-            .catch(error => console.log(error))
+            getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(res => res.text()).
+                then(result => {
+                    const n = JSON.parse(result)
+                    setNotas(n.map(nota => {
+                        const notaNew = {
+                            id: nota.Id,
+                            cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
+                            cin: nota.Cliente.Documento,
+                            vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
+                            fecha: nota.FechePedido.split('T')[0],
+                            precioTotal: nota.CostoTotal,
+                            pedidoDesc: nota.PedidoDescripcion,
+                            productos: nota.PedidosDetalles.map((detalle) => {
+                                const newProdRow = {
+                                    id: detalle.Id,
+                                    cantidad: detalle.CantidadProductos,
+                                    nombre: detalle.Producto.MarcaProducto + ' ' + detalle.Producto.NombreProducto,
+                                    precio: detalle.Producto.Precio + detalle.Producto.Iva,
+                                    codBarra: detalle.Producto.CodigoDeBarra,
+                                    precioTotal: (detalle.Producto.Precio + detalle.Producto.Iva) * detalle.CantidadProductos
+                                }
+                                return newProdRow
+                            })
+                        }
+                        return notaNew
+                    }))
 
-    }, [notas])
+                })
+                .catch(error => console.log(error))
+        }
+    }, [notas, Router])
 
     useEffect(() => {
-        getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(res => res.text()).
-            then(result => {
-                const n = JSON.parse(result)
-                setNotas(n.map(nota => {
-                    const notaNew = {
-                        id: nota.Id,
-                        cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
-                        cin: nota.Cliente.Documento,
-                        vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
-                        fecha: nota.FechePedido.split('T')[0],
-                        precioTotal: nota.CostoTotal,
-                        pedidoDesc: nota.PedidoDescripcion,
-                        productos: nota.PedidosDetalles.map((detalle) => {
-                            const newProdRow = {
-                                id: detalle.Id,
-                                cantidad: detalle.CantidadProductos,
-                                nombre: detalle.Producto.MarcaProducto + ' ' + detalle.Producto.NombreProducto,
-                                precio: detalle.Producto.Precio + detalle.Producto.Iva,
-                                codBarra: detalle.Producto.CodigoDeBarra,
-                                precioTotal: (detalle.Producto.Precio + detalle.Producto.Iva) * detalle.CantidadProductos
-                            }
-                            return newProdRow
-                        })
-                    }
-                    return notaNew
-                }))
+        if (sessionStorage.getItem('token') == null) {
+            Router.push('/LogIn')
+        } else {
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Cajero")
+            .then(r => {
+                if(r == 'false'){
+                    hasRole(token.access_token, token.userName, "Vendedor")
+                    .then(k => {
+                        if(k == 'false'){
+                            Router.push("LogIn");
+                        }
+                    }).catch(console.log)
+                    
+                } 
+            }).catch(console.log);
+            
+            getPedidosSF(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(res => res.text()).
+                then(result => {
+                    const n = JSON.parse(result)
+                    setNotas(n.map(nota => {
+                        const notaNew = {
+                            id: nota.Id,
+                            cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
+                            cin: nota.Cliente.Documento,
+                            vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
+                            fecha: nota.FechePedido.split('T')[0],
+                            precioTotal: nota.CostoTotal,
+                            pedidoDesc: nota.PedidoDescripcion,
+                            productos: nota.PedidosDetalles.map((detalle) => {
+                                const newProdRow = {
+                                    id: detalle.Id,
+                                    cantidad: detalle.CantidadProductos,
+                                    nombre: detalle.Producto.MarcaProducto + ' ' + detalle.Producto.NombreProducto,
+                                    precio: detalle.Producto.Precio + detalle.Producto.Iva,
+                                    codBarra: detalle.Producto.CodigoDeBarra,
+                                    precioTotal: (detalle.Producto.Precio + detalle.Producto.Iva) * detalle.CantidadProductos
+                                }
+                                return newProdRow
+                            })
+                        }
+                        return notaNew
+                    }))
 
-            })
-            .catch(error => console.log(error))
-        return () => {
-            setNotas([[]])
+                })
+                .catch(error => console.log(error))
         }
-    }, [])
+    }, [Router])
 
     //funciones
     const formatfecha = (dateStr) => {
@@ -121,14 +154,14 @@ export default function Crear() {
     }
 
     const getCantCuotas = () => {
-        if(condPago == "CONTADO"){
+        if (condPago == "CONTADO") {
             return 1
-        }else{
+        } else {
             return document.getElementById("cantCuotasCred").value
         }
     }
 
-    const  crearPeticionFactura = () => {
+    const crearPeticionFactura = () => {
         if (selectNota.id == 0) {
             alert("faltan datos, seleccione una nota de pedido")
         } else {
@@ -137,51 +170,21 @@ export default function Crear() {
                 "CantidadCuotas": getCantCuotas()
             })
             crearFactura(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-            router.back()
+            Router.back()
         }
-    }
-
-    console.log(notas)
-
+    } 
+    
     return (
         <div>
             <Head>
                 <title>Crear Nueva Factura</title>
             </Head>
             <div>
-                <Navbar rango='fac' page='facCrear' />
+                <Navbar rol='c' rango='fac' page='facCrear' />
             </div>
             <div className='ms-4'>
                 {/*La parte de arriba*/}
-                <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                    <div className='ms-4'>
-                        <Link href='/' >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16">
-                                <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
-                            </svg>
-                        </Link>
-                    </div>
-
-
-                    <div className="ms-5 collapse navbar-collapse" id="navbarSupportedContent">
-
-                        <ul className=" navbar-nav mr-auto">
-
-                            <li className="nav-item active">
-                                <h6 className='pt-3 nav-link'>Factura</h6>
-                            </li>
-                            <li>
-                                <h6 className='pt-3 nav-link'> - </h6>
-                            </li>
-                            <li className="nav-item">
-                                <h6 className='pt-3 nav-link'>Crear</h6>
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-                </nav>
+                <NavMain person="Vendedor" pag="Crear Factura" />
 
                 <div className='pt-4 container'>
                     <div className='row'>
@@ -280,7 +283,7 @@ export default function Crear() {
 
                             <div className='float-end pe-2 pt-2 pb-5'>
                                 <button className='btn btn-success me-2' onClick={() => { crearPeticionFactura() }}>Crear</button>
-                                <button className='btn btn-danger ' onClick={() => { router.back() }}>Cancelar</button>
+                                <button className='btn btn-danger ' onClick={() => { Router.back() }}>Cancelar</button>
                             </div>
                         </div>
                     </div>

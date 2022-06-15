@@ -224,8 +224,8 @@ namespace cuentasctacte_web_api.Controllers
                 {
                     FacturaId = FacturaDb.Id,
                     FechaVencimiento = Vencimiento.AddMonths(i + 1),
-                    Monto = (FacturaDb.Monto + FacturaDb.Iva) / factura.CantidadCuotas,
-                    Saldo = (FacturaDb.Monto + FacturaDb.Iva) / factura.CantidadCuotas,
+                    Monto = (FacturaDb.Monto) / factura.CantidadCuotas,
+                    Saldo = (FacturaDb.Monto) / factura.CantidadCuotas,
                     Deleted = false
                 };
 
@@ -239,7 +239,8 @@ namespace cuentasctacte_web_api.Controllers
 
             var PedidosDetalles = db.PedidoDetalles
                 .Include(p => p.Pedido)
-                .Include(p => p.Producto);
+                .Include(p => p.Producto)
+                .Where(p => p.IdPedido == FacturaSaved.PedidoId);
 
             Pedido.Estado = PedidosDetalles
                 .Where(p => p.CantidadFacturada == p.CantidadProducto)
@@ -249,6 +250,37 @@ namespace cuentasctacte_web_api.Controllers
             //Guardamos El nuevo estado del Pedido
             db.Entry(Pedido).State = EntityState.Modified;
 
+            //Unificando los PedidosDetalles
+            List<PedidoDetalle> Existentes =new List<PedidoDetalle>();
+            foreach (var pedidoDetalle in PedidosDetalles )
+            {
+                var dets = db.PedidoDetalles
+                .Include(p => p.Pedido)
+                .Include(p => p.Producto)
+                .Where(p => p.IdProducto == pedidoDetalle.IdProducto
+                && p.IdPedido == pedidoDetalle.IdPedido);
+
+                if(dets.Count() > 1)
+                {
+                    var newDetalle = pedidoDetalle;
+                    newDetalle.CantidadProducto = dets.Sum(p => p.CantidadProducto);
+                    newDetalle.CantidadFacturada = dets.Sum(p => p.CantidadFacturada);
+                    
+                    Existentes.Add(newDetalle);
+
+                    dets.ForEachAsync(p =>
+                    {
+                        p.Deleted = true;
+                        db.Entry(p).State = EntityState.Modified;
+                    });
+                }
+                else
+                {
+                    Existentes.Add(dets.FirstOrDefault());
+                }
+            }
+
+            Existentes.ForEach(p => db.PedidoDetalles.Add(p));
             try
             {
                 db.SaveChanges();
@@ -340,6 +372,8 @@ namespace cuentasctacte_web_api.Controllers
         {
             var Result = new FullFacturaResponseDTO()
             {
+                IdFactura = (int) factura.Id,
+                IdPedido = (int) factura.PedidoId,
                 Cliente = factura.Cliente.Nombre + " " + factura.Cliente.Apellido,
                 DocCliente = factura.Cliente.Documento,
                 PrecioTotal = factura.Monto,
@@ -382,6 +416,7 @@ namespace cuentasctacte_web_api.Controllers
         //Intento 1. AÑO, MES, DIA,
         //Intento dos. dia, mes, año 
 
+
         public List<FullFacturaResponseDTO> FacturaReporte(String fechaInicio_Str = "1950/05/05", String fechaFin_Str = "2100/09/09", String estado = "ALL")
         {
             //DateTime desde = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
@@ -395,6 +430,7 @@ namespace cuentasctacte_web_api.Controllers
             var hasta = ParseDate(fechaFin_Str);
 
             Console.WriteLine(desde.ToString());
+
 
 
             List<FullFacturaResponseDTO> Facturas_entreFechas_RespondeDTO = new List<FullFacturaResponseDTO>();
@@ -414,14 +450,9 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         public List<Factura> filtrarReporteFactura_tiempo(DateTime desde, DateTime hasta)
-        {       /*
-            List<Factura> facturaList = db.Facturas
-                .Include(c => c.Cliente)
-                .Where(f => !f.Deleted)
-                .Where(f => f.FechaFactura >= desde && f.FechaFactura <= hasta)
 
-                .ToList();
-            */
+        {       
+   
             List<Factura> facturaList = db.Facturas
                 .Include(c => c.Cliente)
                 .Where(f => !f.Deleted)
@@ -432,6 +463,7 @@ namespace cuentasctacte_web_api.Controllers
                                && 0 < DateTime.Compare(hasta, t.FechaFactura))//Si la fecha Fin esta despues de la fecha de creacion
                                || 0 == DateTime.Compare(desde, t.FechaFactura) // Si la fecha fin es igual a la fecha de Creacion
                     );
+
 
 
             return facturaList;
@@ -483,6 +515,7 @@ namespace cuentasctacte_web_api.Controllers
             return facturas_filtradas_estado;
 
         }
+
         private static DateTime ParseDate(string providedDate)
         {
             DateTime validDate;
@@ -496,4 +529,11 @@ namespace cuentasctacte_web_api.Controllers
             return dateFormatIsValid ? validDate : DateTime.MinValue;
         }
     }
+
+
+    
+
+
+
 }
+

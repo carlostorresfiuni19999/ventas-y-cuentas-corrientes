@@ -5,6 +5,9 @@ namespace cuentasctacte_web_api.Models.DTOs
 {
     public class FullFacturaResponseDTO
     {
+    
+        public int IdFactura { get; set; }
+        public int IdPedido { get; set; }
         public string DocCliente { get; set; }
         public string Cliente { get; set; }
 

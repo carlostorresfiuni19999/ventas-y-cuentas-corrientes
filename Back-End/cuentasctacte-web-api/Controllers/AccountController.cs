@@ -12,13 +12,14 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OAuth;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-
+using System.Linq;
 namespace cuentasctacte_web_api.Controllers
 {
     [Authorize]
@@ -53,347 +54,188 @@ namespace cuentasctacte_web_api.Controllers
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
 
-        // GET api/Account/UserInfo
-        [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
-        [Route("UserInfo")]
-        public UserInfoViewModel GetUserInfo()
-        {
-            ExternalLoginData externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
-
-            return new UserInfoViewModel
-            {
-                Email = User.Identity.GetUserName(),
-                HasRegistered = externalLogin == null,
-                LoginProvider = externalLogin != null ? externalLogin.LoginProvider : null
-            };
-        }
-
-        // POST api/Account/Logout
-        [Route("Logout")]
-        public IHttpActionResult Logout()
-        {
-            Authentication.SignOut(CookieAuthenticationDefaults.AuthenticationType);
-            return Ok();
-        }
-
-        // GET api/Account/ManageInfo?returnUrl=%2F&generateState=true
-        [Route("ManageInfo")]
-        public async Task<ManageInfoViewModel> GetManageInfo(string returnUrl, bool generateState = false)
-        {
-            IdentityUser user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            List<UserLoginInfoViewModel> logins = new List<UserLoginInfoViewModel>();
-
-            foreach (IdentityUserLogin linkedAccount in user.Logins)
-            {
-                logins.Add(new UserLoginInfoViewModel
-                {
-                    LoginProvider = linkedAccount.LoginProvider,
-                    ProviderKey = linkedAccount.ProviderKey
-                });
-            }
-
-            if (user.PasswordHash != null)
-            {
-                logins.Add(new UserLoginInfoViewModel
-                {
-                    LoginProvider = LocalLoginProvider,
-                    ProviderKey = user.UserName,
-                });
-            }
-
-            return new ManageInfoViewModel
-            {
-                LocalLoginProvider = LocalLoginProvider,
-                Email = user.UserName,
-                Logins = logins,
-                ExternalLoginProviders = GetExternalLogins(returnUrl, generateState)
-            };
-        }
-
-        // POST api/Account/ChangePassword
-        [Route("ChangePassword")]
-        public async Task<IHttpActionResult> ChangePassword(ChangePasswordBindingModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword,
-                model.NewPassword);
-
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-
-            return Ok();
-        }
 
         // POST api/Account/SetPassword
+        [HttpPut]
         [Route("SetPassword")]
-        public async Task<IHttpActionResult> SetPassword(SetPasswordBindingModel model)
+        [Authorize(Roles = "Administrador")]
+        public async Task<IHttpActionResult> SetPassword(string UserName, SetPasswordBindingModel model)
         {
-            if (!ModelState.IsValid)
+
+            var user = db.Users.FirstOrDefault(u => u.UserName.Equals(UserName));
+            
+            if (user == null) return BadRequest("Usuario no valido");
+            user.PasswordHash = UserManager.PasswordHasher.HashPassword(model.NewPassword);
+
+            db.Entry(user).State = EntityState.Modified;
+            try
             {
-                return BadRequest(ModelState);
+                db.SaveChanges();
+                return Ok("Modificado con exito");
+            }
+            catch
+            {
+                return BadRequest("Error en la transaccion");
             }
 
-            IdentityResult result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
-
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-
-            return Ok();
+            
         }
 
-        // POST api/Account/AddExternalLogin
-        [Route("AddExternalLogin")]
-        public async Task<IHttpActionResult> AddExternalLogin(AddExternalLoginBindingModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-
-            AuthenticationTicket ticket = AccessTokenFormat.Unprotect(model.ExternalAccessToken);
-
-            if (ticket == null || ticket.Identity == null || (ticket.Properties != null
-                && ticket.Properties.ExpiresUtc.HasValue
-                && ticket.Properties.ExpiresUtc.Value < DateTimeOffset.UtcNow))
-            {
-                return BadRequest("Error de inicio de sesión externo.");
-            }
-
-            ExternalLoginData externalData = ExternalLoginData.FromIdentity(ticket.Identity);
-
-            if (externalData == null)
-            {
-                return BadRequest("El inicio de sesión externo ya está asociado a una cuenta.");
-            }
-
-            IdentityResult result = await UserManager.AddLoginAsync(User.Identity.GetUserId(),
-                new UserLoginInfo(externalData.LoginProvider, externalData.ProviderKey));
-
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-
-            return Ok();
-        }
-
-        // POST api/Account/RemoveLogin
-        [Route("RemoveLogin")]
-        public async Task<IHttpActionResult> RemoveLogin(RemoveLoginBindingModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            IdentityResult result;
-
-            if (model.LoginProvider == LocalLoginProvider)
-            {
-                result = await UserManager.RemovePasswordAsync(User.Identity.GetUserId());
-            }
-            else
-            {
-                result = await UserManager.RemoveLoginAsync(User.Identity.GetUserId(),
-                    new UserLoginInfo(model.LoginProvider, model.ProviderKey));
-            }
-
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-
-            return Ok();
-        }
-
-        // GET api/Account/ExternalLogin
-        [OverrideAuthentication]
-        [HostAuthentication(DefaultAuthenticationTypes.ExternalCookie)]
-        [AllowAnonymous]
-        [Route("ExternalLogin", Name = "ExternalLogin")]
-        public async Task<IHttpActionResult> GetExternalLogin(string provider, string error = null)
-        {
-            if (error != null)
-            {
-                return Redirect(Url.Content("~/") + "#error=" + Uri.EscapeDataString(error));
-            }
-
-            if (!User.Identity.IsAuthenticated)
-            {
-                return new ChallengeResult(provider, this);
-            }
-
-            ExternalLoginData externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
-
-            if (externalLogin == null)
-            {
-                return InternalServerError();
-            }
-
-            if (externalLogin.LoginProvider != provider)
-            {
-                Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-                return new ChallengeResult(provider, this);
-            }
-
-            ApplicationUser user = await UserManager.FindAsync(new UserLoginInfo(externalLogin.LoginProvider,
-                externalLogin.ProviderKey));
-
-            bool hasRegistered = user != null;
-
-            if (hasRegistered)
-            {
-                Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-
-                ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(UserManager,
-                   OAuthDefaults.AuthenticationType);
-                ClaimsIdentity cookieIdentity = await user.GenerateUserIdentityAsync(UserManager,
-                    CookieAuthenticationDefaults.AuthenticationType);
-
-                AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
-                Authentication.SignIn(properties, oAuthIdentity, cookieIdentity);
-            }
-            else
-            {
-                IEnumerable<Claim> claims = externalLogin.GetClaims();
-                ClaimsIdentity identity = new ClaimsIdentity(claims, OAuthDefaults.AuthenticationType);
-                Authentication.SignIn(identity);
-            }
-
-            return Ok();
-        }
-
-        // GET api/Account/ExternalLogins?returnUrl=%2F&generateState=true
-        [AllowAnonymous]
-        [Route("ExternalLogins")]
-        public IEnumerable<ExternalLoginViewModel> GetExternalLogins(string returnUrl, bool generateState = false)
-        {
-            IEnumerable<AuthenticationDescription> descriptions = Authentication.GetExternalAuthenticationTypes();
-            List<ExternalLoginViewModel> logins = new List<ExternalLoginViewModel>();
-
-            string state;
-
-            if (generateState)
-            {
-                const int strengthInBits = 256;
-                state = RandomOAuthStateGenerator.Generate(strengthInBits);
-            }
-            else
-            {
-                state = null;
-            }
-
-            foreach (AuthenticationDescription description in descriptions)
-            {
-                ExternalLoginViewModel login = new ExternalLoginViewModel
-                {
-                    Name = description.Caption,
-                    Url = Url.Route("ExternalLogin", new
-                    {
-                        provider = description.AuthenticationType,
-                        response_type = "token",
-                        client_id = Startup.PublicClientId,
-                        redirect_uri = new Uri(Request.RequestUri, returnUrl).AbsoluteUri,
-                        state = state
-                    }),
-                    State = state
-                };
-                logins.Add(login);
-            }
-
-            return logins;
-        }
-
+       
+      
         // POST api/Account/Register
-        [AllowAnonymous]
+        [Authorize(Roles ="Administrador")]
         [Route("Register")]
-        public async Task<IHttpActionResult> Register(RegisterBindingModel model)
+        public async Task<IHttpActionResult> Register(PersonaRequestDTO model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            
 
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            var user = new ApplicationUser() { UserName = model.UserName, Email = model.UserName };
 
             IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-            foreach(var rol in model.Roles)
+       
+            
+            if (!result.Succeeded)
+            {
+                return GetErrorResult(result);
+            }
+            foreach (var rol in model.Roles)
             {
                 UserManager.AddToRole(user.Id, rol);
             }
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-           
-            return Ok();
-        }
 
-        // POST api/Account/RegisterExternal
-        [OverrideAuthentication]
-        [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
-        [Route("RegisterExternal")]
-        public async Task<IHttpActionResult> RegisterExternal(RegisterExternalBindingModel model)
-        {
-            if (!ModelState.IsValid)
+            
+            // AddPersonas
+            var Persona = new Persona()
             {
-                return BadRequest(ModelState);
-            }
-
-            var info = await Authentication.GetExternalLoginInfoAsync();
-            if (info == null)
-            {
-                return InternalServerError();
-            }
-
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
-
-            IdentityResult result = await UserManager.CreateAsync(user);
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-
-            result = await UserManager.AddLoginAsync(user.Id, info.Login);
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-            return Ok();
-        }
-
-        [HttpGet]
-        [Authorize]
-        [Route("IsLogged")]
-        public PersonaResponseDTO GetLogged(string email)
-        {
-            string Id = User.Identity.GetUserId();
-            Persona P = GetUserLogged.GetUser(db, Id);
-            return new PersonaResponseDTO()
-            {
-                Nombre = P.Nombre,
-                Apellido = P.Apellido,
-                Documento = P.Documento,
-                DocumentoTipo = P.DocumentoTipo
+                Nombre = model.Nombre,
+                Apellido = model.Apellido,
+                Documento = model.Doc,
+                LineaDeCredito = model.LineaDeCredito,
+                Saldo = 0,
+                DocumentoTipo = model.DocumentoTipo,
+                Deleted = false,
+                Telefono = model.Telefono,
+                UserName = model.UserName
             };
+            var PersonaSaved = db.Personas.Add(Persona);
+
+            foreach (var rol in model.Roles)
+            {
+                var Role = db.TipoPersonas
+                    .FirstOrDefault(r => r.Tipo.Equals(rol));
+
+                if (Role == null) return BadRequest("Rol no valido");
+                var PersonaTipoPersona = new Personas_Tipos_Personas()
+                {
+                    IdPersona = PersonaSaved.Id,
+                    IdTipoPersona = Role.Id,
+                    Deleted = false,
+                };
+
+                db.Personas_Tipos_Personas.Add(PersonaTipoPersona);
+            }
+            db.SaveChanges();
+            return Ok();
         }
 
+        [Authorize(Roles = "Administrador")]
+        [HttpPut]
+        [Route("Edit")]
+        public IHttpActionResult EditPersonaAsync(string username, PersonaUpdateRequestDTO persona)
+        {
+            Persona Persona = db.Personas
+                .Where(p => !p.Deleted)
+                .Where(p => p.UserName.Equals(username))
+                .FirstOrDefault();
+
+            if (Persona == null) return (BadRequest("Persona no encontrada "));
+            var userManager = db.Users.FirstOrDefault(u => u.UserName.Equals(username));
+
+            if (userManager == null) return (NotFound());
+
+            //Verificamos si hay un cambio en la tabla de Personas
+
+            if (!(Persona.LineaDeCredito == persona.LineaDeCredito &&
+                Persona.UserName == persona.UserName
+                && Persona.Documento == persona.Doc
+                && Persona.DocumentoTipo == persona.DocumentoTipo
+                && Persona.Telefono == persona.Telefono
+                && Persona.Nombre == persona.Nombre
+                && Persona.Apellido == persona.Apellido))
+            {
+                Persona.LineaDeCredito = persona.LineaDeCredito;
+                Persona.UserName = persona.UserName;
+                Persona.Documento = persona.Doc;
+                Persona.DocumentoTipo = persona.DocumentoTipo;
+                Persona.Telefono = persona.Telefono;
+                Persona.Nombre = persona.Nombre;
+                Persona.Apellido = persona.Apellido;
+
+                //Actualizamos
+
+
+
+            }
+            //Actualizamos primero la Persona en la bd
+
+
+
+            //Borramos todos los roles que tenia
+
+            var query = db.Personas_Tipos_Personas
+                .Include(ptp => ptp.Persona)
+                .Include(ptp => ptp.TipoPersona)
+                .Where(ptp => !ptp.Deleted)
+                .Where(ptp => ptp.IdPersona == Persona.Id);
+
+            foreach (var ptp in query)
+            {
+                UserManager.RemoveFromRole(userManager.Id, ptp.TipoPersona.Tipo);
+
+            }
+
+            foreach (var r in persona.Roles)
+            {
+                UserManager.AddToRole(userManager.Id, r);
+            }
+
+            foreach (var ptp in query)
+            {
+                db.Personas_Tipos_Personas.Remove(ptp);
+            }
+            //Cargamos los nuevos roles
+            persona.Roles.ForEach(r => {
+                var roldb = new Personas_Tipos_Personas
+                {
+                    IdPersona = Persona.Id,
+                    IdTipoPersona = db.TipoPersonas
+                        .FirstOrDefault(tp => tp.Tipo.Equals(r)).Id,
+                    Deleted = false
+                };
+
+                db.Personas_Tipos_Personas.Add(roldb);
+            }
+            );
+
+            userManager.UserName = persona.UserName;
+            userManager.Email = persona.UserName;
+            db.Entry(userManager).State = EntityState.Modified;
+            db.Entry(Persona).State = EntityState.Modified;
+
+            try
+            {
+                db.SaveChanges();
+                return (Ok("Editado con exito"));
+            }
+            catch
+            {
+                return (BadRequest("Ocurrio un error al ejecutar la transaccion"));
+            }
+
+        }
+       
+        
         [HttpGet]
         [Authorize]
         [Route("HasRole")]

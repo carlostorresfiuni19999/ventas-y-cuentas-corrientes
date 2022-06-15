@@ -9,9 +9,13 @@ const deleteFactura = (token, id) => {
     };
 
     return fetch(`https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Facturas/${id}`, requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
-        .catch(error => console.log('error', error));
+        .then(response => {
+            if(response.ok){
+                alert("Eliminado con exito");
+            }else{
+                response.json().then(error => {alert(error.Message)});
+            }
+        }).catch(error => console.log(error));
 }
 
 export default deleteFactura

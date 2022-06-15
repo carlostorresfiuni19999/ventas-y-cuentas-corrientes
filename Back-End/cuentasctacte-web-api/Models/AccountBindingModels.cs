@@ -47,6 +47,7 @@ namespace cuentasctacte_web_api.Models
         public List<string> Roles { get; set; }
 
 
+
         [DataType(DataType.Password)]
         [Display(Name = "Confirmar contraseña")]
         [Compare("Password", ErrorMessage = "La contraseña y la contraseña de confirmación no coinciden.")]

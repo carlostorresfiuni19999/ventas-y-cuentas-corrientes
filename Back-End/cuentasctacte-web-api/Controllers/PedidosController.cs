@@ -493,8 +493,12 @@ namespace cuentasctacte_web_api.Controllers
             return result;
         }
 
+
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Reporte pedidos
-       
+
+
+
+
         //[ResponseType(typeof(PedidoDetalleResponseDTO))]
         [Route("api/Pedidos/PedidoReporte")]
         [HttpGet]
@@ -588,14 +592,18 @@ namespace cuentasctacte_web_api.Controllers
 
         }
 
+
         /////////////////////////////////////////////////////////////////////////// Get facturas asociadas a un pedido
+
+
+
         public PedidoResponseDTO GetPedido_local(int id)
         {
             var Pedido = db.Pedidos
                 .Include(p => p.Vendedor)
                 .Include(p => p.Cliente)
                 .FirstOrDefault(p => p.Id == id);
-           
+   
             return PedidoMapper(Pedido);
         }
 
@@ -603,6 +611,7 @@ namespace cuentasctacte_web_api.Controllers
         [HttpGet]
         [ResponseType(typeof(FacturasDePedidoResponseDTO))]
         public IHttpActionResult getFacturasPedido(int id_Pedido) {
+
 
             PedidoResponseDTO pedidoResponse = GetPedido_local(id_Pedido);
             var listaFacturas = facturaMapperList(getFacturas(id_Pedido));
@@ -616,14 +625,13 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         private List<Factura> getFacturas(int id_pedido) {
+
             var Facturas = db.Facturas
                 .Include(f => f.Pedido)
                 .Include(f => f.Cliente)
                 .Where(f => f.PedidoId == id_pedido)
                 .Where(f => f.Deleted != true)
                 .ToList();
-           
-
             return Facturas;
         }
 
@@ -636,9 +644,7 @@ namespace cuentasctacte_web_api.Controllers
             foreach (var Factura in Facturas) {//Vamos agregando las facturas
                 FullFacturas.Add(Fc.MapToFullFactura(Factura));
             }
-
             return FullFacturas;
         }
-
     }
 }

@@ -6,65 +6,127 @@ import Navbar from '../../components/Navbar'
 import getPersonas from '../../API/getPersonas'
 import getProductos from '../../API/getProductos'
 import agregarPedido from '../../API/agregarPedido'
-//import selectize from 'selectize'
+import NavMain from '../../components/NavMain'
+import hasRole from '../../API/hasRole'
 
 export default function Agregar() {
 
-    const router = useRouter()
+    const Router = useRouter()
 
     const [personas, setPersonas] = useState([])
     const [productos, setProductos] = useState([])
     const [listaProductos, setListaProductos] = useState([])
-
+    const [band, setBand] = useState(true);
 
     useEffect(() => {
-        getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(response => response.text())
-            .then(result => {
-                const res = JSON.parse(result)
-                //console.log(result)
-                setPersonas(res.map(persona => {
-                    const newpersona = {
-                        id: persona.Id,
-                        nombre: persona.Nombre + ' ' + persona.Apellido,
-                        cin: persona.Documento
-                    }
-                    return newpersona
-                }))
-            })
-            .catch(error => alert(error));
+        if (sessionStorage.getItem('token') == null) {
+            Router.push('/LogIn')
+        } else {
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Vendedor")
+            .then(r => {
+                if(r == 'false'){
+                    Router.push("/LogIn");
+                    
+                } 
+            }).catch(console.log);
+            band && getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(response => response.text())
+                .then(result => {
+                    const res = JSON.parse(result)
+                    setPersonas(res.map(persona => {
+                        const newpersona = {
+                            id: persona.Id,
+                            nombre: persona.Nombre + ' ' + persona.Apellido,
+                            cin: persona.Documento
+                        }
+                        return newpersona
+                    }))
+
+                    
+                })
+                .catch(error => alert(error));
 
 
-        getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
-            .then(res => res.text())
-            .then(response => {
-                const res = JSON.parse(response)
-                //console.log(res)
-                setProductos(res.map(producto => {
-                    const newProducto = {
-                        id: producto.Id,
-                        nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
-                        codigoBar: producto.CodigoDeBarra,
-                        precio: producto.Precio,
-                        precioIva: producto.Precio + producto.Iva
-                    }
-                    return newProducto
-                }))
+            band && getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(res => res.text())
+                .then(response => {
+                    const res = JSON.parse(response)
+                    setProductos(res.map(producto => {
+                        const newProducto = {
+                            id: producto.Id,
+                            nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
+                            codigoBar: producto.CodigoDeBarra,
+                            precio: producto.Precio,
+                            precioIva: producto.Precio + producto.Iva
+                        }
+                        return newProducto
+                    }))
 
-            })
-            .catch(error => alert(error));
+                })
+                .catch(error => alert(error));
+        }
+        return () => setBand(false);
+    }, [Router, band])
+
+    useEffect(() => {
+        if (sessionStorage.getItem('token') == null) {
+            Router.push('/LogIn')
+        } else {
+            const token = JSON.parse(sessionStorage.getItem('token'));
+            hasRole(token.access_token, token.userName, "Vendedor")
+            .then(r => {
+                if(r == 'false'){
+                    Router.push("/LogIn");
+                    
+                } 
+            }).catch(console.log);
+            band && getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(response => response.text())
+                .then(result => {
+                    const res = JSON.parse(result)
+                    setPersonas(res.map(persona => {
+                        const newpersona = {
+                            id: persona.Id,
+                            nombre: persona.Nombre + ' ' + persona.Apellido,
+                            cin: persona.Documento
+                        }
+                        return newpersona
+                    }))
+
+                    
+                })
+                .catch(error => alert(error));
 
 
+            band && getProductos(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(res => res.text())
+                .then(response => {
+                    const res = JSON.parse(response)
+                    setProductos(res.map(producto => {
+                        const newProducto = {
+                            id: producto.Id,
+                            nombre: producto.MarcaProducto + ' ' + producto.NombreProducto,
+                            codigoBar: producto.CodigoDeBarra,
+                            precio: producto.Precio,
+                            precioIva: producto.Precio + producto.Iva
+                        }
+                        return newProducto
+                    }))
+
+                })
+                .catch(error => alert(error));
+        }
+        return () => setBand(false);
     }, [])
 
-    //console.log(productos)
     const [cliente, setCliente] = useState({ id: '', cin: 0 })
     const [selectProd, setSelectProd] = useState({ id: '', codBar: '', prod: '', precio: 0 })
     const [idListaProd, setIdListaProd] = useState(1)
     const [precioTotalPedido, setPrecioTotalPedido] = useState({ precio: 0 })
 
     const generarPedido = () => {
-        if(document.getElementById('cantidadInput').value != 0 && selectProd.id != ''){
+        if (document.getElementById('cantidadInput').value != 0 && selectProd.id != '') {
             setListaProductos([...listaProductos, {
                 id: idListaProd,
                 idProd: selectProd.id,
@@ -74,7 +136,7 @@ export default function Agregar() {
                 precio: selectProd.precio,
                 precioTotal: selectProd.precio * document.getElementById('cantidadInput').value
             }])
-    
+
             setPrecioTotalPedido({
                 precio: [...listaProductos, {
                     id: idListaProd,
@@ -86,13 +148,13 @@ export default function Agregar() {
                     precioTotal: selectProd.precio * document.getElementById('cantidadInput').value
                 }].map(p => { return p.precioTotal }).reduce((a, b) => a + b, 0)
             })
-    
+
             setIdListaProd(idListaProd + 1)
             document.getElementById('cantidadInput').value = 0
-        }else{
+        } else {
             alert('no se puede agregar el nuevo producto, revise su producto a agregar.')
         }
-        
+
 
     }
 
@@ -114,7 +176,7 @@ export default function Agregar() {
     }
 
     const generarPeticion = () => {
-        if( cliente.cin != 0 && listaProductos.length != 0){
+        if (cliente.cin != 0 && listaProductos.length != 0) {
             const raw = JSON.stringify({
                 "ClienteId": cliente.id,
                 "Descripcion": document.getElementById('textAreaDescripcion').value,
@@ -127,11 +189,11 @@ export default function Agregar() {
                 })
             });
             agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-            router.push('/ndp/Lista')
-        }else{
+            Router.push('/ndp/Lista')
+        } else {
             alert("No se puede crear la peticion porque no contiene datos suficientes")
         }
-        
+
     }
 
 
@@ -141,34 +203,10 @@ export default function Agregar() {
             <Head>
                 <title>Agregar Pedido</title>
             </Head>
-            <Navbar rango='ndp' page='ndpAgregar' />
+            <Navbar rol='v' rango='ndp' page='ndpAgregar' />
             <div className=''>
                 {/*La parte de arriba de la agregar */}
-                <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                    <div className='ms-5'>
-                        <Link href='/' >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16">
-                                <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
-                            </svg>
-                        </Link>
-                    </div>
-
-
-                    {/*<div className="ms-5 collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className=" navbar-nav mr-auto">
-                            <li className="nav-item active">
-                                <h6 className='pt-3 nav-link'>Notas de Pago</h6>
-                            </li>
-                            <li>
-                                <h6 className='pt-3 nav-link'> - </h6>
-                            </li>
-                            <li className="nav-item">
-                                <h6 className='pt-3 nav-link'>Agregar</h6>
-                            </li>
-
-                        </ul>
-                    </div>*/}
-                </nav>
+                <NavMain person="vendedor" pag="Agregar Nota de Pago" />
 
                 {/*La parte de abajo de la agregar */}
                 <div className='ms-5 mt-3'>
@@ -291,7 +329,7 @@ export default function Agregar() {
                     </div>
                     <div className='float-end pe-2 pt-2 pb-5'>
                         <button className='btn btn-success me-2' onClick={() => { generarPeticion() }}>Crear</button>
-                        <button className='btn btn-danger ' onClick={() => { router.back() }}>Cancelar</button>
+                        <button className='btn btn-danger ' onClick={() => { Router.back() }}>Cancelar</button>
                     </div>
                 </div>
             </div>

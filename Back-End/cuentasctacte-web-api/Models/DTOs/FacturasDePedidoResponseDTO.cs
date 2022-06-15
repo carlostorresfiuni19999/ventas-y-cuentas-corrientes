@@ -1,4 +1,6 @@
+
 ﻿using System;
+
 using System.Collections.Generic;
 
 namespace cuentasctacte_web_api.Models.DTOs
@@ -8,6 +10,7 @@ namespace cuentasctacte_web_api.Models.DTOs
         
         public PedidoResponseDTO PedidoFull { get; set; }
         public List<FullFacturaResponseDTO> FullFacturas{ get; set; }
+
 
     }
 }

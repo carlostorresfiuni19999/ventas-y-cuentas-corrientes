@@ -499,38 +499,29 @@ namespace cuentasctacte_web_api.Controllers
 
 
 
-        //[ResponseType(typeof(PedidoDetalleResponseDTO))]
-        [Route("api/Pedidos/PedidoReporte")]
+        [AllowAnonymous]
+        
+        [Route("api/Pedidos/Fechas")]
         [HttpGet]
-        public List<PedidoResponseDTO> PedidoReporte(String fechaInicio_Str = "1800-01-01", String fechaFin_Str = "3000-09-15", String estado = "ALL")
-        {//= "ALL"
-            /*Variables*/
-            DateTime desde = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
-            DateTime hasta = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
+        [ResponseType(typeof(PedidoDTORequest))]
+        public List<PedidoResponseDTO> FilterByDate(
+            DateTime Inicio, DateTime Fin, String estado= "ALL")
+        {
             List<PedidoResponseDTO> pedidos_retornados = new List<PedidoResponseDTO>();
+            List<PedidoResponseDTO> pedidos_Mapper = new List<PedidoResponseDTO>();
+            DateTime desde = Inicio.AddDays(-1);
+            DateTime hasta = Fin.AddDays(1);
+            
 
-
-            /*Filtrar por fecha inicio y fin.*/
-            List<PedidoResponseDTO> pedidosMapper = GetPedidos_EntreFechas(desde, hasta);
-
-
-            pedidosMapper = pedidosMapper.OrderBy(F => F.FechePedido).ToList();
-
-
-            /*
-             menor que cero: si la primera fecha es menor que la segunda
-            cero: si las dos fechas son iguales
-            mayor que cero: si la primera fecha es mayor que la segunda */
-            //pedidosMapper = pedidosMapper.Where(p => p.Estado == estado);
-
+            pedidos_Mapper = GetPedidos_EntreFechas(desde, hasta);
 
             //Filtramos por estado.
-            if (estado == "ALL") return pedidosMapper;
+            if (estado == "ALL") return pedidos_Mapper;
 
             switch (estado)
             {
                 case "PENDIENTE":
-                    foreach (var pedidoRequest in pedidosMapper)
+                    foreach (var pedidoRequest in pedidos_Mapper)
                     {
                         if (pedidoRequest.Estado == "PENDIENTE")
                         {
@@ -542,7 +533,7 @@ namespace cuentasctacte_web_api.Controllers
 
                     break;
                 case "FACTURANDO":
-                    foreach (var pedidoRequest in pedidosMapper)
+                    foreach (var pedidoRequest in pedidos_Mapper)
                     {
                         if (pedidoRequest.Estado == "FACTURANDO")
                         {
@@ -553,7 +544,7 @@ namespace cuentasctacte_web_api.Controllers
                     }
                     break;
                 case "FACTURADO":
-                    foreach (var pedidoRequest in pedidosMapper)
+                    foreach (var pedidoRequest in pedidos_Mapper)
                     {
                         if (pedidoRequest.Estado == "FACTURADO")
                         {
@@ -565,39 +556,37 @@ namespace cuentasctacte_web_api.Controllers
                     }
                     break;
             }
-
             return pedidos_retornados;
         }
+       
+            //PENDIENTE
+            //FACTURANDO
+            //FACTURADO
 
-
-
-        //PENDIENTE
-        //FACTURANDO
-        //FACTURADO
-
-        //Me trae todos los pedidos incluyendo una fecha.
-        private List<PedidoResponseDTO> GetPedidos_EntreFechas(DateTime desde, DateTime hasta)
+            //Me trae todos los pedidos incluyendo una fecha.
+            private List<PedidoResponseDTO> GetPedidos_EntreFechas(DateTime desde, DateTime hasta)
         {
 
             var Pedidos = db.Pedidos
-                .Where(p => !p.Deleted && p.FechaPedido >= desde && p.FechaPedido <= hasta)
-                .Include(p => p.Cliente)
                 .Include(p => p.Vendedor)
-                .OrderBy(p => p.Estado.Equals("PENDIENTE"))
-                .OrderBy(p => p.FechaPedido)
-                .ToList();
+                .Include(p => p.Cliente)
+                .Where(p => !p.Deleted)
+                .Where(p =>
+                    (DateTime.Compare(desde, p.FechaPedido) <= 0)
+                    && (DateTime.Compare(hasta, p.FechaPedido) >= 0)
+                ).ToList();
 
             return PedidosMapper(Pedidos);
 
 
         }
 
+        
+            /////////////////////////////////////////////////////////////////////////// Get facturas asociadas a un pedido
 
-        /////////////////////////////////////////////////////////////////////////// Get facturas asociadas a un pedido
+       
 
-
-
-        public PedidoResponseDTO GetPedido_local(int id)
+            public PedidoResponseDTO GetPedido_local(int id)
         {
             var Pedido = db.Pedidos
                 .Include(p => p.Vendedor)

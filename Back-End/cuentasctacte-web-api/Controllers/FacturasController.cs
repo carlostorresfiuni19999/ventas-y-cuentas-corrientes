@@ -417,7 +417,8 @@ namespace cuentasctacte_web_api.Controllers
         //Intento dos. dia, mes, año 
 
 
-        public List<FullFacturaResponseDTO> FacturaReporte(String fechaInicio_Str = "1950/05/05", String fechaFin_Str = "2100/09/09", String estado = "ALL")
+       // public List<FullFacturaResponseDTO> FacturaReporte(String fechaInicio_Str = "1950/05/05", String fechaFin_Str = "2100/09/09", String estado = "ALL")
+        public List<FullFacturaResponseDTO> FacturaReporte(DateTime fechaInicio_Str , DateTime fechaFin_Str , String estado = "ALL")
         {
             //DateTime desde = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
             //DateTime hasta = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
@@ -426,16 +427,18 @@ namespace cuentasctacte_web_api.Controllers
            // DateTime desde = Convert.ToDateTime(fechaInicio_Str);
            // DateTime hasta = Convert.ToDateTime(fechaFin_Str);
 
-            var desde = ParseDate(fechaInicio_Str);
-            var hasta = ParseDate(fechaFin_Str);
+           // var desde = ParseDate(fechaInicio_Str);
+           // var hasta = ParseDate(fechaFin_Str);
 
-            Console.WriteLine(desde.ToString());
+           // Console.WriteLine(desde.ToString());
 
 
 
             List<FullFacturaResponseDTO> Facturas_entreFechas_RespondeDTO = new List<FullFacturaResponseDTO>();
             //Filtramos por fechas
-            List<Factura> facturaList = filtrarReporteFactura_tiempo(desde, hasta);
+            //List<Factura> facturaList = filtrarReporteFactura_tiempo(desde, hasta);
+            List<Factura> facturaList = filtrarReporteFactura_tiempo(fechaInicio_Str,fechaFin_Str);
+           
             //Filtramos por estado
             facturaList = filtrarReporteFacturas_estado(facturaList, estado);
 
@@ -448,12 +451,42 @@ namespace cuentasctacte_web_api.Controllers
 
             return Facturas_entreFechas_RespondeDTO;
         }
+        private static DateTime ParseDate(string providedDate)
+        {
+            DateTime validDate;
+            string[] formats = { "dd/MM/yyyy hh:mm:ss", "yyyy-MM-dd'T'hh:mm:ss'Z'" };
+            var dateFormatIsValid = DateTime.TryParseExact(
+                providedDate,
+                formats,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out validDate);
+            return dateFormatIsValid ? validDate : DateTime.MinValue;
+        }
 
         public List<Factura> filtrarReporteFactura_tiempo(DateTime desde, DateTime hasta)
 
         {       
    
             List<Factura> facturaList = db.Facturas
+                .Include(c => c.Cliente)
+                .Where(f => !f.Deleted)   
+                .Where(f =>
+                           (                          
+                          f.FechaFactura < hasta 
+                           ||
+                           f.FechaFactura.DayOfYear == hasta.DayOfYear
+                           )
+                           &&
+                           (
+                           f.FechaFactura > desde
+                           ||
+                           f.FechaFactura.DayOfYear == desde.DayOfYear
+                           )
+                    )
+                .ToList();
+
+            /* List<Factura> facturaList = db.Facturas
                 .Include(c => c.Cliente)
                 .Where(f => !f.Deleted)
                 .ToList()
@@ -463,8 +496,7 @@ namespace cuentasctacte_web_api.Controllers
                                && 0 < DateTime.Compare(hasta, t.FechaFactura))//Si la fecha Fin esta despues de la fecha de creacion
                                || 0 == DateTime.Compare(desde, t.FechaFactura) // Si la fecha fin es igual a la fecha de Creacion
                     );
-
-
+            */
 
             return facturaList;
         }
@@ -516,18 +548,7 @@ namespace cuentasctacte_web_api.Controllers
 
         }
 
-        private static DateTime ParseDate(string providedDate)
-        {
-            DateTime validDate;
-            string[] formats = { "dd/MM/yyyy hh:mm:ss", "yyyy-MM-dd'T'hh:mm:ss'Z'" };
-            var dateFormatIsValid = DateTime.TryParseExact(
-                providedDate,
-                formats,
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.None,
-                out validDate);
-            return dateFormatIsValid ? validDate : DateTime.MinValue;
-        }
+        
     }
 
 

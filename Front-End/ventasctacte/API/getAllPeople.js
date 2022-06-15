@@ -1,4 +1,4 @@
-export async function getAllPeople(token) {
+export async function getAllPeople(token, Role) {
     const myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${token}` );
 
@@ -8,7 +8,7 @@ export async function getAllPeople(token) {
         redirect: 'follow'
     };
 
-    return fetch(`https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Personas/All`, requestOptions);
+    return fetch(`https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Personas/Empleados?Role=${Role}`, requestOptions);
         
 }
 

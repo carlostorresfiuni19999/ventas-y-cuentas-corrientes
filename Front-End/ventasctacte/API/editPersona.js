@@ -12,12 +12,5 @@ export async function editPersona(token, userName, persona) {
         
     };
 
-    try {
-        const response = await fetch(link, requestOptions);
-        const result_1 = await response.text();
-        console.log(result_1);
-        alert("Editado con exito");
-    } catch (error) {
-        console.log(error);
-    }
+    return fetch(link, requestOptions);
 }

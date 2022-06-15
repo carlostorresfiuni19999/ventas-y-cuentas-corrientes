@@ -24,11 +24,7 @@ const PostPersona = (persona, token) => {
         redirect: 'follow'
     };
 
-  fetch("http://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Account/Register", requestOptions)
-        .then(response => {
-            response.ok ? alert("Guardado con exito") : alert("Error al cargar el nuevo usuario");
-        })
-        .catch(error => console.log(error));
+  fetch("http://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Account/Register", requestOptions);
 }
 
 

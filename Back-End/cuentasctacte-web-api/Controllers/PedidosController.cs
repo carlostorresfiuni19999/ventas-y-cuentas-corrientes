@@ -501,7 +501,7 @@ namespace cuentasctacte_web_api.Controllers
 
         [AllowAnonymous]
         
-        [Route("api/Pedidos/Fechas")]
+        [Route("api/Pedidos/PedidoReportes")]
         [HttpGet]
         [ResponseType(typeof(PedidoDTORequest))]
         public List<PedidoResponseDTO> FilterByDate(

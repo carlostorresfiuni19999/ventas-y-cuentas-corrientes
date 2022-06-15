@@ -410,34 +410,19 @@ namespace cuentasctacte_web_api.Controllers
             return Result;
         }
 
-
+        [AllowAnonymous]
         [Route("api/Pedidos/FacturaReporte")]
         [HttpGet]
-        //Intento 1. AÑO, MES, DIA,
-        //Intento dos. dia, mes, año 
-
-
-       // public List<FullFacturaResponseDTO> FacturaReporte(String fechaInicio_Str = "1950/05/05", String fechaFin_Str = "2100/09/09", String estado = "ALL")
-        public List<FullFacturaResponseDTO> FacturaReporte(DateTime fechaInicio_Str , DateTime fechaFin_Str , String estado = "ALL")
+        [ResponseType(typeof(FullFacturaResponseDTO))]
+        public List<FullFacturaResponseDTO> FacturaReporte(DateTime fechaInicio , DateTime fechaFin , String estado = "ALL")
         {
-            //DateTime desde = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
-            //DateTime hasta = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
-            
-
-           // DateTime desde = Convert.ToDateTime(fechaInicio_Str);
-           // DateTime hasta = Convert.ToDateTime(fechaFin_Str);
-
-           // var desde = ParseDate(fechaInicio_Str);
-           // var hasta = ParseDate(fechaFin_Str);
-
-           // Console.WriteLine(desde.ToString());
-
+            DateTime desde = fechaInicio.AddDays(-1);
+            DateTime hasta = fechaFin.AddDays(1);
 
 
             List<FullFacturaResponseDTO> Facturas_entreFechas_RespondeDTO = new List<FullFacturaResponseDTO>();
-            //Filtramos por fechas
-            //List<Factura> facturaList = filtrarReporteFactura_tiempo(desde, hasta);
-            List<Factura> facturaList = filtrarReporteFactura_tiempo(fechaInicio_Str,fechaFin_Str);
+            //Filtramos por fechas           
+            List<Factura> facturaList = filtrarReporteFactura_tiempo(desde, hasta);
            
             //Filtramos por estado
             facturaList = filtrarReporteFacturas_estado(facturaList, estado);
@@ -466,38 +451,15 @@ namespace cuentasctacte_web_api.Controllers
 
         public List<Factura> filtrarReporteFactura_tiempo(DateTime desde, DateTime hasta)
 
-        {       
-   
+        {        
             List<Factura> facturaList = db.Facturas
                 .Include(c => c.Cliente)
                 .Where(f => !f.Deleted)   
-                .Where(f =>
-                           (                          
-                          f.FechaFactura < hasta 
-                           ||
-                           f.FechaFactura.DayOfYear == hasta.DayOfYear
-                           )
-                           &&
-                           (
-                           f.FechaFactura > desde
-                           ||
-                           f.FechaFactura.DayOfYear == desde.DayOfYear
-                           )
-                    )
+                .Where(p =>
+                      (DateTime.Compare(desde, p.FechaFactura) <= 0)
+                      && (DateTime.Compare(hasta, p.FechaFactura) >= 0)
+                  )
                 .ToList();
-
-            /* List<Factura> facturaList = db.Facturas
-                .Include(c => c.Cliente)
-                .Where(f => !f.Deleted)
-                .ToList()
-                .FindAll(
-                           t => 0 == DateTime.Compare(desde, t.FechaFactura)//Si la fecha de Inicio es igual a la fecha de creacion
-                               || (0 > DateTime.Compare(desde, t.FechaFactura)//Si la Fecha de Inicio esta antes de la Fecha de Creacion Y
-                               && 0 < DateTime.Compare(hasta, t.FechaFactura))//Si la fecha Fin esta despues de la fecha de creacion
-                               || 0 == DateTime.Compare(desde, t.FechaFactura) // Si la fecha fin es igual a la fecha de Creacion
-                    );
-            */
-
             return facturaList;
         }
         //Esta funcion filtra deacuerdo alestado y devuelve una lista de facturas.

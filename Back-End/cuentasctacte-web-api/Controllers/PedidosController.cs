@@ -318,7 +318,7 @@ namespace cuentasctacte_web_api.Controllers
 
 
         }
-        [ResponseType(typeof(PedidoDetalleResponseDTO))]
+        [ResponseType(typeof(PedidoDTORequest))]
         [Route("api/Pedidos/PedidoParaFacturar")]
         [HttpGet]
         public PedidoDTORequest GetPedidoFacturar(int id)

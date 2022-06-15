@@ -14,8 +14,8 @@ export default async function setPassword(token, UserName, raw){
 
     try {
         const response = await fetch(link, requestOptions);
-        const result_1 = await response.text();
-        if (result_1.ok) {
+        
+        if (response.ok) {
             alert("Modificado con exito");
         } else {
             alert("Error en la modificacion, Verifica las credenciales si son correctas");

@@ -44,33 +44,42 @@ const PostCajaForm = ({ onSave, options }) => {
                     </Row>
 
                     <Row>
-                        <Col sm={8}>
+                        <Col sm={12}>
                             <label>UserName</label>
                         </Col>
-                        <Col sm={4} >
+                    </Row>
+
+                    <Row>
+                        <Col sm={12}>
+                            <Field as="select" name="UserName">
+                                <option value="">Seleccionar</option>
+                                {options.map(u => <option key={u} value={u}>{u}</option>)}
+                            </Field>
+                        </Col>
+                    </Row>
+                    
+                    <Row>
+                        <Col sm={12}>
+                            <ErrorMessage name="UserName"></ErrorMessage>
+                        </Col>
+                    </Row>
+
+                    <Row>
+                        <Col sm={12} >
 
                             <label>Saldo Inicial</label>
                         </Col>
                     </Row>
 
                     <Row>
-                        <Col sm={8}>
-                            <Field as="select" name="UserName">
-                                <option value="">Seleccionar</option>
-                                {options.map(u => <option key={u} value={u}>{u}</option>)}
-                            </Field>
-                        </Col>
 
-                        <Col sm={4}>
+                        <Col sm={12}>
                             <Field type="number" name="SaldoInicial" />
                         </Col>
                     </Row>
                     <Row>
-                        <Col sm={8}>
-                            <ErrorMessage name="UserName"></ErrorMessage>
-                        </Col>
 
-                        <Col sm={4}>
+                        <Col sm={12}>
                             <ErrorMessage name="SaldoInicial"></ErrorMessage>
                         </Col>
                     </Row>

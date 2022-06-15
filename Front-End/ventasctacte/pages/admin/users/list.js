@@ -31,8 +31,16 @@ const List = () => {
 
     const handleSave = (value) => {
         const token = JSON.parse(sessionStorage.getItem("token"));
-        PostPersona(value, token.access_token);
-        loadData();
+        PostPersona(value, token.access_token).then(r => {
+            if(r.ok){
+                alert("Agregado con exito")
+                loadData();
+            }
+            else{
+                alert("Ocurrio un error al agregar al usuario, vuelva a intentarlo");
+            }
+        });
+        
     }
 
     const handleChangePassword = (username, value) => {
@@ -42,60 +50,56 @@ const List = () => {
 
     const handleEdit = (username, value) => {
         const token = JSON.parse(sessionStorage.getItem("token"));
-        editPersona(token.access_token, username, value);
-        loadData();
+        editPersona(token.access_token, username, value)
+        .then(r => {
+            if(r.ok){
+                alert("Editado con exito");
+                loadData();
+            }else{
+                alert("Ocurrio un error al editar el dato, vuelva a intentarlo");
+            }
+        });
+        
     }
-    const redirect = () => router.push("admin/users/list");
+
     const loadData = useCallback(() => {
         if (sessionStorage.getItem("token")) {
             setLogged(true);
             const token = JSON.parse(sessionStorage.getItem("token"));
 
-            hasRole(token.access_token, token.userName, "Administrador")
-                .then(r => {
-                    if (r == 'true') {
-                        getAllPeople(token.access_token)
-                            .then(r => r.text())
-                            .then(r => JSON.parse(r))
-                            .then(r => {
-                                if (band) {
-                                    console.log(r);
-                                    setPersonas(r.filter(p => {
-                                        for (let rol of p.Roles) {
-                                            if (rol === "Cliente") return true;
-                                        }
-                                        return false;
-                                    }));
+            getAllPeople(token.access_token, "Cajero")
+            .then(r =>{
+                if(r.ok){
+                    r.json()
+                    .then(c => setCajeros(c))
+                    .catch(console.log);
+                } else{
+                    router.push("LogIn");
+                }
+            });
 
+            getAllPeople(token.access_token, "Cliente")
+            .then(r =>{
+                if(r.ok){
+                    r.json()
+                    .then(c => setPersonas(c))
+                    .catch(console.log);
+                } else{
+                    router.push("LogIn");
+                }
+            });
 
-                                    setVendedores(r.filter(p => {
-                                        for (let rol of p.Roles) {
-                                            if (rol === "Vendedor") return true;
-                                        }
-                                        return false;
-                                    }));
+            getAllPeople(token.access_token, "Vendedor")
+            .then(r =>{
+                if(r.ok){
+                    r.json()
+                    .then(c => setVendedores(c))
+                    .catch(console.log);
+                } else{
+                    router.push("LogIn");
+                }
+            });
 
-                                    setCajeros(r.filter(p => {
-                                        for (let rol of p.Roles) {
-                                            if (rol === "Cajero") return true;
-                                        }
-                                        return false;
-                                    }));
-
-
-                                    setBand(false);
-
-                                }
-                            })
-                            .catch(e => console.log(e));
-
-                    } else {
-                        sessionStorage.clear();
-                        alert(`Role no valido`)
-                        router.push("LogIn");
-                    }
-                })
-                .catch(console.log)
         } else {
             alert("Primero Inicie Sesion");
             router.push("/LogIn");
@@ -105,14 +109,14 @@ const List = () => {
 
 
         return () => setBand(false);
-    }, [band, router])
+    }, [])
 
     //Efecto para que haga solo una precarga
 
     //Efecto para cargar en caso de que cambie la persona
     useEffect(() => {
         loadData();
-    }, [loadData]);
+    }, []);
 
     const rendered = () => {
         const element =

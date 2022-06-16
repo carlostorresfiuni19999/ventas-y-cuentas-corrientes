@@ -503,8 +503,7 @@ namespace cuentasctacte_web_api.Controllers
 
 
 
-        [AllowAnonymous]
-        
+        [Authorize(Roles="Administrador,Vendedor,Cajero")]
         [Route("api/Pedidos/PedidoReportes")]
         [HttpGet]
 

@@ -12,6 +12,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Timers;
 using System.Globalization;
+using Microsoft.AspNet.Identity;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -21,7 +22,7 @@ namespace cuentasctacte_web_api.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Facturas
-
+        [Authorize(Roles = "Administrador,Vendedor,Cajero")]
         public List<FacturaResponseDTO> GetFacturas()
         {
 
@@ -44,6 +45,7 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // GET: api/Facturas/5
+        [Authorize(Roles ="Administrador,Vendedor,Cajero")]
         [ResponseType(typeof(FullFacturaResponseDTO))]
         public IHttpActionResult GetFactura(int id)
         {
@@ -60,43 +62,11 @@ namespace cuentasctacte_web_api.Controllers
             return Ok(MapToFullFactura(factura));
         }
 
-        // PUT: api/Facturas/5
-        [ResponseType(typeof(void))]
-        public IHttpActionResult PutFactura(int id, Factura factura)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != factura.Id)
-            {
-                return BadRequest();
-            }
-
-            db.Entry(factura).State = EntityState.Modified;
-
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!FacturaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
+     
         // POST: api/Facturas
+        [Authorize(Roles ="Vendedor,Administrador")]
         [ResponseType(typeof(FacturaRequestDTO))]
+        [Route("api/Facturas/create")]
         public IHttpActionResult PostFactura(FacturaRequestDTO factura)
         {
             //Validamos la cantidad de Cuotas
@@ -107,12 +77,12 @@ namespace cuentasctacte_web_api.Controllers
                 .Include(c => c.Vendedor)
                 .FirstOrDefault(c => c.Id == factura.IdPedido);
             //Creamos la factura
-
+            var Vendedor = Helpers.GetUserLogged.GetUser(db, User.Identity.GetUserId());
             var FacturaDb = new Factura
             {
                 CantidadCuotas = factura.CantidadCuotas,
                 ClienteId = factura.Pedido.ClienteId,
-                VendedorId = Pedido.IdVendedor,
+                VendedorId = Vendedor.Id,
                 PedidoId = factura.IdPedido,
                 FechaFactura = DateTime.Now,
                 Estado = "PENDIENTE",
@@ -380,6 +350,7 @@ namespace cuentasctacte_web_api.Controllers
                 PrecioTotal = factura.Monto,
                 IvaTotal = factura.Iva,
                 SaldoTotal = factura.Saldo,
+                Estado = factura.Estado,
                 FechaFacturacion = factura.FechaFactura,
                 Detalles = db.FacturaDetalles
                 .Include(fd => fd.Factura)
@@ -411,7 +382,7 @@ namespace cuentasctacte_web_api.Controllers
             return Result;
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Administrador,Cajero,Vendedor")]
         [Route("api/Pedidos/FacturaReporte")]
         [HttpGet]
         [ResponseType(typeof(FullFacturaResponseDTO))]
@@ -488,7 +459,7 @@ namespace cuentasctacte_web_api.Controllers
                 case "PROCESANDO":
                     foreach (var factura in F)
                     {
-                        if (factura.Estado == "FACTURANDO")
+                        if (factura.Estado == "PROCESANDO")
                         {
                             facturas_filtradas_estado.Add(factura);
                         }

@@ -13,13 +13,14 @@ const AdminNavbar = () => {
                         <Nav className="me-auto">
                             <Nav.Link href="/admin/users/list">Usuarios</Nav.Link>
                             <Nav.Link href="/admin/cajas/list">Cajas</Nav.Link>
+                            <Nav.Link href="/admin/stocks">Stocks</Nav.Link>
                             <NavDropdown title="Historicos" id ="basic-nav-dropdown">
                                 <NavDropdown.Item href="/ndp/Lista">Pedidos</NavDropdown.Item>
                                 <NavDropdown.Item href="/factura/Lista">
                                    Facturas
                                 </NavDropdown.Item>
                             </NavDropdown>
-                            <Nav.Link href = "/LogIn" onClick= {sessionStorage.clear()}>Log Out</Nav.Link>
+                            <Nav.Link href = "/LogIn" onClick= {() => sessionStorage.clear()}>Log Out</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

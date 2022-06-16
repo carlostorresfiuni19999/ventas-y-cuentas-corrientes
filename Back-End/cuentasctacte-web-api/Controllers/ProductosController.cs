@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Data.Entity;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -16,6 +17,21 @@ namespace cuentasctacte_web_api.Controllers
         public IQueryable<Producto> GetProductos()
         {
             return db.Productos.Where(p => !p.Deleted);
+        }
+        [HttpGet]
+        [Authorize(Roles ="Administrador")]
+        [Route("api/Stocks")]
+        [ResponseType(typeof(IQueryable<Stock>))]
+        public IHttpActionResult GetStocks()
+        {
+            return Ok(
+                db.Stocks
+                .Include(s => s.Producto)
+                .Include(s => s.Deposito)
+                .Where(p => !p.Deleted)
+
+                ) ;
+
         }
 
         // GET: api/Productos/5

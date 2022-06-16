@@ -40,5 +40,7 @@ namespace cuentasctacte_web_api
             }
             return manager;
         }
+
+       
     }
 }

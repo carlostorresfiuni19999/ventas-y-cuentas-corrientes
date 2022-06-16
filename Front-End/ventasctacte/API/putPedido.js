@@ -13,12 +13,14 @@ export async function putPedido(token, id, raw) {
     };
 
     return fetch(link, requestOptions)
-        .then(response => response.text())
-        .then(result => {
-            console.log(JSON.parse(result).Message)
-            
-        })
-        .catch(error => alert(error.Message));
+        .then(response => {
+            if(response.ok){
+                alert("Editado con exito");
+            }else{
+                response.json().then(error => {alert(error.Message)});
+            }
+        }).catch(error => console.log(error));
+
 }
 
 export default putPedido

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-
 namespace cuentasctacte_web_api.Models.Entities
 {
     [Table("Cajas")]
@@ -13,6 +12,8 @@ namespace cuentasctacte_web_api.Models.Entities
 
         [ForeignKey("Cajero")]
         public int IdCajero { get; set; }
+
+        public double Saldo { get; set; }
 
     }
 }

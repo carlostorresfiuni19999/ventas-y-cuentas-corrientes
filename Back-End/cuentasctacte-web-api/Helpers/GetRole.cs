@@ -18,10 +18,12 @@ namespace cuentasctacte_web_api.Helpers
                 foreach (var item in role.Users)
                 {
                     var User = db.Users
-                        .Where(u => u.Email == email)
+                        .Where(u => u.Email.Equals(email))
+                        .Where(u => u.UserName.Equals(email))
                         .Select(u => u.Id)
                         .FirstOrDefault();
-                    if (User.Equals(item.UserId))
+
+                    if (User != null && User.Equals(item.UserId))
                     {
                         results.Add(role.Name);
                     }

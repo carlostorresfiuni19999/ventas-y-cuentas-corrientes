@@ -49,7 +49,7 @@ namespace cuentasctacte_web_api.Controllers
                 .Include(f => f.Pedido)
                 .Include(f => f.Cliente)
                 .FirstOrDefault(f => f.Id == id);
-            if (factura == null)
+            if (factura == null || factura.Deleted)
             {
                 return NotFound();
             }
@@ -222,8 +222,9 @@ namespace cuentasctacte_web_api.Controllers
                 {
                     FacturaId = FacturaDb.Id,
                     FechaVencimiento = Vencimiento.AddMonths(i + 1),
-                    Monto = (FacturaDb.Monto + FacturaDb.Iva) / factura.CantidadCuotas,
-                    Saldo = (FacturaDb.Monto + FacturaDb.Iva) / factura.CantidadCuotas,
+                    Monto = (FacturaDb.Monto) / factura.CantidadCuotas,
+                    Saldo = (FacturaDb.Monto) / factura.CantidadCuotas,
+                    Deleted = false
                 };
 
                 db.VencimientoFacturas.Add(cuota);
@@ -236,7 +237,8 @@ namespace cuentasctacte_web_api.Controllers
 
             var PedidosDetalles = db.PedidoDetalles
                 .Include(p => p.Pedido)
-                .Include(p => p.Producto);
+                .Include(p => p.Producto)
+                .Where(p => p.IdPedido == FacturaSaved.PedidoId);
 
             Pedido.Estado = PedidosDetalles
                 .Where(p => p.CantidadFacturada == p.CantidadProducto)
@@ -246,6 +248,37 @@ namespace cuentasctacte_web_api.Controllers
             //Guardamos El nuevo estado del Pedido
             db.Entry(Pedido).State = EntityState.Modified;
 
+            //Unificando los PedidosDetalles
+            List<PedidoDetalle> Existentes =new List<PedidoDetalle>();
+            foreach (var pedidoDetalle in PedidosDetalles )
+            {
+                var dets = db.PedidoDetalles
+                .Include(p => p.Pedido)
+                .Include(p => p.Producto)
+                .Where(p => p.IdProducto == pedidoDetalle.IdProducto
+                && p.IdPedido == pedidoDetalle.IdPedido);
+
+                if(dets.Count() > 1)
+                {
+                    var newDetalle = pedidoDetalle;
+                    newDetalle.CantidadProducto = dets.Sum(p => p.CantidadProducto);
+                    newDetalle.CantidadFacturada = dets.Sum(p => p.CantidadFacturada);
+                    
+                    Existentes.Add(newDetalle);
+
+                    dets.ForEachAsync(p =>
+                    {
+                        p.Deleted = true;
+                        db.Entry(p).State = EntityState.Modified;
+                    });
+                }
+                else
+                {
+                    Existentes.Add(dets.FirstOrDefault());
+                }
+            }
+
+            Existentes.ForEach(p => db.PedidoDetalles.Add(p));
             try
             {
                 db.SaveChanges();
@@ -333,10 +366,12 @@ namespace cuentasctacte_web_api.Controllers
             return db.Facturas.Count(e => e.Id == id) > 0;
         }
 
-        private FullFacturaResponseDTO MapToFullFactura(Factura factura)
+        public FullFacturaResponseDTO MapToFullFactura(Factura factura)
         {
             var Result = new FullFacturaResponseDTO()
             {
+                IdFactura = (int) factura.Id,
+                IdPedido = (int) factura.PedidoId,
                 Cliente = factura.Cliente.Nombre + " " + factura.Cliente.Apellido,
                 DocCliente = factura.Cliente.Documento,
                 PrecioTotal = factura.Monto,
@@ -358,6 +393,7 @@ namespace cuentasctacte_web_api.Controllers
                 }),
                 Cuotas = db.VencimientoFacturas
                     .Include(c => c.Factura)
+                    .Where(c => !c.Deleted)
                     .Where(c => c.FacturaId == factura.Id)
                     .ToList()
                     .ConvertAll(c => new FullCuotaResponseDTO()
@@ -371,5 +407,100 @@ namespace cuentasctacte_web_api.Controllers
             };
             return Result;
         }
-    }
+
+
+        [Route("api/Pedidos/FacturaReporte")]
+        [HttpGet]
+        //Intento 1. AÑO, MES, DIA,
+        //Intento dos. dia, mes, año 
+        public List<FullFacturaResponseDTO> FacturaReporte(String fechaInicio_Str = "01-01-1950", String fechaFin_Str = "01-01-2100", String estado = "ALL")
+        {
+            //DateTime desde = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
+            //DateTime hasta = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
+            Console.WriteLine(fechaInicio_Str);
+
+            DateTime desde = Convert.ToDateTime(fechaInicio_Str);
+            DateTime hasta = Convert.ToDateTime(fechaFin_Str);
+
+
+
+            List<FullFacturaResponseDTO> Facturas_entreFechas_RespondeDTO = new List<FullFacturaResponseDTO>();
+            //Filtramos por fechas
+            List<Factura> facturaList = filtrarReporteFactura_tiempo(desde, hasta);
+            //Filtramos por estado
+            facturaList = filtrarReporteFacturas_estado(facturaList, estado);
+
+            //Voy creando un MapFactura de cada una de las facturas ya filtradas por fecha.
+            // y estado
+            foreach (Factura factura in facturaList)
+            {
+                Facturas_entreFechas_RespondeDTO.Add(MapToFullFactura(factura));
+            }
+
+            return Facturas_entreFechas_RespondeDTO;
+        }
+
+        public List<Factura> filtrarReporteFactura_tiempo(DateTime desde, DateTime hasta)
+        {
+            List<Factura> facturaList = db.Facturas
+                .Include(c => c.Cliente)
+                .Where(f => !f.Deleted)
+                .Where(f => f.FechaFactura >= desde && f.FechaFactura <= hasta)
+                .ToList();
+
+            return facturaList;
+        }
+        //Esta funcion filtra deacuerdo alestado y devuelve una lista de facturas.
+        public List<Factura> filtrarReporteFacturas_estado(List<Factura> F, string estado = "ALL")
+        {
+
+            List<Factura> facturas_filtradas_estado = new List<Factura>();
+
+
+            if (estado == "ALL") return F; //Nada a filtrar
+            //Filtramos por estado.
+            switch (estado)
+            {
+                case "PENDIENTE":
+                    foreach (var factura in F)
+                    {
+                        if (factura.Estado == "PENDIENTE")
+                        {
+                            facturas_filtradas_estado.Add(factura);
+                        }
+
+                    }
+
+                    break;
+                case "PROCESANDO":
+                    foreach (var factura in F)
+                    {
+                        if (factura.Estado == "FACTURANDO")
+                        {
+                            facturas_filtradas_estado.Add(factura);
+                        }
+
+                    }
+                    break;
+                case "PAGADO":
+                    foreach (var factura in F)
+                    {
+                        if (factura.Estado == "PAGADO")
+                        {
+                            facturas_filtradas_estado.Add(factura);
+                        }
+
+                    }
+                    break;
+            }
+
+            return facturas_filtradas_estado;
+
+        }
+
+    
+
+
+
+}
 }

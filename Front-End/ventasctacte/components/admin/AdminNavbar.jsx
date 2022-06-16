@@ -19,6 +19,7 @@ const AdminNavbar = () => {
                                    Facturas
                                 </NavDropdown.Item>
                             </NavDropdown>
+                            <Nav.Link href = "/LogIn" onClick= {sessionStorage.clear()}>Log Out</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

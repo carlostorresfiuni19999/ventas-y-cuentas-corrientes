@@ -238,6 +238,7 @@ namespace cuentasctacte_web_api.Controllers
             var PedidosDetalles = db.PedidoDetalles
                 .Include(p => p.Pedido)
                 .Include(p => p.Producto)
+                .Where(p => !p.Deleted)
                 .Where(p => p.IdPedido == FacturaSaved.PedidoId);
 
             Pedido.Estado = PedidosDetalles

@@ -10,6 +10,8 @@ using System.Linq;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Timers;
+using System.Globalization;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -409,25 +411,20 @@ namespace cuentasctacte_web_api.Controllers
             return Result;
         }
 
-
+        [AllowAnonymous]
         [Route("api/Pedidos/FacturaReporte")]
         [HttpGet]
-        //Intento 1. AÑO, MES, DIA,
-        //Intento dos. dia, mes, año 
-        public List<FullFacturaResponseDTO> FacturaReporte(String fechaInicio_Str = "01-01-1950", String fechaFin_Str = "01-01-2100", String estado = "ALL")
+        [ResponseType(typeof(FullFacturaResponseDTO))]
+        public List<FullFacturaResponseDTO> FacturaReporte(DateTime fechaInicio , DateTime fechaFin , String estado = "ALL")
         {
-            //DateTime desde = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
-            //DateTime hasta = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
-            Console.WriteLine(fechaInicio_Str);
-
-            DateTime desde = Convert.ToDateTime(fechaInicio_Str);
-            DateTime hasta = Convert.ToDateTime(fechaFin_Str);
-
+            DateTime desde = fechaInicio.AddDays(-1);
+            DateTime hasta = fechaFin.AddDays(1);
 
 
             List<FullFacturaResponseDTO> Facturas_entreFechas_RespondeDTO = new List<FullFacturaResponseDTO>();
-            //Filtramos por fechas
+            //Filtramos por fechas           
             List<Factura> facturaList = filtrarReporteFactura_tiempo(desde, hasta);
+           
             //Filtramos por estado
             facturaList = filtrarReporteFacturas_estado(facturaList, estado);
 
@@ -440,15 +437,30 @@ namespace cuentasctacte_web_api.Controllers
 
             return Facturas_entreFechas_RespondeDTO;
         }
+        private static DateTime ParseDate(string providedDate)
+        {
+            DateTime validDate;
+            string[] formats = { "dd/MM/yyyy hh:mm:ss", "yyyy-MM-dd'T'hh:mm:ss'Z'" };
+            var dateFormatIsValid = DateTime.TryParseExact(
+                providedDate,
+                formats,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out validDate);
+            return dateFormatIsValid ? validDate : DateTime.MinValue;
+        }
 
         public List<Factura> filtrarReporteFactura_tiempo(DateTime desde, DateTime hasta)
-        {
+
+        {        
             List<Factura> facturaList = db.Facturas
                 .Include(c => c.Cliente)
-                .Where(f => !f.Deleted)
-                .Where(f => f.FechaFactura >= desde && f.FechaFactura <= hasta)
+                .Where(f => !f.Deleted)   
+                .Where(p =>
+                      (DateTime.Compare(desde, p.FechaFactura) <= 0)
+                      && (DateTime.Compare(hasta, p.FechaFactura) >= 0)
+                  )
                 .ToList();
-
             return facturaList;
         }
         //Esta funcion filtra deacuerdo alestado y devuelve una lista de facturas.
@@ -499,9 +511,13 @@ namespace cuentasctacte_web_api.Controllers
 
         }
 
+        
+    }
+
+
     
 
 
 
 }
-}
+

@@ -330,6 +330,7 @@
     <Compile Include="Models\DTOs\PedidoDetalleDTORequest.cs" />
     <Compile Include="Models\DTOs\PedidoDetalleResponseDTO.cs" />
     <Compile Include="Models\DTOs\PedidoDTORequest.cs" />
+    <Compile Include="Models\DTOs\FacturasDePedidoResponseDTO.cs" />
     <Compile Include="Models\DTOs\PedidoResponseDTO.cs" />
     <Compile Include="Models\DTOs\PersonaRequestDTO.cs" />
     <Compile Include="Models\DTOs\PersonaResponseDTO.cs" />

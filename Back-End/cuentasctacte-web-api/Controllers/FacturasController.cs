@@ -459,7 +459,7 @@ namespace cuentasctacte_web_api.Controllers
                 case "PROCESANDO":
                     foreach (var factura in F)
                     {
-                        if (factura.Estado == "FACTURANDO")
+                        if (factura.Estado == "PROCESANDO")
                         {
                             facturas_filtradas_estado.Add(factura);
                         }

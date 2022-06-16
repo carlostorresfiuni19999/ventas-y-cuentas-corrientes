@@ -272,18 +272,6 @@ export default function Detalles() {
 
     const facturar = () => {
         if (productos.length > 0) {
-            const rawPedido = JSON.stringify({
-                "ClienteId": datos.idClient,
-                "Descripcion": datos.desc,
-                "Pedidos": productos.map(p => {
-                    const returnValue = {
-                        "ProductoId": p.prodId,
-                        "CantidadProducto": p.cantidad
-                    }
-                    return returnValue
-                })
-            })
-            putPedido(JSON.parse(sessionStorage.getItem('token')).access_token, Router.query.id, rawPedido)
             const raw = JSON.stringify({
                 "IdPedido": Router.query.id,
                 "CantidadCuotas": getCantCuotas(),

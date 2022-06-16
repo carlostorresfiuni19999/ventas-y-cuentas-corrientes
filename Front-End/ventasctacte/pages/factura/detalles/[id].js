@@ -49,6 +49,7 @@ export default function Detalles() {
                     .then(response => response.text())
                     .then(result => {
                         const res = JSON.parse(result)
+                        console.log(res)
                         setFactura({
                             cliente: res.Cliente,
                             cin: parseInt(res.DocCliente),

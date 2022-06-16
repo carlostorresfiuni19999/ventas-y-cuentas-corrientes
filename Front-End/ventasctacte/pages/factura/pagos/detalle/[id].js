@@ -35,6 +35,7 @@ export default function Detalle() {
                     .then(res => res.text())
                     .then(res => {
                         const r = JSON.parse(res)
+                        console.log('a')
                         setPagos(r.map(p => {
                             const returnValue = {
                                 fecha: p.FechaPago,
@@ -60,7 +61,7 @@ export default function Detalle() {
                     .catch(error => console.log(error))
             }
         }
-    }, [Router])
+    },[Router])
 
     const formatNum = (data) => {
         return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(data)

@@ -31,20 +31,20 @@ function LoginForm() {
                             .then(r => {
                                 if (r == 'true') {
                                     
-                                    router.push("admin/users/list");
+                                    router.push("/admin/users/list");
                                 } else {
                                     
                                     hasRole(res.access_token, res.userName, "Cajero")
                                         .then(r => {
                                             if (r == 'true') {
                                                 
-                                                router.push("factura/Lista");
+                                                router.push("/factura/Lista");
                                             } else {
                                                 hasRole(res.access_token, res.userName, "Vendedor")
                                                     .then(r => {
                                                         if (r == 'true') {
                                                             
-                                                            router.push("ndp/Lista");
+                                                            router.push("/ndp/Lista");
                                                         }
                                                     });
                                             }

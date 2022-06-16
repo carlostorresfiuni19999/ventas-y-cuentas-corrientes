@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Description;
 
@@ -34,6 +35,9 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // GET: api/Pedidos/5
+        [Route("api/Pedidos/Id")]
+        [HttpGet]
+        [Authorize]
         [ResponseType(typeof(PedidoResponseDTO))]
         public IHttpActionResult GetPedido(int id)
         {
@@ -147,7 +151,7 @@ namespace cuentasctacte_web_api.Controllers
                 db.SaveChanges();
                 return Ok(); //Todo salio bien.
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
                 if (!PedidoExists(id))
                 {
@@ -501,8 +505,9 @@ namespace cuentasctacte_web_api.Controllers
         public List<PedidoResponseDTO> PedidoReporte(String fechaInicio_Str = "1800-01-01", String fechaFin_Str = "3000-09-15", String estado = "ALL")
         {//= "ALL"
             /*Variables*/
-            DateTime desde = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
-            DateTime hasta = DateTime.ParseExact(fechaInicio_Str, "yyyy-mm-dd", null);
+           
+            DateTime desde = Convert.ToDateTime(fechaInicio_Str);
+            DateTime hasta = Convert.ToDateTime(fechaFin_Str);
             List<PedidoResponseDTO> pedidos_retornados = new List<PedidoResponseDTO>();
 
 
@@ -588,7 +593,30 @@ namespace cuentasctacte_web_api.Controllers
 
         }
 
+        [Authorize(Roles = "Administrador")]
+        [Route("api/Pedidos/Fechas")]
+        [HttpGet]
+        [ResponseType(typeof(PedidoDTORequest))]
+        public List<PedidoResponseDTO> FilterByDate(
+            DateTime Inicio, DateTime Fin)
+        {
+            DateTime RangoFinal = Fin.AddDays(1);
+            DateTime RangoInicial = Inicio.AddDays(-1);
+            var Pedidos = db.Pedidos
+                .Include(p => p.Vendedor)
+                .Include(p => p.Cliente)
+                .Where(p => !p.Deleted)
+                .Where(p =>
+                    (DateTime.Compare(RangoInicial, p.FechaPedido) <= 0)
+                    && (DateTime.Compare(RangoFinal, p.FechaPedido) >= 0)
+                );
 
+
+
+            return Pedidos
+                .ToList()
+                .ConvertAll(p => PedidoMapper(p));
+        }
 
         public PedidoResponseDTO GetPedido_local(int id)
         {
@@ -605,6 +633,7 @@ namespace cuentasctacte_web_api.Controllers
         [Route("api/Pedidos/FacturasDelPedido")]
         [HttpGet]
         [ResponseType(typeof(FacturasDePedidoResponseDTO))]
+
         public IHttpActionResult getFacturasPedido(int id_Pedido)
         {
 

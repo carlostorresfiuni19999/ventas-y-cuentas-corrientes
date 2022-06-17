@@ -6,11 +6,13 @@ import getPedidos from '../../API/getPedidos'
 import borrarPedido from '../../API/borrarPedido'
 import NavMain from '../../components/NavMain'
 import hasRole from '../../API/hasRole'
+import getPedidosFiltrado from '../../API/getPedidosFiltrado'
 
 export default function Lista() {
 
     const Router = useRouter()
     const [notas, setNotas] = useState([]);
+    const [filtro, setFiltro] = useState(false)
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
@@ -18,12 +20,12 @@ export default function Lista() {
         } else {
             const token = JSON.parse(sessionStorage.getItem('token'));
             hasRole(token.access_token, token.userName, "Vendedor")
-            .then(r => {
-                if(r == 'false'){
-                    Router.push("/LogIn");
-                    
-                } 
-            }).catch(console.log);
+                .then(r => {
+                    if (r == 'false') {
+                        Router.push("/LogIn");
+
+                    }
+                }).catch(console.log);
 
             getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
                 .then(res => res.text()).
@@ -50,8 +52,67 @@ export default function Lista() {
         }
     }, [Router])
 
-    const parsearCIN = (tipo, cin) =>{
-        switch(tipo){
+    useEffect(() => {
+        console.log(filtro)
+
+        if (filtro == true) {
+            console.log(document.getElementById('desdeFiltroNDP').value)
+            console.log(document.getElementById('hastaFiltroNDP').value)
+            console.log(document.getElementById('estadoFiltroNDP').value)
+
+            document.getElementById('desdeFiltroNDP').setAttribute('disabled', '')
+            document.getElementById('hastaFiltroNDP').setAttribute('disabled', '')
+            document.getElementById('estadoFiltroNDP').setAttribute('disabled', '')
+
+            getPedidosFiltrado(JSON.parse(sessionStorage.getItem('token')).access_token,document.getElementById('desdeFiltroNDP').value, document.getElementById('hastaFiltroNDP').value, document.getElementById('estadoFiltroNDP').value)
+                .then(response => response.json())
+                .then(n=>{
+                    console.log(n)
+                    setNotas(n.map(nota => {
+                        const notaNew = {
+                            id: nota.Id,
+                            cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
+                            cin: parsearCIN(nota.Cliente.DocumentoTipo, nota.Cliente.Documento),
+                            estado: nota.Estado,
+                            vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
+                            fecha: nota.FechePedido.split('T')[0],
+                            precioTotal: nota.CostoTotal
+                        }
+                        return notaNew
+                    }))
+                })
+
+        } else {
+
+            document.getElementById('desdeFiltroNDP').removeAttribute('disabled')
+            document.getElementById('hastaFiltroNDP').removeAttribute('disabled')
+            document.getElementById('estadoFiltroNDP').removeAttribute('disabled')
+
+            getPedidos(JSON.parse(sessionStorage.getItem('token')).access_token)
+                .then(res => res.text()).
+                then(result => {
+                    const n = JSON.parse(result);
+                    setNotas(n.map(nota => {
+                        const notaNew = {
+                            id: nota.Id,
+                            cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
+                            cin: parsearCIN(nota.Cliente.DocumentoTipo, nota.Cliente.Documento),
+                            estado: nota.Estado,
+                            vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
+                            fecha: nota.FechePedido.split('T')[0],
+                            precioTotal: nota.CostoTotal
+                        }
+                        return notaNew
+                    }))
+
+                })
+                .catch(error => console.log(error))
+
+        }
+    }, [filtro])
+
+    const parsearCIN = (tipo, cin) => {
+        switch (tipo) {
             case "CI":
                 const returnValue = formatNum(cin)
                 return returnValue
@@ -60,6 +121,15 @@ export default function Lista() {
             case "DNI":
                 return cin
         }
+    }
+
+    const handleFiltro = () => {
+        if (document.getElementById('estadoFiltroNDP').value == "-") {
+            alert("faltan datos...")
+        } else {
+            setFiltro((previousState) => { return !previousState })
+    
+        }    
     }
 
     const formatNum = (data) => {
@@ -84,20 +154,20 @@ export default function Lista() {
     }
 
     const ordenar = (lista) => {
-        const pendiente = lista.filter(elem => {return elem.estado == 'PENDIENTE'})
-        const facturando = lista.filter(elem => {return elem.estado == 'FACTURANDO'})
-        const facturado = lista.filter(elem => {return elem.estado == 'FACTURADO'})
-        return [...pendiente,...facturando, ...facturado ]
+        const pendiente = lista.filter(elem => { return elem.estado == 'PENDIENTE' })
+        const facturando = lista.filter(elem => { return elem.estado == 'FACTURANDO' })
+        const facturado = lista.filter(elem => { return elem.estado == 'FACTURADO' })
+        return [...pendiente, ...facturando, ...facturado]
     }
 
-    const getButton = (estado) =>{
-        switch(estado){
+    const getButton = (estado) => {
+        switch (estado) {
             case 'FACTURANDO':
-                return(<button className='btn btn-sm btn-warning' disabled> {estado} </button>)
+                return (<button className='btn btn-sm btn-warning' disabled> {estado} </button>)
             case 'PENDIENTE':
-                return(<button className='btn btn-sm btn-secondary' disabled> {estado} </button>)
+                return (<button className='btn btn-sm btn-secondary' disabled> {estado} </button>)
             case 'FACTURADO':
-                return(<button className='btn btn-sm btn-success' disabled> {estado} </button>)
+                return (<button className='btn btn-sm btn-success' disabled> {estado} </button>)
         }
     }
 
@@ -117,6 +187,22 @@ export default function Lista() {
                     <div className='p-4'>
                         <div>
                             <h5>Notas de Pedidos</h5>
+                            <div>
+                                <label htmlFor='desdeFiltroNDP'>Desde:</label>
+                                <input type='date' className='mx-2' id='desdeFiltroNDP' />
+
+                                <label htmlFor='hastaFiltroNDP'>Hasta:</label>
+                                <input type='date' className='mx-2' id='hastaFiltroNDP' />
+
+                                <label htmlFor='estadoFiltroNDP'>Estado:</label>
+                                <select className="mx-2" id='estadoFiltroNDP'>
+                                    <option value="-" selected>Elija el estado</option>
+                                    <option value="PENDIENTE">PENDIENTE</option>
+                                    <option value="FACTURANDO">FACTURANDO</option>
+                                    <option value="FACTURADO">FACTURADO</option>
+                                </select>
+                                <button className='btn btn-sm btn-success' onClick={() => handleFiltro()}>filtro</button>
+                            </div>
 
                         </div>
 
@@ -138,35 +224,35 @@ export default function Lista() {
                                     </thead>
                                     <tbody>
                                         {
-                                            
+
                                             ordenar(notas).map(nota => {
-                                                    return (
-                                                        <tr key={nota.id}>
-                                                            <th scope='row'>{nota.cliente}</th>
-                                                            <td>{nota.cin}</td>
-                                                            <td>{getButton(nota.estado)}</td>
-                                                            <td>{nota.vendedor}</td>
-                                                            <td>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(nota.precioTotal)}</td>
-                                                            <td>{formatFecha(nota.fecha)}</td>
+                                                return (
+                                                    <tr key={nota.id}>
+                                                        <th scope='row'>{nota.cliente}</th>
+                                                        <td>{nota.cin}</td>
+                                                        <td>{getButton(nota.estado)}</td>
+                                                        <td>{nota.vendedor}</td>
+                                                        <td>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(nota.precioTotal)}</td>
+                                                        <td>{formatFecha(nota.fecha)}</td>
 
-                                                            <td><button className='btn btn-light btn-sm' onClick={() => { Router.push(`/ndp/detalles/${nota.id}`) }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16" >
-                                                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
-                                                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
-                                                            </svg></button></td>
+                                                        <td><button className='btn btn-light btn-sm' onClick={() => { Router.push(`/ndp/detalles/${nota.id}`) }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16" >
+                                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+                                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                                                        </svg></button></td>
 
-                                                            <td><button className='btn btn-light btn-sm' onClick={() => { eliminar(nota.id) }}>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
-                                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                                                    <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                                                                </svg>
-                                                            </button></td>
-                                                        </tr>
-                                                    )
-                                                }
-                                       
-                                            )         
-                                                
-                                            
+                                                        <td><button className='btn btn-light btn-sm' onClick={() => { eliminar(nota.id) }}>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
+                                                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                                                <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                            </svg>
+                                                        </button></td>
+                                                    </tr>
+                                                )
+                                            }
+
+                                            )
+
+
                                         }
 
                                     </tbody>

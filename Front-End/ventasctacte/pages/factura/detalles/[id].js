@@ -52,10 +52,10 @@ export default function Detalles() {
                         console.log(res)
                         setFactura({
                             cliente: res.Cliente,
-                            cin: parseInt(res.DocCliente),
+                            cin: parsearCIN(res.DocumentoTipo, res.DocCliente),
                             fechaFact: res.FechaFacturacion.split('T')[0],
                             precioTotal: res.PrecioTotal + res.IvaTotal,
-                            saldoTotal: res.SaldoTotal,
+                            ivaTotal: res.IvaTotal,
                             cuotas: res.Cuotas.map(cuota => {
                                 const returnValue = {
                                     fechaVenc: cuota.FechaVencimiento.split('T')[0],
@@ -84,6 +84,18 @@ export default function Detalles() {
             }
         }
     }, [Router])
+
+    const parsearCIN = (tipo, cin) => {
+        switch (tipo) {
+            case "CI":
+                const returnValue = formatNum(cin)
+                return returnValue
+            case "RUC":
+                return formatNum(cin.split('-')[0]) + "-" + cin.split('-')[1]
+            case "DNI":
+                return cin
+        }
+    }
 
     const formatfecha = (dateStr) => {
         if (dateStr == null) {
@@ -129,7 +141,7 @@ export default function Detalles() {
                         <label className='ps-2'>Cliente:</label>
                         <label className='px-3'>{factura.cliente}</label>
                         <label className=''>CIN:</label>
-                        <label className='px-3 pe-5'>{formatNum(factura.cin)}</label>
+                        <label className='px-3 pe-5'>{factura.cin}</label>
                     </div>
                     <div>
                         <label className='ps-2'>Fecha Facturada:</label>
@@ -162,7 +174,13 @@ export default function Detalles() {
                                 )
                             })
                         }
-
+                        <tr>
+                            <th></th>
+                            <td></td>
+                            <td>Iva: {formatNum(factura.ivaTotal)} </td>
+                            <td className='table-success'>Total: {formatNum(factura.precioTotal)} </td>
+                            <td></td>
+                        </tr>
 
 
 

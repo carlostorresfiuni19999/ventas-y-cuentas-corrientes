@@ -13,6 +13,7 @@ import getFacturas from '../../API/getFacturas'
 import deleteFactura from '../../API/deleteFactura'
 import NavMain from '../../components/NavMain'
 import hasRole from '../../API/hasRole'
+import getFacturasFiltrado from '../../API/getFacturasFiltrado'
 
 export default function Lista() {
 
@@ -20,6 +21,7 @@ export default function Lista() {
 
     const [facturas, setFacturas] = useState([])
     const [band, setBand] = useState(true);
+    const [filtro, setFiltro] = useState(false);
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
@@ -68,6 +70,7 @@ export default function Lista() {
                     return () => {band};
         }
     }, []);
+
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
             Router.push('/LogIn')
@@ -116,6 +119,64 @@ export default function Lista() {
         }
     }, [facturas, Router, band])
 
+    useEffect(() => {
+        console.log(filtro)
+
+        if (filtro == true) {
+            console.log(document.getElementById('desdeFiltroFactura').value)
+            console.log(document.getElementById('hastaFiltroFactura').value)
+            console.log(document.getElementById('estadoFiltroFactura').value)
+
+            document.getElementById('desdeFiltroFactura').setAttribute('disabled', '')
+            document.getElementById('hastaFiltroFactura').setAttribute('disabled', '')
+            document.getElementById('estadoFiltroFactura').setAttribute('disabled', '')
+
+            getFacturasFiltrado(JSON.parse(sessionStorage.getItem('token')).access_token,document.getElementById('desdeFiltroFactura').value, document.getElementById('hastaFiltroFactura').value, document.getElementById('estadoFiltroFactura').value)
+                .then(response => response.json())
+                .then(f => {
+                    setFacturas(f.map(fac => {
+                        const facturaNew = {
+                            id: fac.Id,
+                            cliente: fac.Cliente,
+                            fecha: fac.FechaFacturada.split('T')[0],
+                            monto: fac.MontoTotal,
+                            saldo: fac.SaldoTotal,
+                            condicion: fac.CondicionVenta,
+                            estado: fac.Estado
+                        }
+                        
+                        return facturaNew;
+                    }))
+                }).catch(error=>console.log(error))
+        } else {
+
+            document.getElementById('desdeFiltroFactura').removeAttribute('disabled')
+            document.getElementById('hastaFiltroFactura').removeAttribute('disabled')
+            document.getElementById('estadoFiltroFactura').removeAttribute('disabled')
+
+            getFacturas(JSON.parse(sessionStorage.getItem('token')).access_token)
+                    .then(res => res.text()).
+                    then(result => {
+                        const f = JSON.parse(result)
+                        setFacturas(f.map(fac => {
+                            const facturaNew = {
+                                id: fac.Id,
+                                cliente: fac.Cliente,
+                                fecha: fac.FechaFacturada.split('T')[0],
+                                monto: fac.MontoTotal,
+                                saldo: fac.SaldoTotal,
+                                condicion: fac.CondicionVenta,
+                                estado: fac.Estado
+                            }
+                            
+                            return facturaNew;
+                        }))
+                    })
+                    .catch(error => console.log(error))
+
+        }
+    }, [filtro])
+
     const formatfecha = (dateStr) => {
         if (dateStr == null) {
             return ' '
@@ -143,6 +204,15 @@ export default function Lista() {
         }
     }
 
+    const handleFiltro = () => {
+        if (document.getElementById('estadoFiltroFactura').value == "-" || document.getElementById('hastaFiltroFactura').value == "" || document.getElementById('desdeFiltroFactura').value == '') {
+            alert("faltan datos...")
+        } else {
+            setFiltro((previousState) => { return !previousState })
+    
+        }    
+    }
+
 
     return (
         <div>
@@ -158,6 +228,23 @@ export default function Lista() {
                 <NavMain person="Cajero" pag="Listar" />
                 <div className='pt-4 ps-4'>
                     <h5>Lista de Facturas</h5>
+
+                    <div>
+                                <label htmlFor='desdeFiltroFactura'>Desde:</label>
+                                <input type='date' className='mx-2' id='desdeFiltroFactura' />
+
+                                <label htmlFor='hastaFiltroFactura'>Hasta:</label>
+                                <input type='date' className='mx-2' id='hastaFiltroFactura' />
+
+                                <label htmlFor='estadoFiltroFactura'>Estado:</label>
+                                <select className="mx-2" id='estadoFiltroFactura' defaultValue='-'>
+                                    <option value="-">Elija el estado</option>
+                                    <option value="PENDIENTE">PENDIENTE</option>
+                                    <option value="PROCESANDO">PROCESANDO</option>
+                                    <option value="PAGADO">PAGADO</option>
+                                </select>
+                                <button className='btn btn-sm btn-success' onClick={() => handleFiltro()}>filtro</button>
+                            </div>
 
                 </div>
 

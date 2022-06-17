@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
 import getStocks from "../../API/getStocks";
-import AdminNavbar from "../../components/admin/AdminNavBar";
+import AdminNavbar from "../../components/admin/AdminNavbar";
 import StockList from "../../components/admin/StocksList";
 
 const Stock = () => {

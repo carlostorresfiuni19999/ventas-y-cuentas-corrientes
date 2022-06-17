@@ -11,7 +11,7 @@ import Navbar from '../../../../components/Navbar'
 
 //API
 import NavMain from '../../../../components/NavMain'
-import getPagos from '../../../../API/GetPagos'
+import getPagos from '../../../../API/getPagos'
 import hasRole from '../../../../API/hasRole'
 
 export default function Detalle() {

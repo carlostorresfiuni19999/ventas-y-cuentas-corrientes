@@ -7,7 +7,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 //componentes
 import Navbar from '../../../components/Navbar'
-import FDPControl from '../../../components/fdpControl'
+import FDPControl from '../../../components/FDPControl'
 import NavMain from '../../../components/NavMain'
 
 //api

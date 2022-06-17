@@ -428,6 +428,7 @@ namespace cuentasctacte_web_api.Controllers
                 IdPedido = (int) factura.PedidoId,
                 Cliente = factura.Cliente.Nombre + " " + factura.Cliente.Apellido,
                 DocCliente = factura.Cliente.Documento,
+                CondicionVenta = factura.CondicionVenta,
                 PrecioTotal = factura.Monto,
                 IvaTotal = factura.Iva,
                 SaldoTotal = factura.Saldo,

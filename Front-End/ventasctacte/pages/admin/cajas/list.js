@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import getCajas from "../../../API/getCajas";
 import CajaList from "../../../components/admin/CajaList";
-import AdminNavBar from "../../../components/admin/AdminNavBar";
+import AdminNavBar from "../../../components/admin/AdminNavbar";
 import getUsersDisponibles from "../../../API/getUsersDisponibles";
 import PostCajaForm from "../../../components/admin/PostCajaForm";
 import { Button } from "react-bootstrap";

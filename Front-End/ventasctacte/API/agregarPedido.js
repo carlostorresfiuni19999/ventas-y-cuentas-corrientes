@@ -1,3 +1,5 @@
+import { Router } from "next/router";
+
 const agregarPedido = (token, raw) => {
     const myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${token}`);
@@ -13,7 +15,12 @@ const agregarPedido = (token, raw) => {
     fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Pedidos", requestOptions)
         .then(response => {
             if(response.ok){
-                alert("Agregado con exito");
+                alert("Agregado con exito")
+                if(confirm("volver a la lista de notas de pedido?")){   
+                    Router.push('/ndp/Lista')
+                }else{
+                    Router.push('/ndp/Agregar')
+                }
             }else{
                 response.json().then(error => {alert(error.Message)});
             }

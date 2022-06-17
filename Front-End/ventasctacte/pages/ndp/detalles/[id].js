@@ -55,7 +55,7 @@ export default function Detalles() {
                             setDatos({
                                 idClient: res.Cliente.Id,
                                 nombre: res.Cliente.Nombre + ' ' + res.Cliente.Apellido,
-                                cin: res.Cliente.Documento,
+                                cin: parsearCIN(res.Cliente.DocumentoTipo, res.Cliente.Documento),
                                 desc: res.PedidoDescripcion,
                                 fecha: res.FechePedido.split('T')[0],
                                 estado: res.Estado,
@@ -270,6 +270,18 @@ export default function Detalles() {
 
     }
 
+    const parsearCIN = (tipo, cin) =>{
+        switch(tipo){
+            case "CI":
+                const returnValue = formatNum(cin)
+                return returnValue
+            case "RUC":
+                return formatNum(cin.split('-')[0]) + "-" + cin.split('-')[1]
+            case "DNI":
+                return cin
+        }
+    }
+
     const facturar = () => {
         if (productos.length > 0) {
             const raw = JSON.stringify({
@@ -345,7 +357,7 @@ export default function Detalles() {
                                         <label>Cliente:</label>
                                         <label className='px-3'>{datos.nombre}</label>
                                         <label className=''>CIN:</label>
-                                        <label className='px-3 pe-5'>{formatNum(datos.cin)}</label>
+                                        <label className='px-3 pe-5'>{datos.cin}</label>
                                         <label className='ps-5'>Fecha:</label>
                                         <label className='px-3'>{formatFecha(datos.fecha)}</label>
                                     </div>

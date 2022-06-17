@@ -31,14 +31,13 @@ export default function Agregar() {
                 } 
             }).catch(console.log);
             band && getPersonas(JSON.parse(sessionStorage.getItem('token')).access_token)
-                .then(response => response.text())
-                .then(result => {
-                    const res = JSON.parse(result)
+                .then(response => response.json())
+                .then(res => {
                     setPersonas(res.map(persona => {
                         const newpersona = {
                             id: persona.Id,
                             nombre: persona.Nombre + ' ' + persona.Apellido,
-                            cin: persona.Documento
+                            cin: parsearCIN(persona.DocumentoTipo, persona.Documento)
                         }
                         return newpersona
                     }))
@@ -125,6 +124,18 @@ export default function Agregar() {
     const [idListaProd, setIdListaProd] = useState(1)
     const [precioTotalPedido, setPrecioTotalPedido] = useState({ precio: 0 })
 
+    const parsearCIN = (tipo, cin) =>{
+        switch(tipo){
+            case "CI":
+                const returnValue = new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(cin)
+                return returnValue
+            case "RUC":
+                return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(cin.split('-')[0]) + "-" + cin.split('-')[1]
+            case "DNI":
+                return cin
+        }
+    }
+
     const generarPedido = () => {
         if (document.getElementById('cantidadInput').value != 0 && selectProd.id != '') {
             setListaProductos([...listaProductos, {
@@ -189,7 +200,6 @@ export default function Agregar() {
                 })
             });
             agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
-            Router.push('/ndp/Lista')
         } else {
             alert("No se puede crear la peticion porque no contiene datos suficientes")
         }
@@ -234,7 +244,7 @@ export default function Agregar() {
                         </select>
                         <div className='p-2 ps-0'>
                             <label>CIN: </label>
-                            <label className='ps-2'>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(cliente.cin)}</label>
+                            <label className='ps-2'>{cliente.cin}</label>
                         </div>
                     </div>
 

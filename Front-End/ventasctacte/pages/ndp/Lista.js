@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
 import Head from 'next/head'
 import Navbar from '../../components/Navbar'
 import getPedidos from '../../API/getPedidos'
@@ -34,7 +33,7 @@ export default function Lista() {
                         const notaNew = {
                             id: nota.Id,
                             cliente: nota.Cliente.Nombre + ' ' + nota.Cliente.Apellido,
-                            cin: nota.Cliente.Documento,
+                            cin: parsearCIN(nota.Cliente.DocumentoTipo, nota.Cliente.Documento),
                             estado: nota.Estado,
                             vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
                             fecha: nota.FechePedido.split('T')[0],
@@ -50,6 +49,22 @@ export default function Lista() {
             }
         }
     }, [Router])
+
+    const parsearCIN = (tipo, cin) =>{
+        switch(tipo){
+            case "CI":
+                const returnValue = formatNum(cin)
+                return returnValue
+            case "RUC":
+                return formatNum(cin.split('-')[0]) + "-" + cin.split('-')[1]
+            case "DNI":
+                return cin
+        }
+    }
+
+    const formatNum = (data) => {
+        return new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(data)
+    }
 
     const formatFecha = (dateStr) => {
         if (dateStr == null) {
@@ -72,7 +87,6 @@ export default function Lista() {
         const pendiente = lista.filter(elem => {return elem.estado == 'PENDIENTE'})
         const facturando = lista.filter(elem => {return elem.estado == 'FACTURANDO'})
         const facturado = lista.filter(elem => {return elem.estado == 'FACTURADO'})
-        console.log([...pendiente,...facturando, ...facturado ])
         return [...pendiente,...facturando, ...facturado ]
     }
 
@@ -129,7 +143,7 @@ export default function Lista() {
                                                     return (
                                                         <tr key={nota.id}>
                                                             <th scope='row'>{nota.cliente}</th>
-                                                            <td>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(nota.cin)}</td>
+                                                            <td>{nota.cin}</td>
                                                             <td>{getButton(nota.estado)}</td>
                                                             <td>{nota.vendedor}</td>
                                                             <td>{new Intl.NumberFormat('us-US', { style: 'decimal', currency: 'PGS' }).format(nota.precioTotal)}</td>

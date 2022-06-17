@@ -8,7 +8,6 @@ namespace cuentasctacte_web_api.Models.DTOs
         public int Id { get; set; }
         public PersonaResponseDTO Cliente { get; set; }
         public PersonaResponseDTO Vendedor { get; set; }
-
         public string PedidoDescripcion { get; set; }
         public string Estado { get; set; }
         public string CondicionVenta { get; set; }

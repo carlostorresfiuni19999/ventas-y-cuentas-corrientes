@@ -12,5 +12,8 @@ namespace cuentasctacte_web_api.Models.DTOs
         public string Estado { get; set; }
         public DateTime FechaFacturada { get; set; }
         public string CondicionVenta { get; set; }
+
+        public string DocumentoTipo { get; set; }
+        public string Documento { get; set; }
     }
 }

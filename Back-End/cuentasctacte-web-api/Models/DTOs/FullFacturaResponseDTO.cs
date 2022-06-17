@@ -10,7 +10,8 @@ namespace cuentasctacte_web_api.Models.DTOs
         public int IdPedido { get; set; }
         public string DocCliente { get; set; }
         public string Cliente { get; set; }
-
+        public string Documento { get; set; }
+        public string DocumentoTipo { get; set; }
         public string Estado { get; set; }
         public double PrecioTotal { get; set; }
 

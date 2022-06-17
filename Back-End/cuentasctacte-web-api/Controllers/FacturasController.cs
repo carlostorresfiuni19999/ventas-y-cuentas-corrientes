@@ -33,6 +33,8 @@ namespace cuentasctacte_web_api.Controllers
                 .ToList()
                 .ConvertAll(f => new FacturaResponseDTO
                 {
+                    Documento = f.Cliente.Documento,
+                    DocumentoTipo = f.Cliente.DocumentoTipo,
                     Id = f.Id,
                     MontoTotal = f.Monto,
                     SaldoTotal = f.Saldo,
@@ -94,10 +96,12 @@ namespace cuentasctacte_web_api.Controllers
 
             //Guardamos la factura en el contexto
 
-            var FacturaSaved = db.Facturas.Add(FacturaDb);
+            FacturaDb = db.Facturas.Add(FacturaDb);
+
             double monto = 0.0;
             double saldo = 0.0;
             double iva = 0.0;
+
             List<PedidoDetalle> NoExistentes = new List<PedidoDetalle>();   
             //Iterar sobre los Productos que se van a facturar
             foreach (var item in factura.Pedido.Pedidos)
@@ -112,10 +116,14 @@ namespace cuentasctacte_web_api.Controllers
                     .FirstOrDefault();
 
                 var Producto = db.Productos.Find(item.ProductoId);
+
                 var FacturaDetalle = new FacturaDetalle();
+
                 FacturaDetalle.FacturaId = FacturaDb.Id;
                 FacturaDetalle.ProductoId = item.ProductoId;
                 FacturaDetalle.PrecioUnitario = Producto.Precio;
+                FacturaDetalle.Cantidad = 0;
+
                 var Stock = db.Stocks
                     .Include(s => s.Producto)
                     .Include(s => s.Deposito)
@@ -166,15 +174,20 @@ namespace cuentasctacte_web_api.Controllers
 
                         if (cantProd >= cantStock)
                         {
-                            Stock.Cantidad = 0;
+                            FacturaDetalle.Cantidad = Stock.Cantidad;
+                            
                             PedidoDetalle.CantidadFacturada = Stock.Cantidad;
                             PedidoDetalle.CantidadProducto = item.CantidadProducto;
+                            Stock.Cantidad = 0;
+                            db.FacturaDetalles.Add(FacturaDetalle);
                         }
                         else
                         {
+                            FacturaDetalle.Cantidad = item.CantidadProducto;
                             Stock.Cantidad -= item.CantidadProducto;
                             PedidoDetalle.CantidadProducto = item.CantidadProducto;
                             PedidoDetalle.CantidadFacturada = item.CantidadProducto;
+                            db.FacturaDetalles.Add(FacturaDetalle);
                         }
 
                         db.Entry(Stock).State = EntityState.Modified;
@@ -186,9 +199,9 @@ namespace cuentasctacte_web_api.Controllers
                         if (item.CantidadProducto >= Stock.Cantidad)
                         {
                             FacturaDetalle.Cantidad = Stock.Cantidad;
-                            Stock.Cantidad = 0;
                             PedidoDetalle.CantidadFacturada = Stock.Cantidad;
                             db.FacturaDetalles.Add(FacturaDetalle);
+                            Stock.Cantidad = 0;
                         }
                         else
                         {
@@ -222,8 +235,6 @@ namespace cuentasctacte_web_api.Controllers
             FacturaDb.Saldo = saldo + iva;
             FacturaDb.Iva = iva;
 
-  
-
             //Si es Credito Verificamos si hay Saldo Disponible
             if (FacturaDb.CantidadCuotas > 1)
             {
@@ -254,9 +265,9 @@ namespace cuentasctacte_web_api.Controllers
                 db.VencimientoFacturas.Add(cuota);
             }
 
- 
+
             //Unificamos los nuevos detalles agregados
-            
+            var aux = NoExistentes.ToList();
             NoExistentes.ForEach(nx =>
             {
                 var query = NoExistentes.Where(x => x.IdPedido == nx.IdPedido
@@ -268,14 +279,14 @@ namespace cuentasctacte_web_api.Controllers
                     var temp = nx;
                     temp.CantidadProducto = query.Sum(p => p.CantidadProducto);
                     temp.CantidadFacturada = query.Sum(p => p.CantidadFacturada);
-                    NoExistentes.Remove(nx);
-                    NoExistentes.Add(temp);
+                    aux.Remove(nx);
+                    aux.Add(temp);
 
                 }
 
             });
 
-            NoExistentes.ForEach(nx => db.PedidoDetalles.Add(nx));
+            aux.ForEach(nx => db.PedidoDetalles.Add(nx));
 
             bool facturado = db.PedidoDetalles
                 .Where(pd => !pd.Deleted)
@@ -411,6 +422,8 @@ namespace cuentasctacte_web_api.Controllers
         {
             var Result = new FullFacturaResponseDTO()
             {
+                Documento = factura.Cliente.Documento,
+                DocumentoTipo = factura.Cliente.DocumentoTipo,
                 IdFactura = (int) factura.Id,
                 IdPedido = (int) factura.PedidoId,
                 Cliente = factura.Cliente.Nombre + " " + factura.Cliente.Apellido,

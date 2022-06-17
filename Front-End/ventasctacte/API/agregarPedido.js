@@ -16,11 +16,6 @@ const agregarPedido = (token, raw) => {
         .then(response => {
             if(response.ok){
                 alert("Agregado con exito")
-                if(confirm("volver a la lista de notas de pedido?")){   
-                    Router.push('/ndp/Lista')
-                }else{
-                    Router.push('/ndp/Agregar')
-                }
             }else{
                 response.json().then(error => {alert(error.Message)});
             }

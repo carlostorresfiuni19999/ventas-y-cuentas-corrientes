@@ -11,6 +11,7 @@ namespace cuentasctacte_web_api.Models.DTOs
         public string DocCliente { get; set; }
         public string Cliente { get; set; }
 
+        public string Estado { get; set; }
         public double PrecioTotal { get; set; }
 
         public double SaldoTotal { get; set; }

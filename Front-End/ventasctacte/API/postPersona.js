@@ -12,8 +12,8 @@ const PostPersona = (persona, token) => {
         "Roles": persona.Roles,
         "Telefono": `${persona.Telefono}`,
         "UserName": `${persona.UserName}`,
-        "Password": `${persona.password}`,
-        "ConfirmPassword":`${persona.confirmPassword}`
+        "Password": `${persona.Password}`,
+        "ConfirmPassword":`${persona.ConfirmPassword}`
       }
     );
 
@@ -24,11 +24,7 @@ const PostPersona = (persona, token) => {
         redirect: 'follow'
     };
 
-  fetch("http://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Account/Register", requestOptions)
-        .then(response => {
-            response.ok ? alert("Guardado con exito") : alert("Error al registrar al usuario")
-        })
-        .catch(error => console.log(error));
+  fetch("http://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Account/Register", requestOptions);
 }
 
 

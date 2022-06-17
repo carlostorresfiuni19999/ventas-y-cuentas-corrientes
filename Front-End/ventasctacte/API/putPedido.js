@@ -20,6 +20,7 @@ export async function putPedido(token, id, raw) {
                 response.json().then(error => {alert(error.Message)});
             }
         }).catch(error => console.log(error));
+
 }
 
 export default putPedido

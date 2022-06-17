@@ -300,6 +300,7 @@ export default function Detalles() {
                 }
 
             })
+            console.log(raw);
             crearFactura(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
             Router.back()
         }

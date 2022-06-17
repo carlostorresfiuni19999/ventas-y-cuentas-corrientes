@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Description;
 
@@ -34,6 +35,9 @@ namespace cuentasctacte_web_api.Controllers
         }
 
         // GET: api/Pedidos/5
+        [Route("api/Pedidos/Id")]
+        [HttpGet]
+        [Authorize]
         [ResponseType(typeof(PedidoResponseDTO))]
         public IHttpActionResult GetPedido(int id)
         {
@@ -122,9 +126,16 @@ namespace cuentasctacte_web_api.Controllers
                     Deleted = false
                 };
 
-                if (existentes.Count(pd => pd.IdPedido == Detalle.IdPedido && pd.IdProducto == Detalle.IdProducto) > 0)
+                var query = existentes
+                    .Where(p => !p.Deleted)
+                    .Where(
+                    pd =>
+                        pd.IdPedido == Detalle.IdPedido
+                        && pd.IdProducto == Detalle.IdProducto);
+
+                if (query.Count() > 0)
                 {
-                    var temp = existentes.FirstOrDefault(e => e.Id == id);
+                    var temp = query.FirstOrDefault();
                     existentes.Remove(temp);
                     temp.CantidadProducto += Detalle.CantidadProducto;
                     existentes.Add(temp);
@@ -147,7 +158,7 @@ namespace cuentasctacte_web_api.Controllers
                 db.SaveChanges();
                 return Ok(); //Todo salio bien.
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
                 if (!PedidoExists(id))
                 {
@@ -256,10 +267,6 @@ namespace cuentasctacte_web_api.Controllers
             //Verificamos si hay stocks disponibles para cada producto Pedido
             foreach (var PedidoDetalle in Pedido.Pedidos)
             {
-
-
-
-
                 PedidoDetalle Detalle;
 
                 bool DetalleExist = 0 < PedidosExistentes
@@ -318,7 +325,7 @@ namespace cuentasctacte_web_api.Controllers
 
 
         }
-        [ResponseType(typeof(PedidoDetalleResponseDTO))]
+        [ResponseType(typeof(PedidoDTORequest))]
         [Route("api/Pedidos/PedidoParaFacturar")]
         [HttpGet]
         public PedidoDTORequest GetPedidoFacturar(int id)
@@ -474,7 +481,8 @@ namespace cuentasctacte_web_api.Controllers
             var Pedidos = db.PedidoDetalles
                 .Include(p => p.Pedido)
                 .Include(p => p.Producto)
-                .Where(p => p.IdPedido == id);
+                .Where(p => p.IdPedido == id)
+                .Where(p => !p.Deleted);
 
             if (Pedidos.Count() <= 0) throw new Exception("Pedidos no encontrado");
             PedidoDTORequest result = new PedidoDTORequest()
@@ -493,5 +501,150 @@ namespace cuentasctacte_web_api.Controllers
             return result;
         }
 
+
+        /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Reporte pedidos
+
+
+
+
+        [Authorize(Roles="Administrador,Vendedor,Cajero")]
+        [Route("api/Pedidos/PedidoReportes")]
+        [HttpGet]
+
+        [ResponseType(typeof(PedidoDTORequest))]
+        public List<PedidoResponseDTO> FilterByDate(
+            DateTime Inicio, DateTime Fin, String estado= "ALL")
+        {
+
+            List<PedidoResponseDTO> pedidos_retornados = new List<PedidoResponseDTO>();
+            List<PedidoResponseDTO> pedidos_Mapper = new List<PedidoResponseDTO>();
+            DateTime desde = Inicio.AddDays(-1);
+            DateTime hasta = Fin.AddDays(1);
+            
+
+            pedidos_Mapper = GetPedidos_EntreFechas(desde, hasta);
+
+            //Filtramos por estado.
+            if (estado == "ALL") return pedidos_Mapper;
+
+            switch (estado)
+            {
+                case "PENDIENTE":
+                    foreach (var pedidoRequest in pedidos_Mapper)
+                    {
+                        if (pedidoRequest.Estado == "PENDIENTE")
+                        {
+                            pedidos_retornados.Add(pedidoRequest);
+                            //pedidosMapper.Remove(pedidoRequest);
+                        }
+
+                    }
+
+                    break;
+                case "FACTURANDO":
+                    foreach (var pedidoRequest in pedidos_Mapper)
+                    {
+                        if (pedidoRequest.Estado == "FACTURANDO")
+                        {
+                            pedidos_retornados.Add(pedidoRequest);
+                            //pedidosMapper.Remove(pedidoRequest);
+                        }
+
+                    }
+                    break;
+                case "FACTURADO":
+                    foreach (var pedidoRequest in pedidos_Mapper)
+                    {
+                        if (pedidoRequest.Estado == "FACTURADO")
+                        {
+                            pedidos_retornados.Add(pedidoRequest);
+                            //pedidosMapper.Remove(pedidoRequest);
+
+                        }
+
+                    }
+                    break;
+            }
+            return pedidos_retornados;
+        }
+       
+            //PENDIENTE
+            //FACTURANDO
+            //FACTURADO
+
+            //Me trae todos los pedidos incluyendo una fecha.
+            private List<PedidoResponseDTO> GetPedidos_EntreFechas(DateTime desde, DateTime hasta)
+        {
+
+            var Pedidos = db.Pedidos
+                .Include(p => p.Vendedor)
+                .Include(p => p.Cliente)
+                .Where(p => !p.Deleted)
+                .Where(p =>
+                    (DateTime.Compare(desde, p.FechaPedido) <= 0)
+                    && (DateTime.Compare(hasta, p.FechaPedido) >= 0)
+                ).ToList();
+
+            return PedidosMapper(Pedidos);
+
+
+        }
+
+
+       
+
+
+            public PedidoResponseDTO GetPedido_local(int id)
+
+        {
+            var Pedido = db.Pedidos
+                .Include(p => p.Vendedor)
+                .Include(p => p.Cliente)
+                .FirstOrDefault(p => p.Id == id);
+   
+            return PedidoMapper(Pedido);
+        }
+
+        [Route("api/Pedidos/FacturasDelPedido")]
+        [HttpGet]
+        [ResponseType(typeof(FacturasDePedidoResponseDTO))]
+
+
+        public IHttpActionResult getFacturasPedido(int id_Pedido)
+        {
+
+            PedidoResponseDTO pedidoResponse = GetPedido_local(id_Pedido);
+            var listaFacturas = facturaMapperList(getFacturas(id_Pedido));
+
+            //Creamos el objeto a retornar
+            FacturasDePedidoResponseDTO la_cosa = new FacturasDePedidoResponseDTO();
+            la_cosa.PedidoFull = pedidoResponse;
+            la_cosa.FullFacturas = listaFacturas;
+
+            return Ok(la_cosa);
+        }
+
+        private List<Factura> getFacturas(int id_pedido) {
+
+            var Facturas = db.Facturas
+                .Include(f => f.Pedido)
+                .Include(f => f.Cliente)
+                .Where(f => f.PedidoId == id_pedido)
+                .Where(f => f.Deleted != true)
+                .ToList();
+            return Facturas;
+        }
+
+        private List<FullFacturaResponseDTO> facturaMapperList(
+                                             List<Factura> Facturas) 
+        {
+            FacturasController Fc = new FacturasController();
+            List<FullFacturaResponseDTO> FullFacturas = new List<FullFacturaResponseDTO>();
+
+            foreach (var Factura in Facturas) {//Vamos agregando las facturas
+                FullFacturas.Add(Fc.MapToFullFactura(Factura));
+            }
+            return FullFacturas;
+        }
     }
 }

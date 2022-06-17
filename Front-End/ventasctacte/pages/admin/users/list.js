@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import PersonForm from "../../../components/admin/PersonForm";
 import PostPersona from "../../../API/postPersona";
 import { editPersona } from "../../../API/editPersona";
+import setPassword from "../../../API/setPassword";
 const List = () => {
 
     const [band, setBand] = useState(true);
@@ -30,67 +31,76 @@ const List = () => {
 
     const handleSave = (value) => {
         const token = JSON.parse(sessionStorage.getItem("token"));
-        PostPersona(value, token.access_token);
-        loadData();
+        PostPersona(value, token.access_token).then(r => {
+            if(r.ok){
+                alert("Agregado con exito")
+                loadData();
+            }
+            else{
+                alert("Ocurrio un error al agregar al usuario, vuelva a intentarlo");
+            }
+        });
+        
+    }
+
+    const handleChangePassword = (username, value) => {
+        const token = JSON.parse(sessionStorage.getItem("token"));
+        setPassword(token.access_token, username, JSON.stringify(value));
     }
 
     const handleEdit = (username, value) => {
         const token = JSON.parse(sessionStorage.getItem("token"));
-        editPersona(token.access_token, username, value);
-        loadData();
+        editPersona(token.access_token, username, value)
+        .then(r => {
+            if(r.ok){
+                alert("Editado con exito");
+                loadData();
+            }else{
+                alert("Ocurrio un error al editar el dato, vuelva a intentarlo");
+            }
+        });
+        
     }
-    const redirect = () => router.push("admin/users/list");
+
     const loadData = useCallback(() => {
         if (sessionStorage.getItem("token")) {
             setLogged(true);
             const token = JSON.parse(sessionStorage.getItem("token"));
 
-            hasRole(token.access_token, token.userName, "Administrador")
-                .then(r => {
-                    if (r == 'true') {
-                        getAllPeople(token.access_token)
-                            .then(r => r.text())
-                            .then(r => JSON.parse(r))
-                            .then(r => {
-                                if (band) {
-                                    console.log(r);
-                                    setPersonas(r.filter(p => {
-                                        for (let rol of p.Roles) {
-                                            if (rol === "Cliente") return true;
-                                        }
-                                        return false;
-                                    }));
+            getAllPeople(token.access_token, "Cajero")
+            .then(r =>{
+                if(r.ok){
+                    r.json()
+                    .then(c => setCajeros(c))
+                    .catch(console.log);
+                } else{
+                    router.push("LogIn");
+                }
+            });
 
+            getAllPeople(token.access_token, "Cliente")
+            .then(r =>{
+                if(r.ok){
+                    r.json()
+                    .then(c => setPersonas(c))
+                    .catch(console.log);
+                } else{
+                    router.push("LogIn");
+                }
+            });
 
-                                    setVendedores(r.filter(p => {
-                                        for (let rol of p.Roles) {
-                                            if (rol === "Vendedor") return true;
-                                        }
-                                        return false;
-                                    }));
+            getAllPeople(token.access_token, "Vendedor")
+            .then(r =>{
+                if(r.ok){
+                    r.json()
+                    .then(c => setVendedores(c))
+                    .catch(console.log);
+                } else{
+                    router.push("LogIn");
+                }
+            });
 
-                                    setCajeros(r.filter(p => {
-                                        for (let rol of p.Roles) {
-                                            if (rol === "Cajero") return true;
-                                        }
-                                        return false;
-                                    }));
-
-
-                                    setBand(false);
-
-                                }
-                            })
-                            .catch(e => console.log(e));
-
-                    } else {
-                        sessionStorage.clear();
-                        alert(`Role no valido`)
-                        router.push("LogIn");
-                    }
-                })
-                .catch(console.log)
-        } else{
+        } else {
             alert("Primero Inicie Sesion");
             router.push("/LogIn");
         }
@@ -99,77 +109,77 @@ const List = () => {
 
 
         return () => setBand(false);
-    }, [band, router])
+    }, [])
 
     //Efecto para que haga solo una precarga
-   
+
     //Efecto para cargar en caso de que cambie la persona
     useEffect(() => {
         loadData();
-    }, [loadData]);
+    }, []);
 
     const rendered = () => {
         const element =
-        <Fragment>
-            <AdminNavbar />
+            <Fragment>
+                <AdminNavbar />
 
-            <div style={buttonStyle}>
-                <Button variant="primary" onClick={open}>
-                    Agregar
-                </Button>
-                <Modal show = {show} onHide={close}>
-                <Modal.Header closeButton>
-                        <Modal.Title>Agregar</Modal.Title>
+                <div style={buttonStyle}>
+                    <Button variant="primary" onClick={open}>
+                        Agregar
+                    </Button>
+                    <Modal show={show} onHide={close}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Agregar</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <PersonForm 
-                            onEdit={handleEdit} 
-                            onSave={handleSave} 
-                            editable = {false} 
+                            <PersonForm
+                                onEdit={handleEdit}
+                                onSave={handleSave}
+                                editable={false}
                             />
                         </Modal.Body>
-                </Modal>
-            </div>
+                    </Modal>
+                </div>
 
-            <Tabs
-                id="controlled-tab-example"
-                activeKey={key}
-                onSelect={(k) => setKey(k)}
-                className="mb-3"
-            >
-                <Tab eventKey="Clientes" title="Clientes">
-                    <PersonList
-                        style={{ marginLeft: "30px", marginRight: "30px" }}
-                        personas={personas}
-                        redirect = {redirect}
-                        onEdit = {handleEdit}
-                    />
-                </Tab>
-                <Tab
-                    eventKey="Vendedores"
-                    title="Vendedores">
-                    <PersonList
-                        style={{ marginLeft: "30px", marginRight: "30px" }}
-                        personas={vendedores}
-                        redirect = {redirect}
-                        onEdit = {handleEdit}
-                    />
-                </Tab>
-                <Tab eventKey="Cajeros"
-                    title="Cajeros"
+                <Tabs
+                    id="controlled-tab-example"
+                    activeKey={key}
+                    onSelect={(k) => setKey(k)}
+                    className="mb-3"
                 >
-                    <PersonList
-                        style={{ marginLeft: "30px", marginRight: "30px" }}
-                        personas={cajeros}
-                        redirect = {redirect}
-                        onEdit = {handleEdit}
-                    />
+                    <Tab eventKey="Clientes" title="Clientes">
+                        <PersonList
+                            onChangePassword={handleChangePassword}
+                            style={{ marginLeft: "30px", marginRight: "30px" }}
+                            personas={personas}
+                            onEdit={handleEdit}
+                        />
+                    </Tab>
+                    <Tab
+                        eventKey="Vendedores"
+                        title="Vendedores">
+                        <PersonList
+                            onChangePassword={handleChangePassword}
+                            style={{ marginLeft: "30px", marginRight: "30px" }}
+                            personas={vendedores}
+                            onEdit={handleEdit}
+                        />
+                    </Tab>
+                    <Tab eventKey="Cajeros"
+                        title="Cajeros"
+                    >
+                        <PersonList
+                            onChangePassword={handleChangePassword}
+                            style={{ marginLeft: "30px", marginRight: "30px" }}
+                            personas={cajeros}
+                            onEdit={handleEdit}
+                        />
 
-                </Tab>
+                    </Tab>
 
-            </Tabs>
+                </Tabs>
 
-        </Fragment>
+            </Fragment>
         return element;
     }
 

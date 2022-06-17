@@ -10,7 +10,7 @@ const crearFactura = (token, raw) => {
         redirect: 'follow'
     };
 
-    fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Facturas", requestOptions)
+    fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Facturas/create", requestOptions)
         .then(response => {
             if(response.ok){
                 alert("Creado con exito");

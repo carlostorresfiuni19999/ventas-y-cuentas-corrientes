@@ -12,7 +12,7 @@ using System.Web.Http.Description;
 
 namespace cuentasctacte_web_api.Controllers
 {
-    [Authorize(Roles = "Cajero")]
+    [Authorize(Roles = "Administrador,Cajero")]
     public class PagosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -76,12 +76,19 @@ namespace cuentasctacte_web_api.Controllers
             }
             VencimientoFactura.Saldo -= MontoTotal;
 
-            var Cuotas = db.VencimientoFacturas
-                .Include(f => f.Factura)
-                .Where(f => f.FacturaId == Factura.Id);
-            bool Pagado = Cuotas.Count() == Cuotas.Count(c => c.Saldo == 0);
+            
+            if(Factura.Saldo == 0 && Factura.Monto == 0)
+            {
+                Factura.Estado = "PENDIENTE";
+            }else if(Factura.Saldo == 0)
+            {
+                Factura.Estado = "PAGADO";
+            } else
+            {
+                Factura.Estado = "PROCESANDO";
+            }
 
-            Factura.Estado = Pagado ? "PAGADO" : "PROCESANDO";
+            
             Caja.Saldo += MontoTotal;
 
             db.Entry(Caja).State = EntityState.Modified;
@@ -219,99 +226,7 @@ namespace cuentasctacte_web_api.Controllers
             }
 
         }
-        /* TO-DO
-        [HttpPut]
-        [Route("api/Pagos")]
-        public IHttpActionResult EditPago(int Id, PagoRequestDTO pago)
-        {
-              var Pago = db.Pagos
-                .Include(p => p.Caja)
-                .Include(p => p.VencimientoFactura)
-                .Include(p => p.Cliente)
-                .Include(p => p.Cajero)
-                .FirstOrDefault(p => p.Id == Id);
-
-            if (Pago == null) return NotFound();
-
-            //Eliminamos los detalles;
-            db.FormasPagos
-                .Where(f => !f.Deleted)
-                .Where(f => f.IdPago == Id)
-                .ForEachAsync(f => db.FormasPagos.Remove(f));
-
-            var Cliente = Pago.Cliente;
-            var Factura = db.VencimientoFacturas
-                .Include(v => v.Factura)
-                .Where(v => !v.Deleted)
-                .Where(v => v.Id == Pago.IdVencimientoFactura)
-                .Select(v => v.Factura)
-                .FirstOrDefault();
-
-            var VencimientoFactura = Pago.VencimientoFactura;
-
-            //Cargamos los nuevos detalles
-            double MontoTotal = pago.MetodosPagos.Sum(p => p.Monto);
-            pago.MetodosPagos.ForEach(p =>
-            {
-                db.FormasPagos.Add(new FormasPagos()
-                {
-                    IdPago = Id,
-                    FormaDePago = p.MetodoPago,
-                    Monto = p.Monto
-                });
-            });
-
-            Cliente.Saldo += (MontoTotal - Pago.MontoTotal);
-            Factura.Saldo += (MontoTotal - Pago.MontoTotal);
-            VencimientoFactura.Saldo += (MontoTotal - Pago.MontoTotal);
-
-            Factura.Estado = db.VencimientoFacturas
-                .Where(v => v.Deleted)
-                .All(v => v.Saldo == 0) ? "PAGADO" : "PROCESANDO";
-
-            var Cajero = GetUserLogged.GetUser(db, User.Identity.GetUserId());
-           
-            var Caja = db.Cajas.Include(c => c.Cajero)
-                .FirstOrDefault(c => c.IdCajero == Pago.IdCajero);
-
-            var CajaEdited = db.Cajas
-                .Include(c => c.Cajero)
-                .FirstOrDefault(c => c.IdCajero == Cajero.Id);
-
-            Caja.Saldo = 
-
-            var PagoEdited = new Pago()
-            {
-
-                IdCliente = Pago.IdCliente,
-                MontoTotal = MontoTotal,
-                FechaPago = DateTime.Now,
-                IdCaja = Caja.Id,
-                IdVencimientoFactura = pago.IdCuota
-
-            };
-            
-            var VencimientoEdited = db.VencimientoFacturas
-                .Include(f => f.Factura)
-                .FirstOrDefault(f => f.Id == pago.IdCuota);
-            if (VencimientoEdited.Saldo - MontoTotal <= 0) return BadRequest("El monto que ingresa supera al saldo pendiente");
-            db.Entry(VencimientoEdited).State = EntityState.Modified;
-            db.Entry(Factura).State = EntityState.Modified;
-            db.Entry(Cliente).State = EntityState.Modified;
-            db.Entry(VencimientoFactura).State = EntityState.Modified;
-            db.Entry(PagoEdited).State = EntityState.Modified;
-
-            try
-            {
-                db.SaveChanges();
-                return Ok("Editado con exito :D");
-            } catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }      
-           
-        }
-        */
+        
 
         private FullPagoResponseDTO MapToFullPagos(Pago Pago)
         {

@@ -110,7 +110,7 @@ export default function Detalle() {
                             <th scope='col'>Cliente</th>
                             <th scope='col'>Cajero</th>
                             <th scope='col'>Monto</th>
-                            <th scope='col'> <button className='btn btn-sm btn-primary' onClick={() => { Router.push(`/factura/pagos/crear/${Router.query.id}`) }}> Nuevo Pago </button> </th>
+                            <th scope='col'> <button className='btn btn-sm btn-primary' onClick={() => { Router.push(`/factura/pagos/Crear/${Router.query.id}`) }}> Nuevo Pago </button> </th>
                         </tr>
                     </thead>
                     <tbody>

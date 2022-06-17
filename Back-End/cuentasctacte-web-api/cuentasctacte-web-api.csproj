@@ -336,6 +336,7 @@
     <Compile Include="Models\DTOs\PersonaResponseDTO.cs" />
     <Compile Include="Models\DTOs\PersonaUpdateRequestDTO.cs" />
     <Compile Include="Models\DTOs\ProductoResponseDTO.cs" />
+    <Compile Include="Models\DTOs\StockDTO.cs" />
     <Compile Include="Models\Entities\Caja.cs" />
     <Compile Include="Models\Entities\Deposito.cs" />
     <Compile Include="Models\Entities\Factura.cs" />

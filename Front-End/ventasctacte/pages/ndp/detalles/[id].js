@@ -32,7 +32,7 @@ export default function Detalles() {
 
     useEffect(() => {
         if (sessionStorage.getItem('token') == null) {
-            Router.push('/Login')
+            Router.push('/LogIn')
         } else {
             const token = JSON.parse(sessionStorage.getItem('token'));
             hasRole(token.access_token, token.userName, "Vendedor")

@@ -9,7 +9,7 @@ export async function getStocks(token) {
         
     };
 
-    return fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Stocks", requestOptions)
+    return fetch("https://cuentasctacte-web-api20220425205158.azurewebsites.net/api/Productos/Stocks", requestOptions)
 }
 
 export default getStocks;

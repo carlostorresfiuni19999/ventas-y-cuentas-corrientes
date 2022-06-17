@@ -5,6 +5,8 @@ using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Data.Entity;
+using System.Collections.Generic;
+using cuentasctacte_web_api.Models.DTOs;
 
 namespace cuentasctacte_web_api.Controllers
 {
@@ -20,8 +22,8 @@ namespace cuentasctacte_web_api.Controllers
         }
         [HttpGet]
         [Authorize(Roles ="Administrador")]
-        [Route("api/Stocks")]
-        [ResponseType(typeof(IQueryable<Stock>))]
+        [Route("api/Productos/Stocks")]
+        [ResponseType(typeof(List<StockDTO>))]
         public IHttpActionResult GetStocks()
         {
             return Ok(
@@ -29,8 +31,19 @@ namespace cuentasctacte_web_api.Controllers
                 .Include(s => s.Producto)
                 .Include(s => s.Deposito)
                 .Where(p => !p.Deleted)
-
-                ) ;
+                .ToList()
+                .ConvertAll(s => new StockDTO()
+                {
+                    Id = s.Id,
+                    PrecioUnitario = s.Producto.Precio,
+                    Marca = s.Producto.MarcaProducto,
+                    Producto = s.Producto.NombreProducto,
+                    Cantidad = s.Cantidad,
+                    Deposito = s.Deposito.NombreDeposito,
+                    Iva = s.Producto.Iva
+                })
+                ); 
+            ;
 
         }
 

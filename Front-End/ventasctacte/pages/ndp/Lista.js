@@ -39,7 +39,7 @@ export default function Lista() {
                             estado: nota.Estado,
                             vendedor: nota.Vendedor.Nombre + ' ' + nota.Vendedor.Apellido,
                             fecha: nota.FechePedido.split('T')[0],
-                            precioTotal: nota.CostoTotal
+                            precioTotal: nota.precioTotal
                         }
                         return notaNew
                     }))

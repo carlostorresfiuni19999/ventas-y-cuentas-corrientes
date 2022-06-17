@@ -1,7 +1,7 @@
 .mainNavV {
     position:fixed;
     height: 100%;
-    background-color: #929292;
+    background-color: white;
     width: 0px;
     z-index: 1;
     overflow-x: hidden;
@@ -14,7 +14,7 @@
 .apareceNavV{
     position: fixed;
     height: 100%;
-    background-color: #929292;
+    background-color: white;
     width: 1.5%;
     z-index: 1;
     overflow-x: hidden;
@@ -27,7 +27,7 @@
 .mainNavC {
     position:fixed;
     height: 100%;
-    background-color: #15d5eb;
+    background-color: #000000;
     width: 0px;
     z-index: 1;
     overflow-x: hidden;
@@ -40,7 +40,7 @@
 .apareceNavC{
     position: fixed;
     height: 100%;
-    background-color: #15d5eb;
+    background-color: #000000;
     width: 1.5%;
     z-index: 1;
     overflow-x: hidden;
@@ -76,41 +76,75 @@
     box-shadow: rgba(0, 0, 0, 0.65) 0px 0px 17px 5px;
 }
 
-.aClose{
+.aCloseC{
     font-size: x-large;
     color: white;
     float: right;
     padding-right: 15px;
+    font-weight: bold;
 }
 
-.aOpen{
+.aOpenC{
     float: right;
     padding-right: 2px;
     color: white;
     
 }
 
-.listMain {
+.listMainC {
     padding-left: 10px;
     color: white;
 }
 
-.listSub {
+.listSubC {
     padding-left: 25px;
     color: white;
     transition-duration: 0.5s;
 }
 
-.listSub:hover{
-    color:black
-}
-
-.aTitulo{
+.aTituloC{
     position: relative;
     font-size: x-large;
     padding-top: 10px;
     padding-left: 10px;
-    color: #929292;
+    color: white;
+    font-weight: bold;
+}
+
+
+.aCloseV{
+    font-size: x-large;
+    color: black;
+    float: right;
+    padding-right: 15px;
+    font-weight: bold;
+}
+
+.aOpenV{
+    float: right;
+    padding-right: 2px;
+    color: black;
+    
+}
+
+.listMainV {
+    padding-left: 10px;
+    color: black;
+}
+
+.listSubV {
+    padding-left: 25px;
+    color: black;
+    transition-duration: 0.5s;
+}
+
+.aTituloV{
+    position: relative;
+    font-size: x-large;
+    padding-top: 10px;
+    padding-left: 10px;
+    color: black;
+    font-weight: bold;
 }
 
 .noTitulo{

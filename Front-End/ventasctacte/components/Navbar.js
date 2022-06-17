@@ -2,7 +2,6 @@ import React from "react"
 import styles from "../styles/Navbar.module.css"
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import Head from 'next/head'
 
 function Navbar(props) {
     const router = useRouter()
@@ -29,18 +28,19 @@ function Navbar(props) {
                     <div className={styles.mainNavV} id="mainNav">
                         <div className={styles.Titulo}>
                             
-                            <a className={styles.aTitulo}>Ventas y Cta.</a>
-                            <a className={styles.aClose} onClick={desapareceNav}>{'<'}</a>
+                            <label className={styles.aTituloV}>Ventas y Cta.</label>
+                            <label className={styles.aCloseV} onClick={desapareceNav}>{'<'}</label>
                             
                         </div>
                         <div className={styles.noTitulo}>
                             <div className={styles.secciones}>
-                                <label className={styles.listMain}>Vendedor</label>
-                                <label className={styles.listMain} id='ndp'>Notas de Pago</label>
+                                <h5 className={styles.listMainV}>Vendedor</h5>
                                 <div>
-                                    <div><Link href='/ndp/Lista' passHref><label className={styles.listSub} id='ndpLista'>Lista</label></Link></div>
-                                    <div><Link href='/ndp/Agregar' passHref><label className={styles.listSub} id='ndpAgregar'>Agregar</label></Link></div>
-                                    <div><label className={styles.listSub} id='ndpDetalles'>Detalles</label></div>
+                                    <label className={styles.listMainV} id='ndp'>Notas de Pago</label>
+                                </div>
+                                <div>
+                                    <div><Link href='/ndp/Lista' passHref><label className={styles.listSubV} id='ndpLista'>Lista</label></Link></div>
+                                    <div><Link href='/ndp/Agregar' passHref><label className={styles.listSubV} id='ndpAgregar'>Agregar</label></Link></div>
                                 </div>
                             </div>
                             <button className="btn btn-sm btn-secondary mx-2 float-end" onClick={() => { handleLogOut() }}>LogOut</button>
@@ -60,15 +60,15 @@ function Navbar(props) {
                 <div>
                     <div className={styles.mainNavC} id="mainNav">
                         <div className={styles.Titulo}>
-                            <a className={styles.aTitulo}>Ventas y Cta.</a>
-                            <a className={styles.aClose} onClick={desapareceNav}>{'<'}</a>
+                            <label className={styles.aTituloC}>Ventas y Cta.</label>
+                            <label className={styles.aCloseC} onClick={desapareceNav}>{'<'}</label>
                         </div>
                         <div className={styles.noTitulo}>
                             
                             <div className={styles.secciones}>
-                                <label className={styles.listMain} id='fac'>Facturas</label>
+                                <label className={styles.listMainC} id='fac'>Facturas</label>
                                 <div>
-                                    <div><Link href='/factura/Lista' passHref><label className={styles.listSub} id='facLista' >Lista</label></Link></div>
+                                    <div><Link href='/factura/Lista' passHref><label className={styles.listSubC} id='facLista' >Lista</label></Link></div>
                                 </div>
                             </div>
                             <button className="btn btn-sm btn-secondary mt-2 mx-3 float-end" onClick={() => { handleLogOut() }}>LogOut</button>
@@ -77,7 +77,7 @@ function Navbar(props) {
                     <div className={styles.apareceNavC} id="subNav" onClick={apareceNav}>
                         <div>
 
-                            <a className={styles.aOpen}>{'>'}</a>
+                            <a className={styles.aOpenC}>{'>'}</a>
 
                         </div>
                     </div>

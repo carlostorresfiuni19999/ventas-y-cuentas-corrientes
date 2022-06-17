@@ -134,12 +134,14 @@ export default function Lista() {
             getFacturasFiltrado(JSON.parse(sessionStorage.getItem('token')).access_token,document.getElementById('desdeFiltroFactura').value, document.getElementById('hastaFiltroFactura').value, document.getElementById('estadoFiltroFactura').value)
                 .then(response => response.json())
                 .then(f => {
+                    console.log(f)
+
                     setFacturas(f.map(fac => {
                         const facturaNew = {
-                            id: fac.Id,
+                            id: fac.IdFactura,
                             cliente: fac.Cliente,
-                            fecha: fac.FechaFacturada.split('T')[0],
-                            monto: fac.MontoTotal,
+                            fecha: fac.FechaFacturacion.split('T')[0],
+                            monto: fac.PrecioTotal,
                             saldo: fac.SaldoTotal,
                             condicion: fac.CondicionVenta,
                             estado: fac.Estado
@@ -147,6 +149,7 @@ export default function Lista() {
                         
                         return facturaNew;
                     }))
+
                 }).catch(error=>console.log(error))
         } else {
 

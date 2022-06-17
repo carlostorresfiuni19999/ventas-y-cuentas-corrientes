@@ -80,7 +80,7 @@ export default function Lista() {
                         }
                         return notaNew
                     }))
-                })
+                }).catch(error => console.log(error))
 
         } else {
 

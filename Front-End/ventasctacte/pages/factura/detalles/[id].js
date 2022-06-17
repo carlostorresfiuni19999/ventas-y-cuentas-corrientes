@@ -112,11 +112,11 @@ export default function Detalles() {
     const getButton = (key, saldo) => {
         if (saldo == 0) {
             return (
-                <button className='btn btn-primary btn-sm' onClick={() => { Router.push(`/factura/pagos/Crear/${key}`) }} disabled> Pagar</button>
+                <button className='btn btn-primary btn-sm' onClick={() => { Router.push(`/factura/pagos/crear/${key}`) }} disabled> Pagar</button>
             )
         } else {
             return (
-                <button className='btn btn-primary btn-sm' onClick={() => { Router.push(`/factura/pagos/Crear/${key}`) }}> Pagar</button>
+                <button className='btn btn-primary btn-sm' onClick={() => { Router.push(`/factura/pagos/crear/${key}`) }}> Pagar</button>
             )
         }
     }

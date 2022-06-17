@@ -96,7 +96,7 @@ export default function Detalles() {
                                         id: f.IdFactura,
                                         fecha: f.FechaFacturacion.split('T')[0],
                                         detalles: f.Detalles,
-                                        saldo: f.SaldoTotal + f.IvaTotal
+                                        saldo: f.SaldoTotal
                                     }
                                     return returnValue
                                 })
@@ -327,7 +327,7 @@ export default function Detalles() {
             return `<tr key=${fd.Id}>
                 <th>${fd.Producto}</th>
                 <td>${fd.Cantidad}</td>
-                <td>${formatNum(fd.PrecioUnitario + fd.Iva)}</td>
+                <td>${formatNum(fd.PrecioUnitario*1.1)}</td>
             </tr>`
         }).join('')
     }

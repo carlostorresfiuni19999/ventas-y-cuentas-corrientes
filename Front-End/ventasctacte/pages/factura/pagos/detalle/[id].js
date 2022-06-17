@@ -35,7 +35,7 @@ export default function Detalle() {
                     .then(res => res.text())
                     .then(res => {
                         const r = JSON.parse(res)
-                        console.log('a')
+                        console.log(r)
                         setPagos(r.map(p => {
                             const returnValue = {
                                 fecha: p.FechaPago,

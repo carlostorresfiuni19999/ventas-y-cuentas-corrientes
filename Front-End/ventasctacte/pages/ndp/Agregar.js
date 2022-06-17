@@ -88,7 +88,7 @@ export default function Agregar() {
                         const newpersona = {
                             id: persona.Id,
                             nombre: persona.Nombre + ' ' + persona.Apellido,
-                            cin: persona.Documento
+                            cin: parsearCIN(persona.DocumentoTipo, persona.Documento)
                         }
                         return newpersona
                     }))
@@ -200,6 +200,7 @@ export default function Agregar() {
                 })
             });
             agregarPedido(JSON.parse(sessionStorage.getItem('token')).access_token, raw)
+            Router.back()
         } else {
             alert("No se puede crear la peticion porque no contiene datos suficientes")
         }

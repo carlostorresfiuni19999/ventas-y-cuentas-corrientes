@@ -124,7 +124,7 @@ export default function Lista() {
     }
 
     const handleFiltro = () => {
-        if (document.getElementById('estadoFiltroNDP').value == "-") {
+        if (document.getElementById('estadoFiltroNDP').value == "-" || document.getElementById('hastaFiltroNDP').value == "" || document.getElementById('desdeFiltroNDP').value == '') {
             alert("faltan datos...")
         } else {
             setFiltro((previousState) => { return !previousState })
@@ -195,8 +195,8 @@ export default function Lista() {
                                 <input type='date' className='mx-2' id='hastaFiltroNDP' />
 
                                 <label htmlFor='estadoFiltroNDP'>Estado:</label>
-                                <select className="mx-2" id='estadoFiltroNDP'>
-                                    <option value="-" selected>Elija el estado</option>
+                                <select className="mx-2" id='estadoFiltroNDP' defaultValue='-'>
+                                    <option value="-">Elija el estado</option>
                                     <option value="PENDIENTE">PENDIENTE</option>
                                     <option value="FACTURANDO">FACTURANDO</option>
                                     <option value="FACTURADO">FACTURADO</option>

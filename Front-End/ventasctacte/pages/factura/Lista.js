@@ -205,7 +205,7 @@ export default function Lista() {
     }
 
     const handleFiltro = () => {
-        if (document.getElementById('estadoFiltroFactura').value == "-") {
+        if (document.getElementById('estadoFiltroFactura').value == "-" || document.getElementById('hastaFiltroFactura').value == "" || document.getElementById('desdeFiltroFactura').value == '') {
             alert("faltan datos...")
         } else {
             setFiltro((previousState) => { return !previousState })
@@ -237,8 +237,8 @@ export default function Lista() {
                                 <input type='date' className='mx-2' id='hastaFiltroFactura' />
 
                                 <label htmlFor='estadoFiltroFactura'>Estado:</label>
-                                <select className="mx-2" id='estadoFiltroFactura'>
-                                    <option value="-" selected>Elija el estado</option>
+                                <select className="mx-2" id='estadoFiltroFactura' defaultValue='-'>
+                                    <option value="-">Elija el estado</option>
                                     <option value="PENDIENTE">PENDIENTE</option>
                                     <option value="PROCESANDO">PROCESANDO</option>
                                     <option value="PAGADO">PAGADO</option>

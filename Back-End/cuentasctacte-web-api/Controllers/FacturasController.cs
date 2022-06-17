@@ -98,7 +98,7 @@ namespace cuentasctacte_web_api.Controllers
             double monto = 0.0;
             double saldo = 0.0;
             double iva = 0.0;
-
+            List<PedidoDetalle> NoExistentes = new List<PedidoDetalle>();   
             //Iterar sobre los Productos que se van a facturar
             foreach (var item in factura.Pedido.Pedidos)
             {
@@ -107,63 +107,113 @@ namespace cuentasctacte_web_api.Controllers
                     .Include(p => p.Pedido)
                     .Include(p => p.Producto)
                     .Where(p => p.IdPedido == factura.IdPedido)
-                    .Where(p => !p.Deleted)
                     .Where(p => p.IdProducto == item.ProductoId)
+                    .Where(p => !p.Deleted)
                     .FirstOrDefault();
 
-                //Ahora, Seleccionamos el Stock que se va a modificar
+                var Producto = db.Productos.Find(item.ProductoId);
+                var FacturaDetalle = new FacturaDetalle();
+                FacturaDetalle.FacturaId = FacturaDb.Id;
+                FacturaDetalle.ProductoId = item.ProductoId;
+                FacturaDetalle.PrecioUnitario = Producto.Precio;
+                var Stock = db.Stocks
+                    .Include(s => s.Producto)
+                    .Include(s => s.Deposito)
+                    .Where(s => !s.Deleted)
+                    .FirstOrDefault(s => s.IdProducto == Producto.Id);
+
+                //Verificamos si es NUll. si es null creamos otro y guardamos en el context
                 if (PedidoDetalle == null)
                 {
                     PedidoDetalle = new PedidoDetalle();
                     PedidoDetalle.CantidadProducto = item.CantidadProducto;
                     PedidoDetalle.IdProducto = item.ProductoId;
                     PedidoDetalle.IdPedido = factura.IdPedido;
+
+                    if (Stock.Cantidad <= PedidoDetalle.CantidadProducto)
+                    {
+                        PedidoDetalle.CantidadFacturada = Stock.Cantidad;
+                        
+                        FacturaDetalle.Cantidad = Stock.Cantidad;
+                        db.FacturaDetalles.Add(FacturaDetalle);
+                        Stock.Cantidad = 0;
+
+
+                    }
+                    else
+                    {
+                        PedidoDetalle.CantidadFacturada += item.CantidadProducto;
+                        Stock.Cantidad -= item.CantidadProducto;
+                        FacturaDetalle.Cantidad = item.CantidadProducto;
+                        db.FacturaDetalles.Add(FacturaDetalle);
+
+                    }
+                    db.Entry(Stock).State = EntityState.Modified;
+                    NoExistentes.Add(PedidoDetalle);
+
                 }
-                var Stock = db.Stocks.Include(s => s.Producto)
-                    .Include(s => s.Deposito)
-                    .Where(s => !s.Deleted)
-                    .FirstOrDefault(s => s.IdDeposito == 3 && s.IdProducto == item.ProductoId);
 
-                //Verificamos si hay Stock suficiente para facturar
-
-                if (item.CantidadProducto >= Stock.Cantidad)
+                else //Validamos los productos que existen en la base de datos
                 {
-                    PedidoDetalle.CantidadFacturada = Stock.Cantidad;
-                    Stock.Cantidad = 0;
+                    
+                    int cantProd = item.CantidadProducto;
+
+                    if (cantProd >= PedidoDetalle.CantidadProducto)
+                    {
+
+                        int cantStock = Stock.Cantidad;
+
+
+                        if (cantProd >= cantStock)
+                        {
+                            Stock.Cantidad = 0;
+                            PedidoDetalle.CantidadFacturada = Stock.Cantidad;
+                            PedidoDetalle.CantidadProducto = item.CantidadProducto;
+                        }
+                        else
+                        {
+                            Stock.Cantidad -= item.CantidadProducto;
+                            PedidoDetalle.CantidadProducto = item.CantidadProducto;
+                            PedidoDetalle.CantidadFacturada = item.CantidadProducto;
+                        }
+
+                        db.Entry(Stock).State = EntityState.Modified;
+                        db.Entry(PedidoDetalle).State = EntityState.Modified;
+
+                    }
+                    else
+                    {
+                        if (item.CantidadProducto >= Stock.Cantidad)
+                        {
+                            FacturaDetalle.Cantidad = Stock.Cantidad;
+                            Stock.Cantidad = 0;
+                            PedidoDetalle.CantidadFacturada = Stock.Cantidad;
+                            db.FacturaDetalles.Add(FacturaDetalle);
+                        }
+                        else
+                        {
+                            Stock.Cantidad -= item.CantidadProducto;
+                            FacturaDetalle.Cantidad = item.CantidadProducto;
+                            PedidoDetalle.CantidadFacturada += item.CantidadProducto;
+                            db.FacturaDetalles.Add(FacturaDetalle);
+                        }
+
+                        db.Entry(Stock).State = EntityState.Modified;
+                        db.Entry(PedidoDetalle).State = EntityState.Modified;
+
+
+                    }
+
                 }
-                else
-                {
-                    PedidoDetalle.CantidadFacturada = item.CantidadProducto;
-                    Stock.Cantidad -= item.CantidadProducto;
-                }
-                //Actualizamos el Stock
 
-                db.Entry(Stock).State = EntityState.Modified;
 
-                //Guardamos el PedidoDetalle Modificado
 
-                if (PedidoDetalle.CantidadFacturada > PedidoDetalle.CantidadProducto) PedidoDetalle.CantidadProducto = PedidoDetalle.CantidadFacturada;
+                monto += FacturaDetalle.Cantidad * Producto.Precio;
+                iva += FacturaDetalle.Cantidad * Producto.Iva;
 
-                db.Entry(PedidoDetalle).State = EntityState.Modified;
+               
 
-                //Calculamos el Monto, Saldo e Iva de todos los Productos Facturados
-
-                monto += PedidoDetalle.CantidadFacturada * PedidoDetalle.Producto.Precio;
-                iva += PedidoDetalle.CantidadFacturada * PedidoDetalle.Producto.Iva;
-
-                //Empezamos con la Carga de los detalles de las Facturas
-                var FacturaDetalle = new FacturaDetalle
-                {
-                    FacturaId = FacturaDb.Id,
-                    ProductoId = PedidoDetalle.IdProducto,
-                    PrecioUnitario = PedidoDetalle.Producto.Precio,
-                    Iva = PedidoDetalle.Producto.Iva,
-                    Cantidad = PedidoDetalle.CantidadFacturada
-
-                };
-
-                //Guardamos los detalles de las Facturas
-                db.FacturaDetalles.Add(FacturaDetalle);
+                
             }
 
             saldo = monto;
@@ -171,6 +221,8 @@ namespace cuentasctacte_web_api.Controllers
             FacturaDb.Monto = monto + iva;
             FacturaDb.Saldo = saldo + iva;
             FacturaDb.Iva = iva;
+
+  
 
             //Si es Credito Verificamos si hay Saldo Disponible
             if (FacturaDb.CantidadCuotas > 1)
@@ -202,56 +254,40 @@ namespace cuentasctacte_web_api.Controllers
                 db.VencimientoFacturas.Add(cuota);
             }
 
-            //Verificamos si el Pedido se esta Facturando, Pendiente, o ya esta Facturado
-
-
-            //Recuperamos los Pedidos Detalles
-
-            var PedidosDetalles = db.PedidoDetalles
-                .Include(p => p.Pedido)
-                .Include(p => p.Producto)
-                .Where(p => !p.Deleted)
-                .Where(p => p.IdPedido == FacturaSaved.PedidoId);
-
-            Pedido.Estado = PedidosDetalles
-                .Where(p => p.CantidadFacturada == p.CantidadProducto)
-                .Count() < PedidosDetalles.Count() ? "FACTURANDO" : "FACTURADO";
-            Pedido.CondicionVenta = FacturaDb.CondicionVenta;
-
-            //Guardamos El nuevo estado del Pedido
-            db.Entry(Pedido).State = EntityState.Modified;
-
-            //Unificando los PedidosDetalles
-            List<PedidoDetalle> Existentes =new List<PedidoDetalle>();
-            foreach (var pedidoDetalle in PedidosDetalles )
+ 
+            //Unificamos los nuevos detalles agregados
+            
+            NoExistentes.ForEach(nx =>
             {
-                var dets = db.PedidoDetalles
-                .Include(p => p.Pedido)
-                .Include(p => p.Producto)
-                .Where(p => p.IdProducto == pedidoDetalle.IdProducto
-                && p.IdPedido == pedidoDetalle.IdPedido);
+                var query = NoExistentes.Where(x => x.IdPedido == nx.IdPedido
+                && x.IdProducto == nx.IdProducto);
+                int cant = query.Count();
 
-                if(dets.Count() > 1)
+                if(cant > 1)
                 {
-                    var newDetalle = pedidoDetalle;
-                    newDetalle.CantidadProducto = dets.Sum(p => p.CantidadProducto);
-                    newDetalle.CantidadFacturada = dets.Sum(p => p.CantidadFacturada);
-                    
-                    Existentes.Add(newDetalle);
+                    var temp = nx;
+                    temp.CantidadProducto = query.Sum(p => p.CantidadProducto);
+                    temp.CantidadFacturada = query.Sum(p => p.CantidadFacturada);
+                    NoExistentes.Remove(nx);
+                    NoExistentes.Add(temp);
 
-                    dets.ForEachAsync(p =>
-                    {
-                        p.Deleted = true;
-                        db.Entry(p).State = EntityState.Modified;
-                    });
                 }
-                else
-                {
-                    Existentes.Add(dets.FirstOrDefault());
-                }
-            }
 
-            Existentes.ForEach(p => db.PedidoDetalles.Add(p));
+            });
+
+            NoExistentes.ForEach(nx => db.PedidoDetalles.Add(nx));
+
+            bool facturado = db.PedidoDetalles
+                .Where(pd => !pd.Deleted)
+                .Where(pd => pd.IdPedido == FacturaDb.PedidoId)
+                .ToList()
+                .All(pd => pd.CantidadFacturada == pd.CantidadProducto);
+
+            
+            Pedido.Estado = facturado ? "FACTURADO" : "FACTURANDO";
+
+            db.Entry(Pedido).State = EntityState.Modified;
+ 
             try
             {
                 db.SaveChanges();
@@ -276,6 +312,22 @@ namespace cuentasctacte_web_api.Controllers
             {
                 return NotFound();
             }
+
+            var Pedido = db.Facturas
+                .Where(f => !f.Deleted)
+                .Include(f => f.Pedido)
+                .Include(f => f.Cliente)
+                .Where(f => f.Id == id)
+                .Select(f => f.Pedido)
+                .FirstOrDefault();
+            //Contar todas las facturas de ese pedido
+            bool esUltimo = db.Facturas
+                    .Where(f => f.PedidoId == Pedido.Id && (!f.Deleted))
+                    .Count() == 1;
+
+            Pedido.Estado = esUltimo ? "PENDIENTE" : "FACTURANDO";
+            db.Entry(Pedido).State = EntityState.Modified;
+
             if (factura.Estado != "PENDIENTE") return BadRequest("No se puede borrar una factura que ha comenzado el proceso de Pago");
             var FacturaDetalles = db.FacturaDetalles
                 .Include(fd => fd.Factura)
@@ -284,9 +336,17 @@ namespace cuentasctacte_web_api.Controllers
                 .Where(fd => fd.FacturaId == id);
 
             //Iteramos sobre las facturasdetalles y seteamos los valores del PedidoDetalle
-
+            
             foreach (var item in FacturaDetalles)
             {
+                var Stock = db.Stocks
+                    .Include(s => s.Deposito)
+                    .Include(s => s.Producto)
+                    .FirstOrDefault(s =>
+                        s.IdProducto == item.ProductoId && 3 == s.IdDeposito);
+
+                Stock.Cantidad += item.Cantidad;
+
                 var PedidoDetalle = db.PedidoDetalles
                     .Include(pd => pd.Pedido)
                     .Include(pd => pd.Producto)
@@ -296,6 +356,7 @@ namespace cuentasctacte_web_api.Controllers
 
                 PedidoDetalle.CantidadFacturada -= item.Cantidad;
                 item.Deleted = true;
+                db.Entry(Stock).State = EntityState.Modified;
                 db.Entry(PedidoDetalle).State = EntityState.Modified;
                 db.Entry(item).State = EntityState.Modified;
             }
@@ -310,6 +371,13 @@ namespace cuentasctacte_web_api.Controllers
                 db.Entry(item).State = EntityState.Modified;
             }
 
+            var Cliente = db.Facturas
+                .Where(f => f.Id == factura.Id)
+                .Select(f => f.Cliente)
+                .FirstOrDefault();
+
+            Cliente.Saldo -= factura.Monto;
+            db.Entry(Cliente).State = EntityState.Modified;
             factura.Deleted = true;
 
             db.Entry(factura).State = EntityState.Modified;

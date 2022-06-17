@@ -126,9 +126,16 @@ namespace cuentasctacte_web_api.Controllers
                     Deleted = false
                 };
 
-                if (existentes.Count(pd => pd.IdPedido == Detalle.IdPedido && pd.IdProducto == Detalle.IdProducto) > 0)
+                var query = existentes
+                    .Where(p => !p.Deleted)
+                    .Where(
+                    pd =>
+                        pd.IdPedido == Detalle.IdPedido
+                        && pd.IdProducto == Detalle.IdProducto);
+
+                if (query.Count() > 0)
                 {
-                    var temp = existentes.FirstOrDefault(e => e.Id == id);
+                    var temp = query.FirstOrDefault();
                     existentes.Remove(temp);
                     temp.CantidadProducto += Detalle.CantidadProducto;
                     existentes.Add(temp);
@@ -260,10 +267,6 @@ namespace cuentasctacte_web_api.Controllers
             //Verificamos si hay stocks disponibles para cada producto Pedido
             foreach (var PedidoDetalle in Pedido.Pedidos)
             {
-
-
-
-
                 PedidoDetalle Detalle;
 
                 bool DetalleExist = 0 < PedidosExistentes
@@ -478,7 +481,8 @@ namespace cuentasctacte_web_api.Controllers
             var Pedidos = db.PedidoDetalles
                 .Include(p => p.Pedido)
                 .Include(p => p.Producto)
-                .Where(p => p.IdPedido == id);
+                .Where(p => p.IdPedido == id)
+                .Where(p => !p.Deleted);
 
             if (Pedidos.Count() <= 0) throw new Exception("Pedidos no encontrado");
             PedidoDTORequest result = new PedidoDTORequest()

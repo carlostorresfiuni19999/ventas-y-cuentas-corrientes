@@ -290,21 +290,9 @@
     </Compile>
     <Compile Include="Helpers\GetRole.cs" />
     <Compile Include="Helpers\GetUserLogged.cs" />
-    <Compile Include="Migrations\202206021535151_init.cs" />
-    <Compile Include="Migrations\202206021535151_init.designer.cs">
-      <DependentUpon>202206021535151_init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202206031536358_saldocaja.cs" />
-    <Compile Include="Migrations\202206031536358_saldocaja.designer.cs">
-      <DependentUpon>202206031536358_saldocaja.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202206070438407_deletedpago.cs" />
-    <Compile Include="Migrations\202206070438407_deletedpago.designer.cs">
-      <DependentUpon>202206070438407_deletedpago.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202206071429169_deletedmetodospagos.cs" />
-    <Compile Include="Migrations\202206071429169_deletedmetodospagos.designer.cs">
-      <DependentUpon>202206071429169_deletedmetodospagos.cs</DependentUpon>
+    <Compile Include="Migrations\202206222117208_init.cs" />
+    <Compile Include="Migrations\202206222117208_init.designer.cs">
+      <DependentUpon>202206222117208_init.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
@@ -449,17 +437,8 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202206021535151_init.resx">
-      <DependentUpon>202206021535151_init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202206031536358_saldocaja.resx">
-      <DependentUpon>202206031536358_saldocaja.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202206070438407_deletedpago.resx">
-      <DependentUpon>202206070438407_deletedpago.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202206071429169_deletedmetodospagos.resx">
-      <DependentUpon>202206071429169_deletedmetodospagos.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202206222117208_init.resx">
+      <DependentUpon>202206222117208_init.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
